@@ -131,10 +131,10 @@
                     </button>
                 @endif
                 <!-- View Profile Button - Always Enabled -->
-                <button
-                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2.5 rounded-lg transition duration-300 text-sm">
+                <a href="{{ route('freelancer-profile', $freelancer) }}"
+                    class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2.5 rounded-lg transition duration-300 text-sm">
                     View Profile
-                </button>
+                </a>
                 <!-- Favorite Button - Always Enabled -->
                 <button class="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

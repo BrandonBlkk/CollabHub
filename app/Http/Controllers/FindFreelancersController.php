@@ -37,4 +37,19 @@ class FindFreelancersController extends Controller
             'viewType'
         ));
     }
+
+    public function freelancerProfile($id)
+    {
+        $freelancer = User::where('user_type', 'freelancer')
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $similarFreelancers = User::where('user_type', 'freelancer')
+            ->where('id', '!=', $id)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        return view('freelancer.freelancer-profile', compact('freelancer', 'similarFreelancers'));
+    }
 }
