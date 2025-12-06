@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard | Client Management | CollabHub</title>
+    <title>Admin Dashboard | Freelancer Management | CollabHub</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -27,7 +27,7 @@
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            <x-admin.header :title="'Client Dashboard'" :description="'Manage all registered clients and their information'" />
+            <x-admin.header :title="'Freelancer Dashboard'" :description="'Manage all registered freelancers and their information'" />
 
             <!-- Main Content Area -->
             <main class="flex-1 overflow-y-auto p-3">
@@ -36,8 +36,8 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-500 text-sm">Total Clients</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $data['totalClients'] }}</p>
+                                <p class="text-gray-500 text-sm">Total Freelancers</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $data['freelancers']->count() }}</p>
                             </div>
                             <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
@@ -55,7 +55,7 @@
                                         d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
                                         clip-rule="evenodd"></path>
                                 </svg>
-                                8.5%
+                                12.5%
                             </span>
                             <span class="text-gray-500 ml-2">from last month</span>
                         </div>
@@ -64,38 +64,11 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-gray-500 text-sm">Active Projects</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">342</p>
+                                <p class="text-gray-500 text-sm">Avg. Hourly Rate</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">$68.50</p>
                             </div>
                             <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex items-center text-sm">
-                            <span class="text-green-600 flex items-center">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                12.3%
-                            </span>
-                            <span class="text-gray-500 ml-2">from last month</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm">Total Spent</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">$286.5K</p>
-                            </div>
-                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
@@ -110,7 +83,34 @@
                                         d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
                                         clip-rule="evenodd"></path>
                                 </svg>
-                                15.7%
+                                5.2%
+                            </span>
+                            <span class="text-gray-500 ml-2">from last month</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Earned</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">$842.3K</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-green-600 flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                18.3%
                             </span>
                             <span class="text-gray-500 ml-2">from last month</span>
                         </div>
@@ -120,7 +120,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Avg. Rating</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">4.6</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">4.8</p>
                             </div>
                             <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor"
@@ -138,21 +138,22 @@
                                         d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
                                         clip-rule="evenodd"></path>
                                 </svg>
-                                2.3%
+                                3.1%
                             </span>
                             <span class="text-gray-500 ml-2">from last month</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Client Management Section -->
-                <div x-data="{ activeFilter: 'all', searchTerm: '', selectedClients: [] }" class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                <!-- Freelancer Management Section -->
+                <div x-data="{ activeFilter: 'all', searchTerm: '', selectedFreelancers: [] }" class="bg-white rounded-2xl shadow-sm border border-gray-200">
                     <!-- Header and Filters -->
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Manage Clients</h3>
-                                <p class="text-gray-600 text-sm mt-1">View, edit, and manage all client accounts</p>
+                                <h3 class="text-lg font-bold text-gray-900">Manage Freelancers</h3>
+                                <p class="text-gray-600 text-sm mt-1">View, edit, and manage all freelancer accounts
+                                </p>
                             </div>
                             <button
                                 class="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm">
@@ -173,25 +174,25 @@
                                     :class="activeFilter === 'all' ? 'bg-gray-800 text-white' :
                                         'bg-gray-100 text-gray-800 hover:bg-gray-200'"
                                     class="px-4 py-2 rounded-lg transition text-sm">
-                                    All Clients
+                                    All Freelancers
                                 </button>
-                                <button @click="activeFilter = 'active'"
-                                    :class="activeFilter === 'active' ? 'bg-green-600 text-white' :
+                                <button @click="activeFilter = 'available'"
+                                    :class="activeFilter === 'available' ? 'bg-green-600 text-white' :
                                         'bg-gray-100 text-gray-800 hover:bg-gray-200'"
                                     class="px-4 py-2 rounded-lg transition text-sm">
-                                    Active
+                                    Available
                                 </button>
-                                <button @click="activeFilter = 'inactive'"
-                                    :class="activeFilter === 'inactive' ? 'bg-gray-600 text-white' :
+                                <button @click="activeFilter = 'busy'"
+                                    :class="activeFilter === 'busy' ? 'bg-amber-500 text-white' :
                                         'bg-gray-100 text-gray-800 hover:bg-gray-200'"
                                     class="px-4 py-2 rounded-lg transition text-sm">
-                                    Inactive
+                                    Busy
                                 </button>
-                                <button @click="activeFilter = 'premium'"
-                                    :class="activeFilter === 'premium' ? 'bg-amber-500 text-white' :
+                                <button @click="activeFilter = 'top-rated'"
+                                    :class="activeFilter === 'top-rated' ? 'bg-purple-600 text-white' :
                                         'bg-gray-100 text-gray-800 hover:bg-gray-200'"
                                     class="px-4 py-2 rounded-lg transition text-sm">
-                                    Premium
+                                    Top Rated
                                 </button>
                                 <button @click="activeFilter = 'suspended'"
                                     :class="activeFilter === 'suspended' ? 'bg-red-600 text-white' :
@@ -210,14 +211,14 @@
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                     <input x-model="searchTerm" type="text"
-                                        placeholder="Search clients by name, email, or company..."
+                                        placeholder="Search freelancers by name, email, or job title..."
                                         class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Clients Table -->
+                    <!-- Freelancers Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -226,26 +227,26 @@
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <div class="flex items-center gap-2">
                                             <input type="checkbox"
-                                                @change="selectedClients = selectedClients.length === clients.length ? [] : clients.map(c => c.id)"
+                                                @change="selectedFreelancers = selectedFreelancers.length === freelancers.length ? [] : freelancers.map(c => c.id)"
                                                 class="rounded border-gray-300">
-                                            <span>Client</span>
+                                            <span>Freelancer</span>
                                         </div>
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Company
+                                        Job Title & Skills
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Total Spent
+                                        Hourly Rate
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Active Projects
+                                        Success Rate
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Rating
+                                        Availability
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -262,58 +263,78 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <!-- Client -->
-                                @foreach ($data['clients'] as $client)
+                                <!-- Freelancer -->
+                                @foreach ($data['freelancers'] as $freelancer)
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-6 py-4">
                                             <div class="flex items-center">
                                                 <div class="flex items-center gap-2">
-                                                    <input type="checkbox" value="1" x-model="selectedClients"
-                                                        class="rounded border-gray-300">
+                                                    <input type="checkbox" value="1"
+                                                        x-model="selectedFreelancers" class="rounded border-gray-300">
                                                     <div
                                                         class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
-                                                        <span class="text-white font-bold text-sm">J</span>
+                                                        <span
+                                                            class="text-white font-bold text-sm">{{ Str::substr($freelancer->name, 0, 1) }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        {{ $client->name }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $client->email }}</div>
+                                                        {{ $freelancer->name }}</div>
+                                                    <div class="text-sm text-gray-500">{{ $freelancer->email }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $client->company ?? 'Individual' }}</div>
-                                            <div class="text-sm text-gray-500">
-                                                {{ $client->location ?? 'Not Specified' }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">$45,820</div>
-                                            <div class="text-xs text-gray-500">12 projects</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">3
-                                                projects</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <svg class="w-4 h-4 text-amber-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path
-                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                                <span class="ml-1 text-sm font-medium text-gray-900">4.8</span>
-                                                <span class="ml-1 text-xs text-gray-500">(24)</span>
+                                            <div class="text-sm font-medium text-gray-900">{{ $freelancer->job_title }}
+                                            </div>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                <span
+                                                    class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Figma</span>
+                                                <span
+                                                    class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">React</span>
+                                                <span
+                                                    class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Tailwind</span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                ${{ $freelancer->hourly_rate }}/hr</div>
+                                            <div class="text-xs text-gray-500">
+                                                {{ $freelancer->years_experience }}
+                                                years experience</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                @php
+                                                    $totalProjects = $freelancer->total_projects ?? 0;
+                                                    $completedProjects = $freelancer->completed_projects ?? 0;
+                                                    $successRate =
+                                                        $totalProjects > 0
+                                                            ? ($completedProjects / $totalProjects) * 100
+                                                            : 0;
+                                                @endphp
+
+                                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                    <div class="bg-green-600 h-2 rounded-full transition-all duration-700 ease-out"
+                                                        style="width: {{ $successRate }}%">
+                                                    </div>
+                                                </div>
+                                                {{ $successRate }}%
+                                                </span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1">{{ $freelancer->total_projects }}
+                                                projects</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             <span
-                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ Str::ucfirst($client->status) }}</span>
+                                                class="px-2 py-1 text-xs font-medium rounded-full">{{ ucfirst($freelancer->availability) }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ ucfirst($freelancer->status) }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $client->created_at->format('Y-m-d') }}
+                                            {{ $freelancer->created_at->format('Y-m-d') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
@@ -362,7 +383,7 @@
                     <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
                         <div class="text-sm text-gray-700">
                             Showing <span class="font-medium">1</span> to <span class="font-medium">5</span>
-                            of <span class="font-medium">1,248</span> clients
+                            of <span class="font-medium">1,248</span> freelancers
                         </div>
                         <div class="flex items-center gap-2">
                             <button
@@ -392,14 +413,14 @@
                     </div>
                 </div>
 
-                <!-- Client Insights -->
+                <!-- Freelancer Insights -->
                 <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
-                    <!-- Top Clients by Spending -->
+                    <!-- Top Freelancers by Earnings -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Top Clients by Spending</h3>
-                                <p class="text-gray-600 text-sm mt-1">Highest total project expenditure</p>
+                                <h3 class="text-lg font-bold text-gray-900">Top Earners</h3>
+                                <p class="text-gray-600 text-sm mt-1">Highest total earnings this month</p>
                             </div>
                             <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                 View All
@@ -407,123 +428,118 @@
                         </div>
 
                         <div class="space-y-4">
-                            <!-- Client 1 -->
+                            <!-- Freelancer 1 -->
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center select-none">
-                                        <span class="text-white font-bold text-sm">J</span>
+                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center select-none">
+                                        <span class="text-white font-bold text-sm">M</span>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">John Smith</p>
-                                        <p class="text-xs text-gray-500">TechCorp Inc.</p>
+                                        <p class="text-sm font-medium text-gray-900">Michael Torres</p>
+                                        <p class="text-xs text-gray-500">Full-Stack Developer</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$45,820</p>
-                                    <p class="text-xs text-gray-500">12 projects</p>
+                                    <p class="text-sm font-medium text-gray-900">$48,200</p>
+                                    <p class="text-xs text-gray-500">198 projects</p>
                                 </div>
                             </div>
 
-                            <!-- Client 2 -->
+                            <!-- Freelancer 2 -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
+                                        <span class="text-white font-bold text-sm">S</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Sarah Chen</p>
+                                        <p class="text-xs text-gray-500">Senior UI/UX Designer</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">$42,800</p>
+                                    <p class="text-xs text-gray-500">142 projects</p>
+                                </div>
+                            </div>
+
+                            <!-- Freelancer 3 -->
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div
                                         class="w-8 h-8 rounded-full bg-gradient-to-r from-red-400 to-orange-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">M</span>
+                                        <span class="text-white font-bold text-sm">J</span>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">Maria Garcia</p>
-                                        <p class="text-xs text-gray-500">RetailCo International</p>
+                                        <p class="text-sm font-medium text-gray-900">James Park</p>
+                                        <p class="text-xs text-gray-500">Backend Engineer</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$62,150</p>
-                                    <p class="text-xs text-gray-500">18 projects</p>
+                                    <p class="text-sm font-medium text-gray-900">$38,500</p>
+                                    <p class="text-xs text-gray-500">167 projects</p>
                                 </div>
                             </div>
 
-                            <!-- Client 3 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">S</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Sarah Johnson</p>
-                                        <p class="text-xs text-gray-500">Creative Studio</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$28,450</p>
-                                    <p class="text-xs text-gray-500">8 projects</p>
-                                </div>
-                            </div>
-
-                            <!-- Client 4 -->
+                            <!-- Freelancer 4 -->
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div
                                         class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">R</span>
+                                        <span class="text-white font-bold text-sm">E</span>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">Robert Chen</p>
-                                        <p class="text-xs text-gray-500">StartupX</p>
+                                        <p class="text-sm font-medium text-gray-900">Emma Wilson</p>
+                                        <p class="text-xs text-gray-500">Mobile App Developer</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$15,230</p>
-                                    <p class="text-xs text-gray-500">5 projects</p>
+                                    <p class="text-sm font-medium text-gray-900">$32,100</p>
+                                    <p class="text-xs text-gray-500">89 projects</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Client Status Distribution -->
+                    <!-- Popular Skills Distribution -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="mb-6">
-                            <h3 class="text-lg font-bold text-gray-900">Client Status Distribution</h3>
-                            <p class="text-gray-600 text-sm mt-1">Overview of client account statuses</p>
+                            <h3 class="text-lg font-bold text-gray-900">Popular Skills</h3>
+                            <p class="text-gray-600 text-sm mt-1">Most common skills among freelancers</p>
                         </div>
 
                         <div class="space-y-4">
-                            <!-- Status Item -->
+                            <!-- Skill Item -->
                             <div>
                                 <div class="flex items-center justify-between mb-1">
-                                    <span class="text-sm font-medium text-gray-900">Active</span>
-                                    <span class="text-sm text-gray-900">{{ $data['activeClientsPercentage'] }}</span>
+                                    <span class="text-sm font-medium text-gray-900">React</span>
+                                    <span class="text-sm text-gray-900">428</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-green-600 h-2 rounded-full"
-                                        style="width: {{ $data['activeClientsPercentage'] }}%"></div>
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
                                 </div>
                             </div>
 
-                            <!-- Status Item -->
+                            <!-- Skill Item -->
                             <div>
                                 <div class="flex items-center justify-between mb-1">
-                                    <span class="text-sm font-medium text-gray-900">Inactive</span>
-                                    <span
-                                        class="text-sm text-gray-900">{{ $data['inactiveClientsPercentage'] }}</span>
+                                    <span class="text-sm font-medium text-gray-900">Laravel</span>
+                                    <span class="text-sm text-gray-900">392</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-gray-600 h-2 rounded-full"
-                                        style="width: {{ $data['inactiveClientsPercentage'] }}%"></div>
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 78%"></div>
                                 </div>
                             </div>
 
-                            <!-- Status Item -->
+                            <!-- Skill Item -->
                             <div>
                                 <div class="flex items-center justify-between mb-1">
-                                    <span class="text-sm font-medium text-gray-900">Suspended</span>
-                                    <span
-                                        class="text-sm text-gray-900">{{ $data['suspendedClientsPercentage'] }}</span>
+                                    <span class="text-sm font-medium text-gray-900">Figma</span>
+                                    <span class="text-sm text-gray-900">356</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-red-600 h-2 rounded-full"
-                                        style="width: {{ $data['suspendedClientsPercentage'] }}%"></div>
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 71%"></div>
                                 </div>
                             </div>
                         </div>
@@ -531,25 +547,23 @@
                         <div class="mt-6 pt-6 border-t border-gray-200">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center">
-                                    <p class="text-2xl font-bold text-gray-900">{{ $data['activeClients'] }}</p>
-                                    <p class="text-xs text-gray-500">Active Clients</p>
+                                    <p class="text-2xl font-bold text-gray-900">892</p>
+                                    <p class="text-xs text-gray-500">Available Now</p>
                                 </div>
                                 <div class="text-center">
-                                    <p class="text-2xl font-bold text-gray-900">
-                                        {{ $data['activeClientsPercentage'] }}%
-                                    </p>
-                                    <p class="text-xs text-gray-500">Active Rate</p>
+                                    <p class="text-2xl font-bold text-gray-900">2.4h</p>
+                                    <p class="text-xs text-gray-500">Avg. Response Time</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Recent Client Registrations -->
+                    <!-- Recent Freelancer Registrations -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-gray-900">Recent Registrations</h3>
-                                <p class="text-gray-600 text-sm mt-1">New clients joined this week</p>
+                                <p class="text-gray-600 text-sm mt-1">New freelancers joined this week</p>
                             </div>
                             <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                 View All
@@ -558,30 +572,29 @@
 
                         <div class="space-y-6">
                             <div class="flex flex-col items-center justify-center min-h-48">
-                                @if ($data['recentClients'] && $data['recentClients']->count() > 0)
+                                <!-- Freelancer 1 -->
+                                @if ($data['freelancers'] && $data['freelancers']->count() > 0)
                                     <!-- Recent Clients List -->
-                                    @foreach ($data['recentClients'] as $client)
+                                    @foreach ($data['freelancers'] as $freelancer)
                                         <div
                                             class="flex items-center justify-between w-full max-w-md p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow transition">
                                             <div class="flex items-center gap-3">
                                                 <div
                                                     class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0 select-none">
-                                                    <span class="text-white font-bold text-sm">
-                                                        {{ strtoupper(substr($client->name, 0, 1)) }}
-                                                    </span>
+                                                    <span
+                                                        class="text-white font-bold text-sm">{{ Str::substr($freelancer->name, 0, 1) }}</span>
                                                 </div>
                                                 <div>
-                                                    <p class="text-sm font-medium text-gray-900">{{ $client->name }}
-                                                    </p>
-                                                    <p class="text-xs text-gray-500">
-                                                        {{ $client->company ?? 'Individual' }}</p>
+                                                    <p class="text-sm font-medium text-gray-900">
+                                                        {{ $freelancer->name }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $freelancer->job_title }}</p>
                                                 </div>
                                             </div>
                                             <div class="text-right">
-                                                <p class="text-xs text-gray-500">Today</p>
+                                                <p class="text-xs text-gray-500">
+                                                    {{ $freelancer->created_at->diffForHumans() }}</p>
                                                 <p class="text-xs font-medium text-green-600">
-                                                    {{ ucfirst($client->status) }}
-                                                </p>
+                                                    {{ ucfirst($freelancer->status) }}</p>
                                             </div>
                                         </div>
                                     @endforeach
@@ -589,10 +602,9 @@
                                     <!-- Total Count -->
                                     <div class="w-full max-w-md mt-6 pt-6 border-t border-gray-200">
                                         <div class="text-center">
-                                            <p class="text-sm text-gray-600">Total new clients this week:</p>
+                                            <p class="text-sm text-gray-600">Total new freelancers this week:</p>
                                             <p class="text-2xl font-bold text-gray-900 mt-1">
-                                                {{ $data['recentClients']->count() }}
-                                            </p>
+                                                {{ $data['freelancers']->count() }}</p>
                                         </div>
                                     </div>
                                 @else
@@ -637,44 +649,44 @@
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('clientManagement', () => ({
-                clients: [{
+            Alpine.data('freelancerManagement', () => ({
+                freelancers: [{
                         id: 1,
-                        name: 'John Smith',
-                        email: 'john@techcorp.com',
-                        company: 'TechCorp Inc.',
+                        name: 'Sarah Chen',
+                        email: 'sarah@example.com',
+                        job_title: 'Senior UI/UX Designer',
                         status: 'active'
                     },
                     {
                         id: 2,
-                        name: 'Sarah Johnson',
-                        email: 'sarah@designstudio.com',
-                        company: 'Creative Studio',
-                        status: 'premium'
+                        name: 'Michael Torres',
+                        email: 'michael@example.com',
+                        job_title: 'Full-Stack Developer',
+                        status: 'active'
                     },
                     {
                         id: 3,
-                        name: 'Robert Chen',
-                        email: 'robert@startupx.com',
-                        company: 'StartupX',
+                        name: 'Emma Wilson',
+                        email: 'emma@example.com',
+                        job_title: 'Mobile App Developer',
                         status: 'active'
                     },
                     {
                         id: 4,
-                        name: 'Maria Garcia',
-                        email: 'maria@retailco.com',
-                        company: 'RetailCo International',
-                        status: 'premium'
+                        name: 'James Park',
+                        email: 'james@example.com',
+                        job_title: 'Backend Engineer',
+                        status: 'active'
                     },
                     {
                         id: 5,
-                        name: 'Thomas Wilson',
-                        email: 'thomas@oldcorp.com',
-                        company: 'Traditional Corp',
+                        name: 'Lisa Kumar',
+                        email: 'lisa@example.com',
+                        job_title: 'Graphic Designer',
                         status: 'suspended'
                     }
                 ],
-                selectedClients: [],
+                selectedFreelancers: [],
                 searchTerm: '',
                 activeFilter: 'all'
             }));
@@ -687,7 +699,7 @@
                 if (svg && svg.innerHTML.includes('M19 7l-.867 12.142A2')) {
                     button.addEventListener('click', function(e) {
                         if (!confirm(
-                                'Are you sure you want to delete this client? This action cannot be undone.'
+                                'Are you sure you want to delete this freelancer? This action cannot be undone.'
                             )) {
                             e.preventDefault();
                             e.stopPropagation();

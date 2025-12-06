@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\FindFreelancersController;
+use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return view('admin.dashboard');
         })->name('dashboard');
         Route::get('/manage-clients', [ClientController::class, 'index'])->name('manage-clients');
+        Route::get('/manage-freelancers', [FreelancerController::class, 'index'])->name('manage-freelancers');
     });
 
     // Client-Only Routes
