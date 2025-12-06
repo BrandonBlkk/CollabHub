@@ -21,12 +21,12 @@
         </x-sidebar-item>
 
         <!-- User Management -->
-        <x-sidebar-item href="#manage-clients"
+        <x-sidebar-item href="{{ route('admin.manage-clients') }}" :active="request()->routeIs('admin.manage-clients')"
             icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
             Manage Clients
         </x-sidebar-item>
 
-        <x-sidebar-item href="#manage-freelancers"
+        <x-sidebar-item href="#manage-freelancers" :active="request()->routeIs('admin.manage-freelancers')"
             icon="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 00-9 5.197">
             Manage Freelancers
         </x-sidebar-item>

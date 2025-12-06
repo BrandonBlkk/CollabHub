@@ -434,17 +434,10 @@
                             if (data.errors) {
                                 showFieldErrors(data.errors);
                             }
-                            // Show general error message
-                            if (data.message) {
-                                //
-                            }
                             // Reset loading state on error
                             setLoading(false);
                         }
-
                     } catch (error) {
-                        console.error('Login error:', error);
-                        //
                         setLoading(false);
                     }
                 });
