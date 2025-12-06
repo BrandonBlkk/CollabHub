@@ -1,11 +1,11 @@
-<!-- resources/views/components/sidebar.blade.php -->
 @props(['userType' => auth()->user()->user_type])
 
 <div class="sidebar bg-white w-64 border-r border-gray-200 flex-col hidden lg:flex">
     <!-- Logo -->
     <div class="px-6 py-4 border-b border-gray-200">
         <a href="/" class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-700 to-teal-600 flex items-center justify-center">
+            <div
+                class="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-700 to-teal-600 flex items-center justify-center select-none">
                 <span class="text-white font-bold text-base">C</span>
             </div>
             <div>
