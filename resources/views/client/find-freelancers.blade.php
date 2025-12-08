@@ -14,53 +14,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        /* Custom styles for list view */
-        .freelancer-card.list-view {
-            display: flex;
-            flex-direction: row;
-        }
-
-        .freelancer-card.list-view .w-14 {
-            width: 3.5rem;
-            height: 3.5rem;
-        }
-
-        .freelancer-card.list-view .grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .freelancer-card.grid-view {
-            display: block;
-        }
-
-        /* Hide/show elements based on view type */
-        .grid-view .list-only {
-            display: none !important;
-        }
-
-        .list-view .grid-only {
-            display: none !important;
-        }
-
-        .list-view .line-clamp-2 {
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-        }
-
-        /* List view specific styles */
-        @media (min-width: 768px) {
-            .freelancer-card.list-view {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-
-            .freelancer-card.list-view>.flex {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
 
 <body class="font-['Figtree'] text-gray-800 bg-gray-50">
@@ -77,7 +30,7 @@
             <!-- Main Content Area -->
             <main class="flex-1 overflow-y-auto p-3">
                 <!-- Page Header -->
-                <div class="mb-8">
+                <div class="mb-3">
                     <div class="flex items-center justify-between">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">Find Freelancers</h1>
@@ -326,9 +279,17 @@
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-gray-600 text-sm">View:</span>
-                                        <button @click="viewType = 'grid'"
-                                            :class="{ 'bg-blue-50 text-blue-700': viewType === 'grid', 'text-gray-400 hover:text-gray-600': viewType !== 'grid' }"
-                                            class="p-1.5 rounded-lg transition-colors duration-200">
+
+                                        <!-- Grid View Button -->
+                                        <button @click="$store.viewSettings.setViewType('grid')"
+                                            :class="{
+                                                'bg-blue-50 text-blue-700 border border-blue-200': $store.viewSettings
+                                                    .viewType === 'grid',
+                                                'text-gray-400 hover:text-gray-600 hover:bg-gray-50': $store
+                                                    .viewSettings.viewType !== 'grid'
+                                            }"
+                                            class="p-1.5 rounded-lg transition-all duration-200 border border-transparent"
+                                            title="Grid View">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -336,9 +297,17 @@
                                                 </path>
                                             </svg>
                                         </button>
-                                        <button @click="viewType = 'list'"
-                                            :class="{ 'bg-blue-50 text-blue-700': viewType === 'list', 'text-gray-400 hover:text-gray-600': viewType !== 'list' }"
-                                            class="p-1.5 rounded-lg transition-colors duration-200">
+
+                                        <!-- List View Button -->
+                                        <button @click="$store.viewSettings.setViewType('list')"
+                                            :class="{
+                                                'bg-blue-50 text-blue-700 border border-blue-200': $store.viewSettings
+                                                    .viewType === 'list',
+                                                'text-gray-400 hover:text-gray-600 hover:bg-gray-50': $store
+                                                    .viewSettings.viewType !== 'list'
+                                            }"
+                                            class="p-1.5 rounded-lg transition-all duration-200 border border-transparent"
+                                            title="List View">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -351,7 +320,10 @@
 
                             <!-- Freelancers Grid/List -->
                             <div
-                                :class="{ 'grid grid-cols-1 md:grid-cols-2 gap-3': viewType === 'grid', 'space-y-3': viewType === 'list' }">
+                                :class="{
+                                    'grid grid-cols-1 md:grid-cols-2 gap-3': viewType === 'grid',
+                                    'space-y-3': viewType === 'list'
+                                }">
                                 <!-- Using Freelancer Card Component -->
                                 @foreach ($freelancers as $freelancer)
                                     <x-freelancer-card :freelancer="$freelancer" :view-type="$viewType" />
@@ -391,13 +363,28 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
-        // Alpine.js component for filter state
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('viewSettings', {
+                viewType: localStorage.getItem('freelancerViewType') || 'grid',
+
+                setViewType(type) {
+                    if (!['grid', 'list'].includes(type)) return;
+
+                    this.viewType = type;
+                    localStorage.setItem('freelancerViewType', type);
+                },
+
+                toggle() {
+                    this.setViewType(this.viewType === 'grid' ? 'list' : 'grid');
+                }
+            });
+        });
+
+        // Filter state
         function filterState() {
             return {
                 showFilters: true,
-                viewType: 'grid', // 'grid' or 'list'
                 openFilters: ['categories', 'hourlyRate', 'experience', 'location', 'skills'],
                 selectedSkills: [],
                 skills: [{
@@ -421,48 +408,51 @@
                         name: 'Mobile'
                     }
                 ],
+
+                // Reactive filters object
                 filters: {
                     categories: {
-                        webDev: true,
-                        mobileDev: true,
+                        webDev: false,
+                        mobileDev: false,
                         uiux: false,
                         graphicDesign: false
                     },
                     hourlyRate: 'any',
                     experience: {
-                        entry: true,
-                        intermediate: true,
+                        entry: false,
+                        intermediate: false,
                         expert: false
                     },
                     location: {
                         anywhere: true,
                         usa: false,
                         europe: false
-                    }
+                    } // default: anywhere
                 },
-                init() {
-                    console.log('Filter state initialized');
-                    // Load view type from localStorage if available
-                    const savedViewType = localStorage.getItem('freelancerViewType');
-                    if (savedViewType && (savedViewType === 'grid' || savedViewType === 'list')) {
-                        this.viewType = savedViewType;
-                    }
+
+                // Access viewType from the store
+                get viewType() {
+                    return this.$store.viewSettings.viewType;
                 },
+
                 toggleFilter(filterName) {
-                    if (this.openFilters.includes(filterName)) {
-                        this.openFilters = this.openFilters.filter(f => f !== filterName);
+                    const index = this.openFilters.indexOf(filterName);
+                    if (index > -1) {
+                        this.openFilters.splice(index, 1);
                     } else {
                         this.openFilters.push(filterName);
                     }
                 },
+
                 toggleSkill(skillId) {
-                    if (this.selectedSkills.includes(skillId)) {
-                        this.selectedSkills = this.selectedSkills.filter(id => id !== skillId);
+                    const index = this.selectedSkills.indexOf(skillId);
+                    if (index > -1) {
+                        this.selectedSkills.splice(index, 1);
                     } else {
                         this.selectedSkills.push(skillId);
                     }
-                    console.log('Selected skills:', this.selectedSkills);
                 },
+
                 clearAllFilters() {
                     this.filters.categories = {
                         webDev: false,
@@ -477,69 +467,27 @@
                         expert: false
                     };
                     this.filters.location = {
-                        anywhere: false,
+                        anywhere: true,
                         usa: false,
                         europe: false
                     };
                     this.selectedSkills = [];
-                    console.log('All filters cleared');
                 },
+
                 get hasActiveFilters() {
-                    const activeCategories = Object.values(this.filters.categories).some(v => v);
-                    const activeExperience = Object.values(this.filters.experience).some(v => v);
-                    const activeLocation = Object.values(this.filters.location).some(v => v);
+                    const c = this.filters.categories;
+                    const e = this.filters.experience;
+                    const l = this.filters.location;
+                    const activeCategories = Object.values(c).some(Boolean);
+                    const activeExperience = Object.values(e).some(Boolean);
+                    const activeLocation = Object.keys(l).some(k => k !== 'anywhere' && l[k]);
                     const activeSkills = this.selectedSkills.length > 0;
-                    const activeHourlyRate = this.filters.hourlyRate !== 'any';
+                    const activeRate = this.filters.hourlyRate !== 'any';
 
-                    return activeCategories || activeExperience || activeLocation || activeSkills || activeHourlyRate;
+                    return activeCategories || activeExperience || activeLocation || activeSkills || activeRate;
                 }
             }
         }
-
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar')?.classList.toggle('active');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleBtn = document.getElementById('sidebarToggle');
-
-            if (window.innerWidth <= 1024 &&
-                sidebar &&
-                toggleBtn &&
-                !sidebar.contains(event.target) &&
-                !toggleBtn.contains(event.target) &&
-                sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-            }
-        });
-
-        // Search functionality
-        const searchInput = document.querySelector('input[type="search"]');
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const query = this.value.trim();
-                    if (query) {
-                        console.log('Searching freelancers for:', query);
-                    }
-                }
-            });
-        }
-
-        // Save view type to localStorage when changed
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('viewSettings', {
-                viewType: 'grid',
-
-                setViewType(type) {
-                    this.viewType = type;
-                    localStorage.setItem('freelancerViewType', type);
-                }
-            });
-        });
     </script>
 </body>
 

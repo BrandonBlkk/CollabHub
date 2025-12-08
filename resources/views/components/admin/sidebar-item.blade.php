@@ -1,3 +1,4 @@
+<!-- resources/views/components/sidebar-item.blade.php -->
 @props([
     'href' => '#',
     'icon' => null,

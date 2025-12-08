@@ -61,6 +61,7 @@
 <body class="font-['Figtree'] text-gray-800 bg-gray-50">
     <!-- Main Container -->
     <div class="flex h-screen overflow-hidden">
+
         <!-- Sidebar Component -->
         <x-sidebar />
 

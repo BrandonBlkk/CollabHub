@@ -26,41 +26,36 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): JsonResponse
     {
-        // Validate the request (automatically handled by LoginRequest)
-        // If validation fails, the request will automatically return JSON response
-        $validated = $request->validated();
-
-        // Get credentials
         $credentials = $request->only('email', 'password');
         $remember = $request->boolean('remember');
 
-        // Attempt authentication
         if (!Auth::attempt($credentials, $remember)) {
-            // Check if email exists in database
             $userExists = \App\Models\User::where('email', $request->email)->exists();
 
-            if ($userExists) {
-                $errorMessage = 'The password you entered is incorrect';
-            } else {
-                $errorMessage = 'No account found with this email address';
-            }
+            $errorMessage = $userExists
+                ? 'The password you entered is incorrect'
+                : 'No account found with this email address';
 
             return response()->json([
                 'success' => false,
-                'errors' => [
-                    'password' => [$errorMessage]
-                ],
+                'errors'  => ['password' => [$errorMessage]],
                 'message' => 'Login failed. Please check your credentials.'
             ], 422);
         }
 
-        // Authentication successful - regenerate session
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        // Determine correct redirect route
+        $redirectRoute = in_array($user->role, ['admin', 'super_admin'])
+            ? 'admin.dashboard'
+            : 'dashboard';
+
         return response()->json([
-            'success' => true,
-            'message' => 'Login successful! Redirecting...',
-            'redirect' => route('dashboard', absolute: false)
+            'success'  => true,
+            'message'  => 'Login successful! Redirecting...',
+            'redirect' => route($redirectRoute)
         ]);
     }
 
