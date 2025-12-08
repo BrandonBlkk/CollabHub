@@ -1,4 +1,4 @@
-@props(['userType' => auth()->user()->user_type])
+@props(['role' => auth()->user()->role])
 
 <div class="sidebar bg-white w-64 border-r border-gray-200 flex-col hidden lg:flex">
     <!-- Logo -->
@@ -11,7 +11,7 @@
             <div>
                 <h1 class="text-lg font-bold text-gray-900">CollabHub</h1>
                 <p class="text-gray-600 text-xs">
-                    {{ $userType === 'freelancer' ? 'Freelancer Dashboard' : 'Client Dashboard' }}
+                    {{ $role === 'freelancer' ? 'Freelancer Dashboard' : 'Client Dashboard' }}
                 </p>
             </div>
         </a>
@@ -24,7 +24,7 @@
             Dashboard
         </x-sidebar-item>
 
-        @if ($userType === 'freelancer')
+        @if ($role === 'freelancer')
             <x-sidebar-item href="#"
                 icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                 Find Projects
@@ -95,7 +95,7 @@
             <div class="flex-1">
                 <h3 class="font-semibold text-sm">{{ auth()->user()->name }}</h3>
                 <p class="text-gray-500 text-xs">
-                    {{ $userType === 'freelancer' ? 'Freelancer' : 'Client' }}
+                    {{ $role === 'freelancer' ? 'Freelancer' : 'Client' }}
                 </p>
             </div>
             <a href="{{ route('logout') }}"

@@ -27,7 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Admin-Only Routes
-    Route::middleware(['auth', 'verified', 'role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Client-Only Routes
-    Route::middleware('user.type:client')->group(function () {
+    Route::middleware('role:client')->group(function () {
         Route::get('/find-freelancers', [FindFreelancersController::class, 'index'])
             ->name('find-freelancers');
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     //  Freelancer-Only Routes
-    Route::middleware('user.type:freelancer')->group(function () {});
+    Route::middleware('role:freelancer')->group(function () {});
 });
 
 require __DIR__ . '/auth.php';

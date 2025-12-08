@@ -14,7 +14,7 @@ class FreelancerController extends Controller
      */
     public function index()
     {
-        $freelancers = User::where('user_type', 'freelancer')->get();
+        $freelancers = User::where('role', 'freelancer')->get();
         $totalFreelancers = $freelancers->count();
         $activeFreelancers = $freelancers->where('status', 'active')->count();
         $availableFreelancers = $freelancers->where('status', 'available')->count();

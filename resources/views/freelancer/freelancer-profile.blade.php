@@ -48,17 +48,6 @@
                                             class="text-white font-bold text-2xl">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
                                     </div>
                                 @endif
-                                <!-- Verification Badge -->
-                                @if ($freelancer->is_verified)
-                                    <div
-                                        class="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1 border-2 border-white">
-                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                @endif
                             </div>
 
                             <!-- Basic Info -->
@@ -67,20 +56,10 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <h1 class="text-2xl font-bold text-gray-900">{{ $freelancer->name }}</h1>
-                                            @if ($freelancer->is_verified)
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    Verified
-                                                </span>
-                                            @endif
                                         </div>
                                         <div class="flex items-center flex-wrap gap-2 mt-1">
-                                            <span class="text-gray-700 font-medium">{{ $freelancer->job_title }}</span>
+                                            <span
+                                                class="text-gray-700 font-medium">{{ $freelancer->freelancer->job_title }}</span>
                                             <span class="text-gray-500">•</span>
                                             <div class="flex items-center">
                                                 <svg class="w-4 h-4 text-yellow-500 mr-1" fill="currentColor"
@@ -89,9 +68,9 @@
                                                         d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                 </svg>
                                                 <span
-                                                    class="font-semibold text-gray-900">{{ number_format($freelancer->rating, 1) }}</span>
+                                                    class="font-semibold text-gray-900">{{ number_format($freelancer->freelancer->rating, 1) }}</span>
                                                 <span
-                                                    class="text-gray-600 ml-1 text-sm">({{ $freelancer->rating_count }}
+                                                    class="text-gray-600 ml-1 text-sm">({{ $freelancer->freelancer->rating_count }}
                                                     reviews)</span>
                                             </div>
                                         </div>
@@ -100,8 +79,8 @@
                                     <!-- Hourly Rate & Availability -->
                                     <div class="flex flex-col items-start md:items-end gap-2">
                                         <div class="text-2xl font-bold text-gray-900">
-                                            ${{ number_format($freelancer->hourly_rate, 2) }}/hr</div>
-                                        @switch($freelancer->availability)
+                                            ${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr</div>
+                                        @switch($freelancer->freelancer->availability)
                                             @case('available')
                                                 <div
                                                     class="flex items-center text-green-600 bg-green-50 px-3 py-1 rounded-full">
@@ -143,26 +122,26 @@
                                         </div>
                                     @endif
 
-                                    @if ($freelancer->years_experience)
+                                    @if ($freelancer->freelancer->years_experience)
                                         <div class="flex items-center text-gray-600">
                                             <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            {{ $freelancer->years_experience }}+ years experience
+                                            {{ $freelancer->freelancer->years_experience }}+ years experience
                                         </div>
                                     @endif
 
                                     <!-- Member Since -->
-                                    @if ($freelancer->member_since)
+                                    @if ($freelancer->created_at)
                                         <div class="flex items-center text-gray-600">
                                             <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            Member since {{ date('Y', strtotime($freelancer->member_since)) }}
+                                            Member since {{ date('Y', strtotime($freelancer->created_at)) }}
                                         </div>
                                     @endif
                                 </div>
@@ -187,6 +166,15 @@
                                             </svg>
                                         </a>
                                     @endif
+                                    @if ($freelancer->facebook_url)
+                                        <a href="{{ $freelancer->facebook_url }}" target="_blank"
+                                            class="text-gray-400 hover:text-blue-600 transition">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                                            </svg>
+                                        </a>
+                                    @endif
                                     @if ($freelancer->twitter_url)
                                         <a href="{{ $freelancer->twitter_url }}" target="_blank"
                                             class="text-gray-400 hover:text-blue-500 transition">
@@ -202,7 +190,7 @@
 
                         <!-- Action Buttons -->
                         <div class="flex items-center space-x-3 w-full md:w-auto">
-                            @if ($freelancer->availability === 'unavailable')
+                            @if ($freelancer->freelancer->availability === 'unavailable')
                                 <button
                                     class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
                                     disabled title="This freelancer is currently unavailable for hire">
@@ -289,7 +277,7 @@
                                         <div>
                                             <h3 class="text-lg font-bold text-gray-900 mb-3">About Me</h3>
                                             <p class="text-gray-600 text-sm leading-relaxed">
-                                                {{ $freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
                                             </p>
                                         </div>
 
@@ -297,31 +285,27 @@
                                         <div>
                                             <h3 class="text-lg font-bold text-gray-900 mb-3">Skills & Expertise</h3>
                                             <div class="flex flex-wrap gap-2">
-                                                @if ($freelancer->skills)
-                                                    @php
-                                                        $skills = json_decode($freelancer->skills, true);
-                                                    @endphp
-                                                    @foreach ($skills as $skill)
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer">
-                                                            {{ $skill }}
-                                                        </span>
-                                                    @endforeach
-                                                @else
+                                                @forelse($freelancer->skills as $skill)
                                                     <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">React.js</span>
+                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
+                                                        {{ $skill->name }}
+                                                    </span>
+                                                @empty
+                                                    <!-- Fallback skills when none are added -->
                                                     <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">TypeScript</span>
+                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
                                                     <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">Next.js</span>
+                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
                                                     <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">Node.js</span>
+                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
                                                     <span
-                                                        class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">MongoDB</span>
+                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
                                                     <span
-                                                        class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer select-none">Tailwind
+                                                        class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
+                                                    <span
+                                                        class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
                                                         CSS</span>
-                                                @endif
+                                                @endforelse
                                             </div>
                                         </div>
 
@@ -329,22 +313,22 @@
                                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             <div class="bg-gray-50 rounded-xl p-4 text-center">
                                                 <div class="text-2xl font-bold text-gray-900">
-                                                    {{ $freelancer->total_projects }}</div>
+                                                    {{ $freelancer->freelancer->total_projects ?: '0' }}</div>
                                                 <div class="text-gray-500 text-sm mt-1">Total Projects</div>
                                             </div>
                                             <div class="bg-gray-50 rounded-xl p-4 text-center">
                                                 <div class="text-2xl font-bold text-gray-900">
-                                                    {{ $freelancer->job_success_rate ?: '0' }}%</div>
+                                                    {{ $freelancer->freelancer->job_success_rate ?: '0' }}%</div>
                                                 <div class="text-gray-500 text-sm mt-1">Job Success</div>
                                             </div>
                                             <div class="bg-gray-50 rounded-xl p-4 text-center">
                                                 <div class="text-2xl font-bold text-gray-900">
-                                                    {{ number_format($freelancer->total_hours) }}</div>
+                                                    {{ number_format($freelancer->freelancer->total_hours) }}</div>
                                                 <div class="text-gray-500 text-sm mt-1">Hours Worked</div>
                                             </div>
                                             <div class="bg-gray-50 rounded-xl p-4 text-center">
                                                 <div class="text-2xl font-bold text-gray-900">
-                                                    ${{ number_format($freelancer->total_earned) }}</div>
+                                                    ${{ number_format($freelancer->freelancer->total_earned) }}</div>
                                                 <div class="text-gray-500 text-sm mt-1">Total Earned</div>
                                             </div>
                                         </div>
@@ -418,12 +402,12 @@
                                                     <p class="text-gray-600 text-sm mt-1">View my complete work and
                                                         case studies</p>
                                                     <p class="text-gray-500 text-sm mt-1">
-                                                        {{ $freelancer->website ?? 'No portfolio website added yet.' }}
+                                                        {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
                                                     </p>
                                                 </div>
-                                                <a href="{{ $freelancer->website ?? '#' }}" target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="{{ $freelancer->website ? 'inline-flex' : 'hidden' }} items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
+                                                <a href="{{ $freelancer->freelancer->portfolio_url ?? '#' }}"
+                                                    target="_blank" rel="noopener noreferrer"
+                                                    class="{{ $freelancer->freelancer->portfolio_url ? 'inline-flex' : 'hidden' }} items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
                                                     <span>Visit Portfolio</span>
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -488,16 +472,16 @@
                                             <div class="flex items-center justify-between">
                                                 <div>
                                                     <div class="text-3xl font-bold text-gray-900">
-                                                        {{ number_format($freelancer->rating, 1) }}</div>
+                                                        {{ number_format($freelancer->freelancer->rating, 1) }}</div>
                                                     <div class="flex items-center mt-1">
                                                         @for ($i = 1; $i <= 5; $i++)
-                                                            @if ($i <= floor($freelancer->rating))
+                                                            @if ($i <= floor($freelancer->freelancer->rating))
                                                                 <svg class="w-5 h-5 text-yellow-500"
                                                                     fill="currentColor" viewBox="0 0 20 20">
                                                                     <path
                                                                         d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                                 </svg>
-                                                            @elseif($i - 0.5 <= $freelancer->rating)
+                                                            @elseif($i - 0.5 <= $freelancer->freelancer->rating)
                                                                 <svg class="w-5 h-5 text-yellow-500"
                                                                     fill="currentColor" viewBox="0 0 20 20">
                                                                     <path
@@ -512,14 +496,14 @@
                                                             @endif
                                                         @endfor
                                                         <span
-                                                            class="ml-2 text-gray-600 text-sm">{{ $freelancer->rating_count }}
+                                                            class="ml-2 text-gray-600 text-sm">{{ $freelancer->freelancer->rating_count }}
                                                             reviews</span>
                                                     </div>
                                                 </div>
                                                 <div class="text-right">
                                                     <div class="text-gray-600 text-sm">Job Success</div>
                                                     <div class="text-2xl font-bold text-gray-900">
-                                                        {{ $freelancer->job_success_rate }}%</div>
+                                                        {{ $freelancer->freelancer->job_success_rate }}%</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -715,16 +699,16 @@
                                         {{ $freelancer->location }}
                                     </div>
                                 @endif
-                                @if ($freelancer->website)
+                                @if ($freelancer->freelancer->portfolio_url)
                                     <div class="flex items-center text-gray-600">
                                         <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                         </svg>
-                                        <a href="{{ $freelancer->website }}" target="_blank"
+                                        <a href="{{ $freelancer->freelancer->portfolio_url }}" target="_blank"
                                             class="text-blue-600 hover:text-blue-800 text-sm">
-                                            {{ parse_url($freelancer->website, PHP_URL_HOST) }}
+                                            {{ parse_url($freelancer->freelancer->portfolio_url, PHP_URL_HOST) }}
                                         </a>
                                     </div>
                                 @endif
@@ -742,7 +726,7 @@
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Base Rate</span>
                                     <span
-                                        class="text-gray-900 font-medium">${{ number_format($freelancer->hourly_rate, 2) }}/hr</span>
+                                        class="text-gray-900 font-medium">${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Minimum Hours</span>
@@ -760,7 +744,7 @@
                                     <div class="flex justify-between items-center">
                                         <span class="text-gray-900 font-medium">Estimated 20-hour project</span>
                                         <span
-                                            class="text-xl font-bold text-gray-900">${{ number_format($freelancer->hourly_rate * 20, 2) }}</span>
+                                            class="text-xl font-bold text-gray-900">${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -772,7 +756,7 @@
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span class="text-gray-600 text-sm">Current Status:</span>
-                                    @switch($freelancer->availability)
+                                    @switch($freelancer->freelancer->availability)
                                         @case('available')
                                             <span
                                                 class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium select-none">Available</span>
@@ -864,7 +848,7 @@
                                             <p class="text-gray-500 text-xs truncate">Full Stack Developer</p>
                                         </div>
                                         <span
-                                            class="text-gray-900 font-medium text-sm">${{ $freelancer->hourly_rate }}/hr</span>
+                                            class="text-gray-900 font-medium text-sm">${{ $freelancer->freelancer->hourly_rate }}/hr</span>
                                     </div>
                                 @endforeach
                             </div>

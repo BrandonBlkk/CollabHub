@@ -2,64 +2,94 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'user_type',
+        'role',
         'profile_photo_path',
         'phone',
-        'bio',
         'location',
-        'skills',
-        'hourly_rate',
-        'company',
-        'website',
+        'country',
+        'country_code',
         'status',
-        'completed_projects',
-        'total_earned',
-        'total_spent',
-        'rating',
-        'rating_count',
+        'balance'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'skills' => 'array',
-        'rating' => 'decimal:2',
-        'total_earned' => 'decimal:2',
-        'total_spent' => 'decimal:2',
-        'hourly_rate' => 'decimal:2',
+        'balance' => 'decimal:2',
     ];
+
+    // Relationships
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
+    public function freelancer()
+    {
+        return $this->hasOne(Freelancer::class);
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'user_skills');
+    }
+
+    public function universities()
+    {
+        return $this->hasMany(UserUniversity::class);
+    }
+
+    public function majors()
+    {
+        return $this->hasMany(UserMajor::class);
+    }
+
+    public function jobs()
+    {
+        return $this->hasManyThrough(Job::class, Client::class, 'user_id', 'client_id');
+    }
+
+    public function proposals()
+    {
+        return $this->hasManyThrough(Proposal::class, Freelancer::class, 'user_id', 'freelancer_id');
+    }
+
+    public function reviewsGiven()
+    {
+        return $this->hasMany(Review::class, 'from_user_id');
+    }
+
+
+    public function reviewsReceived()
+    {
+        return $this->hasMany(Review::class, 'to_user_id');
+    }
+
+    // Helper methods
+    public function isClient(): bool
+    {
+        return $this->role === 'client';
+    }
+
+    public function isFreelancer(): bool
+    {
+        return $this->role === 'freelancer';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

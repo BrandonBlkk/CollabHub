@@ -1,5 +1,4 @@
 <?php
-// app/Http/Middleware/EnsureUserRole.php
 
 namespace App\Http\Middleware;
 
@@ -26,9 +25,16 @@ class EnsureUserRole
         $allowedRoles = array_filter(explode('|', $roles));
 
         if (!in_array($user->role, $allowedRoles)) {
+            // Optional: custom message based on user type
+            $message = match ($user->role) {
+                'freelancer' => 'Freelancers cannot access this page.',
+                'client'     => 'Clients cannot access this page.',
+                default      => 'You do not have permission to access this page.',
+            };
+
             return redirect()
                 ->route('startup')
-                ->with('error', 'You do not have permission to access the admin area.');
+                ->with('error', $message);
         }
 
         return $next($request);
