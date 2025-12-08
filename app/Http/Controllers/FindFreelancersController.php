@@ -22,12 +22,12 @@ class FindFreelancersController extends Controller
         $user = Auth::user();
 
         // Check if user is a client
-        if ($user->user_type !== 'client') {
+        if ($user->role !== 'client') {
             return redirect()->route('dashboard')->with('error', 'Only clients can access this page.');
         }
 
         // Get all freelancers
-        $freelancers = User::where('user_type', 'freelancer')->get();
+        $freelancers = User::where('role', 'freelancer')->get();
 
         // Default view type
         $viewType = 'grid';
@@ -40,16 +40,22 @@ class FindFreelancersController extends Controller
 
     public function freelancerProfile($id)
     {
-        $freelancer = User::where('user_type', 'freelancer')
+        $freelancer = User::with(['freelancer', 'skills'])
+            ->where('role', 'freelancer')
             ->where('id', $id)
             ->firstOrFail();
 
-        $similarFreelancers = User::where('user_type', 'freelancer')
+        // Similar freelancers
+        $similarFreelancers = User::with('freelancer')
+            ->where('role', 'freelancer')
             ->where('id', '!=', $id)
             ->inRandomOrder()
-            ->limit(3)
+            ->limit(4)
             ->get();
 
-        return view('freelancer.freelancer-profile', compact('freelancer', 'similarFreelancers'));
+        return view('freelancer.freelancer-profile', compact(
+            'freelancer',
+            'similarFreelancers'
+        ));
     }
 }

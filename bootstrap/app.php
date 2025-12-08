@@ -12,7 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'user.type' => \App\Http\Middleware\EnsureUserType::class,
             'role' => \App\Http\Middleware\EnsureUserRole::class,
         ]);
     })

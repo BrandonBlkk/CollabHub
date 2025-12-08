@@ -204,7 +204,7 @@
                                 </div>
                                 <h3 class="font-semibold text-sm">Client</h3>
                                 <p class="text-gray-500 text-xs mt-1">Hire freelancers</p>
-                                <input type="radio" name="user_type" value="client" class="hidden" id="clientType">
+                                <input type="radio" name="role" value="client" class="hidden" id="clientType">
                             </div>
                             <div class="user-type-card bg-white rounded-lg shadow-sm p-4 text-center border-2"
                                 data-type="freelancer" onclick="selectUserType('freelancer')">
@@ -219,11 +219,11 @@
                                 </div>
                                 <h3 class="font-semibold text-sm">Freelancer</h3>
                                 <p class="text-gray-500 text-xs mt-1">Find projects</p>
-                                <input type="radio" name="user_type" value="freelancer" class="hidden"
+                                <input type="radio" name="role" value="freelancer" class="hidden"
                                     id="freelancerType">
                             </div>
                         </div>
-                        @error('user_type')
+                        @error('role')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

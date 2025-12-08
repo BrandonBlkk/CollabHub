@@ -79,7 +79,7 @@
                             <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ auth()->user()->name }}! 👋
                             </h1>
                             <p class="text-gray-600 mt-1">
-                                @if (auth()->user()->user_type === 'freelancer')
+                                @if (auth()->user()->role === 'freelancer')
                                     Here's what's happening with your freelance work today.
                                 @else
                                     Here's an overview of your hiring activities.
@@ -94,7 +94,7 @@
 
                 <!-- Stats Overview -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-                    @if (auth()->user()->user_type === 'freelancer')
+                    @if (auth()->user()->role === 'freelancer')
                         <!-- Freelancer Stats -->
                         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                             <div class="flex items-center justify-between">
@@ -289,7 +289,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
                     <!-- Left Column -->
                     <div class="lg:col-span-2 space-y-3">
-                        @if (auth()->user()->user_type === 'freelancer')
+                        @if (auth()->user()->role === 'freelancer')
                             <!-- Freelancer: Recent Projects -->
                             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                 <div class="flex items-center justify-between mb-6">
@@ -611,7 +611,7 @@
                                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                         </svg>
                                         <span class="text-blue-700 text-sm font-medium">
-                                            @if (auth()->user()->user_type === 'freelancer')
+                                            @if (auth()->user()->role === 'freelancer')
                                                 Send Proposal
                                             @else
                                                 Post a Job

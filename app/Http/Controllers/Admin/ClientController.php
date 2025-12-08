@@ -10,14 +10,14 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = User::where('user_type', 'client')->latest()->get();
-        $totalClients = User::where('user_type', 'client')->count() ?: 1;
+        $clients = User::where('role', 'client')->latest()->get();
+        $totalClients = User::where('role', 'client')->count() ?: 1;
 
-        $activeClients = User::where('user_type', 'client')->where('status', 'active')->count();
-        $inactiveClients = User::where('user_type', 'client')->where('status', 'inactive')->count();
-        $suspendedClients = User::where('user_type', 'client')->where('status', 'suspended')->count();
+        $activeClients = User::where('role', 'client')->where('status', 'active')->count();
+        $inactiveClients = User::where('role', 'client')->where('status', 'inactive')->count();
+        $suspendedClients = User::where('role', 'client')->where('status', 'suspended')->count();
 
-        $recentClients = User::where('user_type', 'client')->latest()->take(4)->get();
+        $recentClients = User::where('role', 'client')->latest()->take(4)->get();
 
         $data = [
             'clients' => $clients,

@@ -18,31 +18,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('user_type', ['client', 'freelancer'])->nullable()->default(NULL);
-            $table->string('role')->default('user');
+            $table->enum('role', ['client', 'freelancer', 'admin'])->default('client');
             $table->string('profile_photo_path', 2048)->nullable();
             $table->string('phone', 20)->nullable();
-            $table->text('bio')->nullable();
             $table->string('location', 100)->nullable();
-            $table->json('skills')->nullable(); // For freelancers
-            $table->decimal('hourly_rate', 10, 2)->nullable(); // For freelancers
-            $table->string('company', 100)->nullable(); // For clients
-            $table->string('website', 255)->nullable();
+            $table->string('country')->nullable();
+            $table->string('country_code', 2)->nullable();
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
-
-            // ADD THESE NEW COLUMNS FOR THE FREELANCER CARD:
-            $table->string('job_title', 100)->nullable(); // e.g., "Senior React Developer"
-            $table->enum('availability', ['available', 'busy', 'unavailable'])->default('available');
-            $table->integer('years_experience')->nullable(); // e.g., 7
-            $table->integer('total_projects')->default(0); // e.g., 48
-            $table->decimal('job_success_rate', 5, 2)->nullable(); // e.g., 97.00
-            $table->integer('total_hours')->default(0); // e.g., 2100
-
-            $table->integer('completed_projects')->default(0);
-            $table->decimal('total_earned', 12, 2)->default(0); // For freelancers
-            $table->decimal('total_spent', 12, 2)->default(0); // For clients
-            $table->decimal('rating', 3, 2)->nullable(); // Average rating
-            $table->integer('rating_count')->default(0);
+            $table->decimal('balance', 14, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
