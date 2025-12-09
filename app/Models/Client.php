@@ -29,4 +29,14 @@ class Client extends Model
     {
         return $this->hasMany(Job::class);
     }
+
+    public function getAllJobsAttribute()
+    {
+        return $this->jobs()->count();
+    }
+
+    public function getActiveJobsAttribute()
+    {
+        return $this->jobs()->active()->count();
+    }
 }
