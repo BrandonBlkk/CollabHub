@@ -71,7 +71,6 @@ class User extends Authenticatable
         return $this->hasMany(Review::class, 'from_user_id');
     }
 
-
     public function reviewsReceived()
     {
         return $this->hasMany(Review::class, 'to_user_id');

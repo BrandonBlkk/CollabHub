@@ -25,7 +25,6 @@ class EnsureUserRole
         $allowedRoles = array_filter(explode('|', $roles));
 
         if (!in_array($user->role, $allowedRoles)) {
-            // Optional: custom message based on user type
             $message = match ($user->role) {
                 'freelancer' => 'Freelancers cannot access this page.',
                 'client'     => 'Clients cannot access this page.',

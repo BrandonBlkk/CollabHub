@@ -65,7 +65,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Active Projects</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">342</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $data['totalActiveJobs'] }}</p>
                             </div>
                             <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
@@ -92,7 +92,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Total Spent</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">$286.5K</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">${{ $data['totalSpent'] }}</p>
                             </div>
                             <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
@@ -270,15 +270,24 @@
                                                 <div class="flex items-center gap-2">
                                                     <input type="checkbox" value="1" x-model="selectedClients"
                                                         class="rounded border-gray-300">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
-                                                        <span class="text-white font-bold text-sm">J</span>
-                                                    </div>
+                                                    @if ($client->user->profile_photo_path)
+                                                        <div class="w- h-8 rounded-full">
+                                                            <img src="{{ $client->user->profile_photo_path }}"
+                                                                alt="Profile Image"
+                                                                class="w-full h-full object-cover rounded-full">
+                                                        </div>
+                                                    @else
+                                                        <div
+                                                            class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
+                                                            <span
+                                                                class="text-white font-bold text-sm">{{ Str::ucfirst(substr($client->user->name, 0, 1)) }}</span>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        {{ $client->name }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $client->email }}</div>
+                                                        {{ $client->user->name }}</div>
+                                                    <div class="text-sm text-gray-500">{{ $client->user->email }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -286,15 +295,16 @@
                                             <div class="text-sm font-medium text-gray-900">
                                                 {{ $client->company ?? 'Individual' }}</div>
                                             <div class="text-sm text-gray-500">
-                                                {{ $client->location ?? 'Not Specified' }}</div>
+                                                {{ $client->user->location ?? 'Not Specified' }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">$45,820</div>
-                                            <div class="text-xs text-gray-500">12 projects</div>
+                                            <div class="text-sm font-medium text-gray-900">${{ $client->total_spent }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">{{ $client->all_jobs }} projects</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span
-                                                class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">3
+                                                class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">{{ $client->active_jobs }}
                                                 projects</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -310,10 +320,10 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span
-                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ Str::ucfirst($client->status) }}</span>
+                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ Str::ucfirst($client->user->status) }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $client->created_at->format('Y-m-d') }}
+                                            {{ $client->user->created_at->format('Y-m-d') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
@@ -407,77 +417,50 @@
                         </div>
 
                         <div class="space-y-4">
-                            <!-- Client 1 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center select-none">
-                                        <span class="text-white font-bold text-sm">J</span>
+                            <!-- Client -->
+                            @forelse($data['topClients'] as $client)
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        @if ($client->user->profile_photo_path)
+                                            <div class="w-8 h-8 rounded-full">
+                                                <img src="{{ $client->user->profile_photo_path }}"
+                                                    alt="Profile Image"
+                                                    class="w-full h-full object-cover rounded-full">
+                                            </div>
+                                        @else
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center select-none">
+                                                <span class="text-white font-bold text-sm">
+                                                    {{ strtoupper(substr($client->user->name ?? 'U', 0, 1)) }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">
+                                                {{ $client->user->name ?? 'Unknown Client' }}
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                {{ $client->company ?? 'Individual' }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">John Smith</p>
-                                        <p class="text-xs text-gray-500">TechCorp Inc.</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$45,820</p>
-                                    <p class="text-xs text-gray-500">12 projects</p>
-                                </div>
-                            </div>
 
-                            <!-- Client 2 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-red-400 to-orange-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">M</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Maria Garcia</p>
-                                        <p class="text-xs text-gray-500">RetailCo International</p>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">
+                                            ${{ number_format($client->total_spent ?? 0, 2) }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $client->all_jobs ?? 0 }}
+                                            {{ Str::plural('project', $client->all_jobs ?? 0) }}
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$62,150</p>
-                                    <p class="text-xs text-gray-500">18 projects</p>
+                            @empty
+                                <div class="text-center py-20 text-gray-500">
+                                    <p class="text-sm">No clients have spent money yet.</p>
+                                    <p class="text-xs mt-1">Top spenders will appear here once payments are made.</p>
                                 </div>
-                            </div>
-
-                            <!-- Client 3 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">S</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Sarah Johnson</p>
-                                        <p class="text-xs text-gray-500">Creative Studio</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$28,450</p>
-                                    <p class="text-xs text-gray-500">8 projects</p>
-                                </div>
-                            </div>
-
-                            <!-- Client 4 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">R</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Robert Chen</p>
-                                        <p class="text-xs text-gray-500">StartupX</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$15,230</p>
-                                    <p class="text-xs text-gray-500">5 projects</p>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
 
@@ -564,23 +547,33 @@
                                         <div
                                             class="flex items-center justify-between w-full max-w-md p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow transition">
                                             <div class="flex items-center gap-3">
-                                                <div
-                                                    class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0 select-none">
-                                                    <span class="text-white font-bold text-sm">
-                                                        {{ strtoupper(substr($client->name, 0, 1)) }}
-                                                    </span>
-                                                </div>
+                                                @if ($client->user->profile_photo_path)
+                                                    <div class="w-10 h-10 rounded-full">
+                                                        <img src="{{ $client->user->profile_photo_path }}"
+                                                            alt="Profile Image"
+                                                            class="w-full h-full object-cover rounded-full">
+                                                    </div>
+                                                @else
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0 select-none">
+                                                        <span class="text-white font-bold text-sm">
+                                                            {{ strtoupper(substr($client->user->name, 0, 1)) }}
+                                                        </span>
+                                                    </div>
+                                                @endif
                                                 <div>
-                                                    <p class="text-sm font-medium text-gray-900">{{ $client->name }}
+                                                    <p class="text-sm font-medium text-gray-900">
+                                                        {{ $client->user->name }}
                                                     </p>
                                                     <p class="text-xs text-gray-500">
                                                         {{ $client->company ?? 'Individual' }}</p>
                                                 </div>
                                             </div>
                                             <div class="text-right">
-                                                <p class="text-xs text-gray-500">Today</p>
+                                                <p class="text-xs text-gray-500">
+                                                    {{ $client->created_at->diffForHumans() }}</p>
                                                 <p class="text-xs font-medium text-green-600">
-                                                    {{ ucfirst($client->status) }}
+                                                    {{ ucfirst($client->user->status) }}
                                                 </p>
                                             </div>
                                         </div>
