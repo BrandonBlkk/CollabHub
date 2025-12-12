@@ -90,7 +90,7 @@
                 @endif
 
                 <div class="flex-1 text-left">
-                    <h3 class="font-semibold text-sm text-gray-900">{{ auth()->user()->name }}</h3>
+                    <h3 id="name" class="font-semibold text-sm text-gray-900">{{ auth()->user()->name }}</h3>
                     <p class="text-gray-500 text-xs">
                         {{ $role === 'freelancer' ? 'Freelancer' : 'Client' }}
                     </p>

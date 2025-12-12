@@ -9,6 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Additional styles -->
@@ -100,7 +101,8 @@
                                 </button>
                             </div>
 
-                            <form id="profileForm" method="POST" action="" enctype="multipart/form-data"
+                            <form id="profileForm" method="POST"
+                                action="{{ route('profile.update', auth()->user()->id) }}" enctype="multipart/form-data"
                                 class="space-y-6">
                                 @csrf
                                 @method('PUT')
@@ -156,38 +158,36 @@
                                         <h3 class="font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Full Name
-                                            </label>
-                                            <input type="text" name="name"
-                                                value="{{ old('name', auth()->user()->name) }}"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
-                                                required>
-                                            @error('name')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Full
+                                                Name</label>
+                                            <div class="relative">
+                                                <input type="text" name="name"
+                                                    value="{{ old('name', auth()->user()->name) }}"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none">
+                                                @error('name')
+                                                    <p class="absolute -bottom-2 left-4 bg-white text-red-500 text-xs mt-1">
+                                                        {{ $message }}</p>
+                                                @enderror
+                                            </div>
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Email Address
-                                            </label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Email
+                                                Address</label>
                                             <input type="email" name="email"
                                                 value="{{ old('email', auth()->user()->email) }}"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
-                                                required>
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none">
                                             @error('email')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Phone Number
-                                            </label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone
+                                                Number</label>
                                             <div class="flex">
                                                 <select name="country_code"
-                                                    class="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                    class="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none">
                                                     <option value="+1"
                                                         {{ auth()->user()->country_code == '+1' ? 'selected' : '' }}>+1
                                                         US</option>
@@ -203,7 +203,7 @@
                                                 </select>
                                                 <input type="text" name="phone"
                                                     value="{{ old('phone', auth()->user()->phone) }}"
-                                                    class="flex-1 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    class="flex-1 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
                                                     placeholder="1234567890">
                                             </div>
                                             @error('phone')
@@ -217,9 +217,7 @@
                                         <h3 class="font-semibold text-gray-900 border-b pb-2">Location Information</h3>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Country
-                                            </label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
                                             <select name="country"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none">
                                                 <option value="">Select Country</option>
@@ -245,9 +243,8 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                City/Location
-                                            </label>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1">City/Location</label>
                                             <input type="text" name="location"
                                                 value="{{ old('location', auth()->user()->location) }}"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
@@ -258,17 +255,28 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Timezone
-                                            </label>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
                                             <select name="timezone"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none">
-                                                <option value="America/New_York" selected>Eastern Time (ET)</option>
-                                                <option value="America/Chicago">Central Time (CT)</option>
-                                                <option value="America/Denver">Mountain Time (MT)</option>
-                                                <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                                                <option value="Europe/London">London (GMT)</option>
-                                                <option value="Europe/Paris">Paris (CET)</option>
+                                                <option value="America/New_York"
+                                                    {{ auth()->user()->timezone == 'America/New_York' ? 'selected' : '' }}>
+                                                    Eastern Time (ET)</option>
+                                                <option value="America/Chicago"
+                                                    {{ auth()->user()->timezone == 'America/Chicago' ? 'selected' : '' }}>
+                                                    Central Time (CT)</option>
+                                                <option value="America/Denver"
+                                                    {{ auth()->user()->timezone == 'America/Denver' ? 'selected' : '' }}>
+                                                    Mountain Time (MT)</option>
+                                                <option value="America/Los_Angeles"
+                                                    {{ auth()->user()->timezone == 'America/Los_Angeles' ? 'selected' : '' }}>
+                                                    Pacific Time (PT)</option>
+                                                <option value="Europe/London"
+                                                    {{ auth()->user()->timezone == 'Europe/London' ? 'selected' : '' }}>
+                                                    London (GMT)</option>
+                                                <option value="Europe/Paris"
+                                                    {{ auth()->user()->timezone == 'Europe/Paris' ? 'selected' : '' }}>
+                                                    Paris (CET)</option>
                                             </select>
                                         </div>
                                     </div>
@@ -279,9 +287,8 @@
                                     <h3 class="font-semibold text-gray-900 mb-4">Client Information</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Company Name
-                                            </label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Company
+                                                Name</label>
                                             <input type="text" name="company"
                                                 value="{{ old('company', auth()->user()->client->company ?? '') }}"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
@@ -289,9 +296,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Website
-                                            </label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
                                             <input type="url" name="website"
                                                 value="{{ old('website', auth()->user()->client->website ?? '') }}"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300 outline-none"
@@ -306,9 +311,12 @@
                                         class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 font-medium select-none">
                                         Cancel
                                     </button>
-                                    <button type="submit"
-                                        class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 font-medium select-none">
-                                        Save Changes
+                                    <button type="submit" id="submitBtn"
+                                        class="flex items-center px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 font-medium select-none">
+                                        <div id="submitSpinner"
+                                            class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
+                                        </div>
+                                        <span id="submitText">Save Changes</span>
                                     </button>
                                 </div>
                             </form>
@@ -536,7 +544,6 @@
     <script>
         // Toggle edit mode
         function toggleEditMode(formId) {
-            const form = document.getElementById(formId + 'Form');
             const inputs = form.querySelectorAll('input, select, textarea');
 
             inputs.forEach(input => {
@@ -547,34 +554,66 @@
         // Reset form to original values
         function resetForm() {
             document.getElementById('profileForm').reset();
-            const inputs = document.getElementById('profileForm').querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.disabled = true;
-            });
         }
 
-        // Form validation
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
+        const form = document.getElementById('profileForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+
+        // Function to set loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitText.textContent = 'Saving...';
+                submitSpinner.classList.remove('hidden');
+                submitSpinner.classList.add('block'); // Show spinner
+            } else {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Save Changes';
+                submitSpinner.classList.remove('block');
+                submitSpinner.classList.add('hidden'); // Hide spinner
+            }
+        }
+
+        // Profile Form
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Basic validation
-            const name = this.querySelector('input[name="name"]').value;
-            const email = this.querySelector('input[name="email"]').value;
+            setLoading(true);
 
-            if (!name || !email) {
-                alert('Please fill in all required fields');
-                return;
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.status === 'success') {
+                        // Update name in sidebar
+                        document.getElementById('name').textContent = formData.get('name');
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert(error);
+            } finally {
+                resetForm();
+                setLoading(false);
             }
-
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-
-            // If all validations pass, submit the form
-            this.submit();
         });
 
         // Format phone number
@@ -593,45 +632,6 @@
 
                 e.target.value = value;
             });
-        }
-
-        // Request password reset
-        function requestPasswordReset() {
-            if (confirm('We will send a password reset link to your email. Continue?')) {
-                // Show loading state
-                const button = event.target;
-                const originalText = button.textContent;
-                button.textContent = 'Sending...';
-                button.disabled = true;
-
-                // Send request to backend
-                fetch('{{ route('password.email') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            email: '{{ auth()->user()->email }}'
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success' || data.message) {
-                            alert('Password reset link sent to your email. Please check your inbox.');
-                        } else {
-                            throw new Error('Failed to send reset link');
-                        }
-                    })
-                    .catch(error => {
-                        alert('Error: ' + error.message);
-                    })
-                    .finally(() => {
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    });
-            }
         }
     </script>
 </body>
