@@ -322,8 +322,6 @@
                             </form>
                         </div>
 
-                        <!-- Replace the entire Security Settings section with this: -->
-
                         <!-- Security Settings -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h2 class="text-xl font-bold text-gray-900 mb-6">Security Settings</h2>
@@ -487,52 +485,115 @@
                             </div>
                         </div>
 
-                        <!-- Quick Actions -->
+                        <!-- Recent Activity -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
 
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-4">
+                                <!-- Activity Timeline -->
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Profile Updated</p>
+                                            <p class="text-xs text-gray-500">You updated your profile information</p>
+                                            <p class="text-xs text-gray-400">
+                                                {{ auth()->user()->updated_at->diffForHumans() }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Password Changed</p>
+                                            <p class="text-xs text-gray-500">You updated your account password</p>
+                                            <p class="text-xs text-gray-400">3 days ago</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Profile Photo Updated</p>
+                                            <p class="text-xs text-gray-500">You changed your profile picture</p>
+                                            <p class="text-xs text-gray-400">1 week ago</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                                            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Session Expired</p>
+                                            <p class="text-xs text-gray-500">A session was automatically logged out</p>
+                                            <p class="text-xs text-gray-400">2 weeks ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- View All Activity Button -->
                                 <button type="button"
-                                    class="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition duration-300 flex flex-col items-center">
-                                    <svg class="w-6 h-6 text-blue-600 mb-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    <span class="text-blue-700 text-sm font-medium">Post Job</span>
+                                    class="w-full py-2 text-center text-sm font-medium text-blue-600 hover:text-blue-800 border border-blue-200 rounded-lg hover:bg-blue-50 transition duration-300 select-none">
+                                    View All Activity
                                 </button>
 
-                                <button type="button"
-                                    class="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition duration-300 flex flex-col items-center">
-                                    <svg class="w-6 h-6 text-green-600 mb-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
-                                    <span class="text-green-700 text-sm font-medium">Notifications</span>
-                                </button>
+                                <!-- Activity Summary -->
+                                <div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Activity This Month</p>
+                                            <p class="text-xs text-gray-500">8 profile updates</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-gray-900">Active Days</p>
+                                            <p class="text-xs text-gray-500">14/30 days</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <button type="button"
-                                    class="p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition duration-300 flex flex-col items-center">
-                                    <svg class="w-6 h-6 text-purple-600 mb-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <span class="text-purple-700 text-sm font-medium">Settings</span>
-                                </button>
-
-                                <button type="button"
-                                    class="p-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition duration-300 flex flex-col items-center">
-                                    <svg class="w-6 h-6 text-red-600 mb-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    <span class="text-red-700 text-sm font-medium">Delete Account</span>
-                                </button>
+                                <!-- Account Actions -->
+                                <div class="pt-4 mt-4 border-t border-gray-200">
+                                    <h3 class="text-sm font-medium text-gray-900 mb-3">Account Actions</h3>
+                                    <button type="button" id="deleteAccountBtn"
+                                        class="w-full py-2.5 text-center text-sm font-medium text-red-600 hover:text-red-800 border border-red-200 rounded-lg hover:bg-red-50 transition duration-300 flex items-center justify-center select-none">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete Account
+                                    </button>
+                                    <p class="text-xs text-gray-500 mt-2 text-center">
+                                        This action cannot be undone. All your data will be permanently deleted.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -602,6 +663,28 @@
                     if (data.status === 'success') {
                         // Update name in sidebar
                         document.getElementById('name').textContent = formData.get('name');
+
+                        // Update the "Last updated" timestamp at the top of the page
+                        const lastUpdatedElement = document.querySelector('.text-sm.text-gray-500');
+                        if (lastUpdatedElement) {
+                            const now = new Date();
+                            const formattedDate = now.toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric'
+                            });
+                            lastUpdatedElement.textContent = `Last updated: ${formattedDate}`;
+                        }
+
+                        // Update the "Profile Updated" timestamp in Recent Activity
+                        const profileUpdateElements = document.querySelectorAll(
+                            '.flex-1 .text-xs.text-gray-400');
+                        if (profileUpdateElements.length > 0) {
+                            profileUpdateElements[0].textContent = 'Just now';
+                        }
+
+                        // Show success message
+                        showToast('Profile updated successfully!', 'success');
                     } else {
                         alert(data.message);
                     }
@@ -611,8 +694,75 @@
             } catch (error) {
                 alert(error);
             } finally {
-                resetForm();
                 setLoading(false);
+            }
+        });
+
+        // Delete Account button
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+        deleteAccountBtn.addEventListener('click', async function(e) {
+            if (!confirm(
+                    'Are you sure you want to delete your account?\n\n' +
+                    'This action will:\n' +
+                    '• Permanently delete your account\n' +
+                    '• Remove all your data from the system\n' +
+                    '• Cancel any active projects\n' +
+                    '• This action cannot be undone!\n\n' +
+                    'Type "DELETE" to confirm:'
+                )) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            const userInput = prompt('Please type "DELETE" to confirm account deletion:');
+            if (userInput !== 'DELETE') {
+                alert('Account deletion cancelled. The text did not match.');
+                return;
+            }
+
+            // Show loading state on the delete button
+            const originalText = deleteAccountBtn.innerHTML;
+            deleteAccountBtn.innerHTML = `
+                <div class="w-4 h-4 border-t-2 border-red-600 rounded-full animate-spin mr-2"></div>
+                Deleting Account...
+            `;
+            deleteAccountBtn.disabled = true;
+
+            try {
+                const response = await fetch('{{ route('profile.destroy', auth()->user()->id) }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.status === 'success') {
+                        // Redirect to logout route
+                    } else {
+                        alert(data.message || 'Failed to delete account.');
+                        // Reset button state
+                        deleteAccountBtn.innerHTML = originalText;
+                        deleteAccountBtn.disabled = false;
+                    }
+                } else {
+                    alert(data.message || 'Failed to delete account.');
+                    // Reset button state
+                    deleteAccountBtn.innerHTML = originalText;
+                    deleteAccountBtn.disabled = false;
+                }
+            } catch (error) {
+                alert('An error occurred while deleting your account. Please try again.');
+                // Reset button state
+                deleteAccountBtn.innerHTML = originalText;
+                deleteAccountBtn.disabled = false;
             }
         });
 
@@ -632,6 +782,21 @@
 
                 e.target.value = value;
             });
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-opacity duration-300 z-50 ${
+                type === 'success' ? 'bg-green-400' : 'bg-red-400'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
         }
     </script>
 </body>
