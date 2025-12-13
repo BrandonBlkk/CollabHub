@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\FindFreelancersController;
 use App\Http\Controllers\Admin\FreelancerController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Client\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // Force the user to login
@@ -22,12 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     // Admin-Only Routes
-    Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
@@ -41,6 +37,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('find-freelancers');
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
+
+        // Profile
+        Route::resource('profile', ProfileController::class);
     });
 
     //  Freelancer-Only Routes

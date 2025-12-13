@@ -1,6 +1,6 @@
 @props(['role' => auth()->user()->role])
 
-<div class="sidebar bg-white w-64 border-r border-gray-200 flex-col hidden lg:flex">
+<div class="sidebar bg-white w-64 border-r border-gray-200 flex-col hidden lg:flex" x-data="{ profileMenuOpen: false }">
     <!-- Logo -->
     <div class="px-6 py-4 border-b border-gray-200">
         <a href="/" class="flex items-center space-x-3">
@@ -67,49 +67,136 @@
             icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
             Earnings
         </x-sidebar-item>
-
-        <x-sidebar-item href="#"
-            icon="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-            Settings
-        </x-sidebar-item>
     </nav>
 
-    <!-- User Profile -->
-    <div class="p-4 border-t border-gray-200">
+    <!-- User Profile Dropdown -->
+    <div class="p-4 border-t border-gray-200 relative">
         <div class="flex items-center space-x-3">
+            <!-- Profile Trigger Button -->
+            <button @click="profileMenuOpen = !profileMenuOpen"
+                class="flex items-center space-x-3 w-full focus:outline-none hover:bg-gray-50 p-2 rounded-lg transition duration-150">
+                {{-- Profile Photo --}}
+                @if (auth()->user()->profile_photo_path)
+                    <div class="w-10 h-10 rounded-full overflow-hidden">
+                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile Image"
+                            class="w-full h-full object-cover">
+                    </div>
+                @else
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
+                        <span
+                            class="text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                    </div>
+                @endif
 
-            {{-- Profile Photo --}}
-            @if (auth()->user()->profile_photo_path)
-                <div class="w-10 rounded-full select-none">
-                    <img src="{{ $freelancer->profile_photo_path }}" alt="Profile Image"
-                        class="w-full h-full object-cover rounded-full">
+                <div class="flex-1 text-left">
+                    <h3 id="name" class="font-semibold text-sm text-gray-900">{{ auth()->user()->name }}</h3>
+                    <p class="text-gray-500 text-xs">
+                        {{ $role === 'freelancer' ? 'Freelancer' : 'Client' }}
+                    </p>
+                </div>
+
+                <!-- Dropdown Arrow -->
+                <svg :class="{ 'transform rotate-180': profileMenuOpen }"
+                    class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Profile Dropdown Menu -->
+        <div x-show="profileMenuOpen" @click.outside="profileMenuOpen = false" x-cloak
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="transform opacity-0 scale-95"
+            x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="transform opacity-100 scale-100"
+            x-transition:leave-end="transform opacity-0 scale-95"
+            class="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+
+            @auth
+                <!-- For Authenticated Users -->
+                <a href="{{ route('profile.show', auth()->user()->id) }}"
+                    class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700">
+                    <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <div>
+                        <span class="font-medium text-sm">My Profile</span>
+                        <p class="text-xs text-gray-500">View and edit profile</p>
+                    </div>
+                </a>
+
+                <a href=""
+                    class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700 border-t border-gray-100">
+                    <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <div>
+                        <span class="font-medium text-sm">Settings</span>
+                        <p class="text-xs text-gray-500">Account preferences</p>
+                    </div>
+                </a>
+
+                <div class="border-t border-gray-100">
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="w-full flex items-center px-4 py-3 hover:bg-gray-50 text-red-600 group">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="font-medium text-sm">Logout</span>
+                        </button>
+                    </form>
                 </div>
             @else
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
-                    <span
-                        class="text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
-                </div>
-            @endif
+                <!-- For Guest Users -->
+                <a href="{{ route('login') }}" class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700 group">
+                    <svg class="w-5 h-5 text-gray-400 mr-3 group-hover:text-blue-600" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    <div>
+                        <span class="font-medium text-sm">Sign In</span>
+                        <p class="text-xs text-gray-500">Access your account</p>
+                    </div>
+                </a>
 
-            <div class="flex-1">
-                <h3 class="font-semibold text-sm">{{ auth()->user()->name }}</h3>
-                <p class="text-gray-500 text-xs">
-                    {{ $role === 'freelancer' ? 'Freelancer' : 'Client' }}
-                </p>
-            </div>
-            <a href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                class="text-gray-400 hover:text-red-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                    </path>
-                </svg>
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                @csrf
-            </form>
+                <a href="{{ route('register') }}"
+                    class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700 group border-t border-gray-100">
+                    <svg class="w-5 h-5 text-gray-400 mr-3 group-hover:text-green-600" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    <div>
+                        <span class="font-medium text-sm">Sign Up</span>
+                        <p class="text-xs text-gray-500">Create new account</p>
+                    </div>
+                </a>
+            @endauth
         </div>
     </div>
 </div>
+
+<!-- Mobile sidebar overlay (optional) -->
+<div x-show="profileMenuOpen" @click="profileMenuOpen = false" x-cloak
+    class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden">
+</div>
+
+<!-- Add Alpine.js if not already included in your layout -->
+@push('scripts')
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+@endpush

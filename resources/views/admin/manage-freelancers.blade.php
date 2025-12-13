@@ -65,7 +65,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Avg. Hourly Rate</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">$68.50</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">${{ $data['totalHourlyRate'] }}</p>
                             </div>
                             <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
@@ -93,7 +93,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm">Total Earned</p>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">$842.3K</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">${{ $data['totalEarned'] }}</p>
                             </div>
                             <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
@@ -271,16 +271,24 @@
                                                 <div class="flex items-center gap-2">
                                                     <input type="checkbox" value="1"
                                                         x-model="selectedFreelancers" class="rounded border-gray-300">
-                                                    <div
-                                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
-                                                        <span
-                                                            class="text-white font-bold text-sm">{{ Str::substr($freelancer->name, 0, 1) }}</span>
-                                                    </div>
+                                                    @if ($freelancer->user->profile_photo_path)
+                                                        <div class="w-8 h-8 rounded-full select-none">
+                                                            <img src="{{ $freelancer->user->profile_photo_path }}"
+                                                                alt="Profile Image">
+                                                        </div>
+                                                    @else
+                                                        <div
+                                                            class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center select-none">
+                                                            <span
+                                                                class="text-white font-bold text-sm">{{ Str::substr($freelancer->user->name, 0, 1) }}</span>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        {{ $freelancer->name }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $freelancer->email }}</div>
+                                                        {{ $freelancer->user->name }}</div>
+                                                    <div class="text-sm text-gray-500">{{ $freelancer->user->email }}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
@@ -298,10 +306,21 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">
-                                                ${{ $freelancer->hourly_rate }}/hr</div>
+                                                @if ($freelancer->hourly_rate)
+                                                    ${{ $freelancer->hourly_rate }}/hr
+                                                @else
+                                                    <p class="text-xs font-medium text-gray-900">No hourly rate</p>
+                                                @endif
+                                            </div>
                                             <div class="text-xs text-gray-500">
-                                                {{ $freelancer->years_experience }}
-                                                years experience</div>
+                                                @if ($freelancer->years_experience)
+                                                    {{ $freelancer->years_experience }}
+                                                    years experience
+                                                @else
+                                                    <p class="text-xs font-medium text-gray-900">No years experience
+                                                    </p>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -331,10 +350,10 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span
-                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ ucfirst($freelancer->status) }}</span>
+                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">{{ ucfirst($freelancer->user->status) }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $freelancer->created_at->format('Y-m-d') }}
+                                            {{ $freelancer->user->created_at->format('Y-m-d') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex items-center gap-2">
@@ -428,77 +447,41 @@
                         </div>
 
                         <div class="space-y-4">
-                            <!-- Freelancer 1 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center select-none">
-                                        <span class="text-white font-bold text-sm">M</span>
+                            @forelse($data['topEarners'] as $freelancer)
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        @if ($freelancer->user->profile_photo_path)
+                                            <div class="w-8 h-8 rounded-full select-none">
+                                                <img src="{{ $freelancer->user->profile_photo_path }}"
+                                                    alt="Profile Image">
+                                            </div>
+                                        @else
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center select-none">
+                                                <span
+                                                    class="text-white font-bold text-sm">{{ $freelancer->user->profile_photo_path }}</span>
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">
+                                                {{ $freelancer->user->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $freelancer->user->job_title }}</p>
+                                        </div />
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Michael Torres</p>
-                                        <p class="text-xs text-gray-500">Full-Stack Developer</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$48,200</p>
-                                    <p class="text-xs text-gray-500">198 projects</p>
-                                </div>
-                            </div>
-
-                            <!-- Freelancer 2 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-teal-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">S</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Sarah Chen</p>
-                                        <p class="text-xs text-gray-500">Senior UI/UX Designer</p>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">${{ $freelancer->total_earned }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ $freelancer->total_projects }} projects
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$42,800</p>
-                                    <p class="text-xs text-gray-500">142 projects</p>
+                            @empty
+                                <div class="text-center py-20 text-gray-500">
+                                    <p class="text-sm">No freelancers have earned money yet.</p>
+                                    <p class="text-xs mt-1">Top earners will appear here once payments are made.</p>
                                 </div>
-                            </div>
-
-                            <!-- Freelancer 3 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-red-400 to-orange-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">J</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">James Park</p>
-                                        <p class="text-xs text-gray-500">Backend Engineer</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$38,500</p>
-                                    <p class="text-xs text-gray-500">167 projects</p>
-                                </div>
-                            </div>
-
-                            <!-- Freelancer 4 -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-400 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">E</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Emma Wilson</p>
-                                        <p class="text-xs text-gray-500">Mobile App Developer</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-900">$32,100</p>
-                                    <p class="text-xs text-gray-500">89 projects</p>
-                                </div>
-                            </div>
+                            @endforelse
+                            <!-- Freelancer -->
                         </div>
                     </div>
 
@@ -545,15 +528,10 @@
                         </div>
 
                         <div class="mt-6 pt-6 border-t border-gray-200">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-gray-900">892</p>
-                                    <p class="text-xs text-gray-500">Available Now</p>
-                                </div>
-                                <div class="text-center">
-                                    <p class="text-2xl font-bold text-gray-900">2.4h</p>
-                                    <p class="text-xs text-gray-500">Avg. Response Time</p>
-                                </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-gray-900">{{ $data['totalSkills'] }}
+                                </p>
+                                <p class="text-xs text-gray-500">Available Now</p>
                             </div>
                         </div>
                     </div>
@@ -579,22 +557,29 @@
                                         <div
                                             class="flex items-center justify-between w-full max-w-md p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow transition">
                                             <div class="flex items-center gap-3">
-                                                <div
-                                                    class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0 select-none">
-                                                    <span
-                                                        class="text-white font-bold text-sm">{{ Str::substr($freelancer->name, 0, 1) }}</span>
-                                                </div>
+                                                @if ($freelancer->user->profile_photo_path)
+                                                    <div class="w-10 h-10 rounded-full select-none">
+                                                        <img src="{{ $freelancer->user->profile_photo_path }}"
+                                                            alt="Profile Image">
+                                                    </div>
+                                                @else
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0 select-none">
+                                                        <span
+                                                            class="text-white font-bold text-sm">{{ Str::substr($freelancer->user->name, 0, 1) }}</span>
+                                                    </div>
+                                                @endif
                                                 <div>
                                                     <p class="text-sm font-medium text-gray-900">
-                                                        {{ $freelancer->name }}</p>
+                                                        {{ $freelancer->user->name }}</p>
                                                     <p class="text-xs text-gray-500">{{ $freelancer->job_title }}</p>
                                                 </div>
                                             </div>
                                             <div class="text-right">
                                                 <p class="text-xs text-gray-500">
-                                                    {{ $freelancer->created_at->diffForHumans() }}</p>
+                                                    {{ $freelancer->user->created_at->diffForHumans() }}</p>
                                                 <p class="text-xs font-medium text-green-600">
-                                                    {{ ucfirst($freelancer->status) }}</p>
+                                                    {{ ucfirst($freelancer->user->status) }}</p>
                                             </div>
                                         </div>
                                     @endforeach
