@@ -22,6 +22,7 @@ class Job extends Model
         'experience_level',
         'skills_required',
         'category_id',
+        'posted_at',
         'expires_at',
         'is_featured',
         'is_private',
@@ -92,5 +93,10 @@ class Job extends Model
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
+    }
+
+    public function getAllCategoriesAttribute()
+    {
+        return $this->category->ancestorsAndSelf()->pluck('id')->toArray();
     }
 }
