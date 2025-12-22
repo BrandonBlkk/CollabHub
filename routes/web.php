@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\FindFreelancersController;
 use App\Http\Controllers\Admin\FreelancerController;
+use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('find-freelancers');
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
+        Route::resource('my-jobs', JobController::class);
 
         // Profile
         Route::resource('profile', ProfileController::class);

@@ -30,6 +30,7 @@ class Client extends Model
         return $this->hasMany(Job::class);
     }
 
+    // Helpers
     public function getAllJobsAttribute()
     {
         return $this->jobs()->count();
@@ -38,5 +39,30 @@ class Client extends Model
     public function getActiveJobsAttribute()
     {
         return $this->jobs()->active()->count();
+    }
+
+    public function getOpenJobsAttribute()
+    {
+        return $this->jobs()->where('status', 'open')->count();
+    }
+
+    public function getInProgressJobsAttribute()
+    {
+        return $this->jobs()->where('status', 'in_progress')->count();
+    }
+
+    public function getCompletedJobsAttribute()
+    {
+        return $this->jobs()->where('status', 'completed')->count();
+    }
+
+    public function getDraftJobsAttribute()
+    {
+        return $this->jobs()->where('status', 'draft')->count();
+    }
+
+    public function getTotalProposalsAttribute()
+    {
+        return $this->jobs()->withCount('proposals')->get()->sum('proposals_count');
     }
 }
