@@ -61,6 +61,21 @@ class RegisteredUserController extends Controller
                 ]);
             }
 
+            // Create settings
+            $user->settings()->create([
+                'language' => 'en',
+                'currency' => 'USD',
+                'timezone' => 'UTC',
+                'dark_mode' => false,
+                'email_project_updates' => true,
+                'email_new_messages' => true,
+                'email_payments' => true,
+                'email_marketing' => false,
+                'profile_visibility' => 'public',
+                'show_online_status' => true,
+                'show_earnings' => true,
+            ]);
+
             return $user;
         });
 
