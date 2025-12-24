@@ -5,6 +5,7 @@ use App\Http\Controllers\FindFreelancersController;
 use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
+use App\Http\Controllers\Client\SettingController;
 use Illuminate\Support\Facades\Route;
 
 // Force the user to login
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
         Route::resource('my-jobs', JobController::class);
+        Route::resource('settings', SettingController::class);
 
         // Profile
         Route::resource('profile', ProfileController::class);

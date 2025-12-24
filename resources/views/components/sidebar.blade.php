@@ -124,7 +124,7 @@
                     </div>
                 </a>
 
-                <a href=""
+                <a href="{{ route('settings.index') }}"
                     class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700 border-t border-gray-100">
                     <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
