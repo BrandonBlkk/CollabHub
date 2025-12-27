@@ -76,6 +76,11 @@ class User extends Authenticatable
         return $this->hasMany(Review::class, 'to_user_id');
     }
 
+    public function settings()
+    {
+        return $this->hasOne(Setting::class);
+    }
+
     // Helper methods
     public function isClient(): bool
     {
