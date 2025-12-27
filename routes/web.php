@@ -40,7 +40,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
         Route::resource('my-jobs', JobController::class);
-        Route::resource('settings', SettingController::class);
+
+        // Settings
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
 
         // Profile
         Route::resource('profile', ProfileController::class);

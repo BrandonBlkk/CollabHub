@@ -77,16 +77,17 @@
 
                 <!-- Settings Content -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
-                    <!-- Left Column - Main Settings -->
-                    <div class="lg:col-span-2 space-y-3">
+                    <!-- Main Form for all settings -->
+                    <form id="preferencesForm" method="POST" action="{{ route('settings.update') }}"
+                        class="lg:col-span-2 space-y-3">
+                        @csrf
+                        @method('PUT')
+
                         <!-- Application Preferences -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h2 class="text-xl font-bold text-gray-900 mb-6">Application Preferences</h2>
 
-                            <form id="preferencesForm" method="POST" action="">
-                                @csrf
-                                @method('PUT')
-
+                            <div>
                                 <div class="space-y-6">
                                     <!-- Language & Region -->
                                     <div class="space-y-4">
@@ -97,12 +98,12 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Interface
                                                     Language</label>
                                                 <select name="language"
-                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300">
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                                     <option value="en"
-                                                        {{ old('language', auth()->user()->settings->language ?? 'en') == 'en' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->language ?? 'en') == 'en' ? 'selected' : '' }}>
                                                         English</option>
-                                                    <option value="es"
-                                                        {{ old('language', auth()->user()->settings->language ?? 'en') == 'my' ? 'selected' : '' }}>
+                                                    <option value="my"
+                                                        {{ (auth()->user()->settings->language ?? 'en') == 'my' ? 'selected' : '' }}>
                                                         Burmese</option>
                                                 </select>
                                             </div>
@@ -111,21 +112,21 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Time
                                                     Zone</label>
                                                 <select name="timezone"
-                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300">
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                                     <option value="UTC"
-                                                        {{ old('timezone', auth()->user()->settings->timezone ?? 'UTC') == 'UTC' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->timezone ?? 'UTC') == 'UTC' ? 'selected' : '' }}>
                                                         UTC (Coordinated Universal Time)</option>
                                                     <option value="America/New_York"
-                                                        {{ old('timezone', auth()->user()->settings->timezone ?? 'UTC') == 'America/New_York' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->timezone ?? 'UTC') == 'America/New_York' ? 'selected' : '' }}>
                                                         Eastern Time (ET)</option>
                                                     <option value="America/Chicago"
-                                                        {{ old('timezone', auth()->user()->settings->timezone ?? 'UTC') == 'America/Chicago' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->timezone ?? 'UTC') == 'America/Chicago' ? 'selected' : '' }}>
                                                         Central Time (CT)</option>
                                                     <option value="America/Los_Angeles"
-                                                        {{ old('timezone', auth()->user()->settings->timezone ?? 'UTC') == 'America/Los_Angeles' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->timezone ?? 'UTC') == 'America/Los_Angeles' ? 'selected' : '' }}>
                                                         Pacific Time (PT)</option>
                                                     <option value="Europe/London"
-                                                        {{ old('timezone', auth()->user()->settings->timezone ?? 'UTC') == 'Europe/London' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->timezone ?? 'UTC') == 'Europe/London' ? 'selected' : '' }}>
                                                         London (GMT)</option>
                                                 </select>
                                             </div>
@@ -141,25 +142,24 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Default
                                                     Currency</label>
                                                 <select name="currency"
-                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300">
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                                     <option value="USD"
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'USD' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'USD' ? 'selected' : '' }}>
                                                         US Dollar ($)</option>
-                                                    <option value="MMK">
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'MMK' ? 'selected' : '' }}
-                                                        Myanmar Kyat (MMK)
-                                                    </option>
+                                                    <option value="MMK"
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'MMK' ? 'selected' : '' }}>
+                                                        Myanmar Kyat (MMK)</option>
                                                     <option value="EUR"
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'EUR' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'EUR' ? 'selected' : '' }}>
                                                         Euro (€)</option>
                                                     <option value="GBP"
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'GBP' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'GBP' ? 'selected' : '' }}>
                                                         British Pound (£)</option>
                                                     <option value="CAD"
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'CAD' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'CAD' ? 'selected' : '' }}>
                                                         Canadian Dollar ($)</option>
                                                     <option value="AUD"
-                                                        {{ old('currency', auth()->user()->settings->currency ?? 'USD') == 'AUD' ? 'selected' : '' }}>
+                                                        {{ (auth()->user()->settings->currency ?? 'USD') == 'AUD' ? 'selected' : '' }}>
                                                         Australian Dollar ($)</option>
                                                 </select>
                                             </div>
@@ -179,110 +179,108 @@
                                                 </div>
                                                 <div class="relative">
                                                     <input type="checkbox" name="dark_mode" value="1"
-                                                        id="darkModeToggle" class="sr-only"
-                                                        {{ old('dark_mode', auth()->user()->settings->dark_mode ?? false) ? 'checked' : '' }}>
+                                                        id="darkModeToggle" class="sr-only setting-checkbox"
+                                                        {{ auth()->user()->settings->dark_mode ?? false ? 'checked' : '' }}>
                                                     <label for="darkModeToggle"
-                                                        class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('dark_mode', auth()->user()->settings->dark_mode ?? false) ? 'bg-blue-600' : 'bg-gray-300' }}">
+                                                        class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->dark_mode ?? false ? 'bg-gray-600' : 'bg-gray-300' }}">
                                                         <span
-                                                            class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('dark_mode', auth()->user()->settings->dark_mode ?? false) ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                            class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->dark_mode ?? false ? 'translate-x-7' : 'translate-x-1' }}"></span>
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
 
                         <!-- Notification Settings -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h2 class="text-xl font-bold text-gray-900 mb-6">Notification Settings</h2>
 
-                            <form id="notificationsForm" method="POST" action="">
-                                @csrf
-                                @method('PUT')
+                            <div class="space-y-6">
+                                <!-- Email Notifications -->
+                                <div class="space-y-4">
+                                    <h3 class="font-semibold text-gray-900">Email Notifications</h3>
 
-                                <div class="space-y-6">
-                                    <!-- Email Notifications -->
-                                    <div class="space-y-4">
-                                        <h3 class="font-semibold text-gray-900">Email Notifications</h3>
-
-                                        <div class="space-y-3">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900">Project Updates</h4>
-                                                    <p class="text-gray-500 text-sm">Get notified about project
-                                                        milestones and changes</p>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="checkbox" name="email_project_updates" value="1"
-                                                        id="emailProjectUpdates" class="sr-only"
-                                                        {{ old('email_project_updates', auth()->user()->settings->email_project_updates ?? true) ? 'checked' : '' }}>
-                                                    <label for="emailProjectUpdates"
-                                                        class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('email_project_updates', auth()->user()->settings->email_project_updates ?? true) ? 'bg-blue-600' : 'bg-gray-300' }}">
-                                                        <span
-                                                            class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('email_project_updates', auth()->user()->settings->email_project_updates ?? true) ? 'translate-x-7' : 'translate-x-1' }}"></span>
-                                                    </label>
-                                                </div>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">Project Updates</h4>
+                                                <p class="text-gray-500 text-sm">Get notified about project
+                                                    milestones and changes</p>
                                             </div>
-
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900">New Messages</h4>
-                                                    <p class="text-gray-500 text-sm">Receive email alerts for new
-                                                        messages</p>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="checkbox" name="email_new_messages" value="1"
-                                                        id="emailNewMessages" class="sr-only"
-                                                        {{ old('email_new_messages', auth()->user()->settings->email_new_messages ?? true) ? 'checked' : '' }}>
-                                                    <label for="emailNewMessages"
-                                                        class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('email_new_messages', auth()->user()->settings->email_new_messages ?? true) ? 'bg-blue-600' : 'bg-gray-300' }}">
-                                                        <span
-                                                            class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('email_new_messages', auth()->user()->settings->email_new_messages ?? true) ? 'translate-x-7' : 'translate-x-1' }}"></span>
-                                                    </label>
-                                                </div>
+                                            <div class="relative">
+                                                <input type="checkbox" name="email_project_updates" value="1"
+                                                    id="emailProjectUpdates" class="sr-only setting-checkbox"
+                                                    {{ auth()->user()->settings->email_project_updates ?? true ? 'checked' : '' }}>
+                                                <label for="emailProjectUpdates"
+                                                    class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->email_project_updates ?? true ? 'bg-green-500' : 'bg-gray-300' }}">
+                                                    <span
+                                                        class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->email_project_updates ?? true ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                </label>
                                             </div>
+                                        </div>
 
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900">Payment Notifications</h4>
-                                                    <p class="text-gray-500 text-sm">Get notified about payments and
-                                                        invoices</p>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="checkbox" name="email_payments" value="1"
-                                                        id="emailPayments" class="sr-only"
-                                                        {{ old('email_payments', auth()->user()->settings->email_payments ?? true) ? 'checked' : '' }}>
-                                                    <label for="emailPayments"
-                                                        class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('email_payments', auth()->user()->settings->email_payments ?? true) ? 'bg-blue-600' : 'bg-gray-300' }}">
-                                                        <span
-                                                            class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('email_payments', auth()->user()->settings->email_payments ?? true) ? 'translate-x-7' : 'translate-x-1' }}"></span>
-                                                    </label>
-                                                </div>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">New Messages</h4>
+                                                <p class="text-gray-500 text-sm">Receive email alerts for new
+                                                    messages</p>
                                             </div>
+                                            <div class="relative">
+                                                <input type="checkbox" name="email_new_messages" value="1"
+                                                    id="emailNewMessages" class="sr-only setting-checkbox"
+                                                    {{ auth()->user()->settings->email_new_messages ?? true ? 'checked' : '' }}>
+                                                <label for="emailNewMessages"
+                                                    class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->email_new_messages ?? true ? 'bg-green-500' : 'bg-gray-300' }}">
+                                                    <span
+                                                        class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->email_new_messages ?? true ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                </label>
+                                            </div>
+                                        </div>
 
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900">Marketing Emails</h4>
-                                                    <p class="text-gray-500 text-sm">Receive updates about new features
-                                                        and promotions</p>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="checkbox" name="email_marketing" value="1"
-                                                        id="emailMarketing" class="sr-only"
-                                                        {{ old('email_marketing', auth()->user()->settings->email_marketing ?? false) ? 'checked' : '' }}>
-                                                    <label for="emailMarketing"
-                                                        class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('email_marketing', auth()->user()->settings->email_marketing ?? false) ? 'bg-blue-600' : 'bg-gray-300' }}">
-                                                        <span
-                                                            class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('email_marketing', auth()->user()->settings->email_marketing ?? false) ? 'translate-x-7' : 'translate-x-1' }}"></span>
-                                                    </label>
-                                                </div>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">Payment Notifications
+                                                </h4>
+                                                <p class="text-gray-500 text-sm">Get notified about payments
+                                                    and
+                                                    invoices</p>
+                                            </div>
+                                            <div class="relative">
+                                                <input type="checkbox" name="email_payments" value="1"
+                                                    id="emailPayments" class="sr-only setting-checkbox"
+                                                    {{ auth()->user()->settings->email_payments ?? true ? 'checked' : '' }}>
+                                                <label for="emailPayments"
+                                                    class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->email_payments ?? true ? 'bg-green-500' : 'bg-gray-300' }}">
+                                                    <span
+                                                        class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->email_payments ?? true ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">Marketing Emails</h4>
+                                                <p class="text-gray-500 text-sm">Receive updates about new
+                                                    features
+                                                    and promotions</p>
+                                            </div>
+                                            <div class="relative">
+                                                <input type="checkbox" name="email_marketing" value="1"
+                                                    id="emailMarketing" class="sr-only setting-checkbox"
+                                                    {{ auth()->user()->settings->email_marketing ?? false ? 'checked' : '' }}>
+                                                <label for="emailMarketing"
+                                                    class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->email_marketing ?? false ? 'bg-green-500' : 'bg-gray-300' }}">
+                                                    <span
+                                                        class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->email_marketing ?? false ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
+                            </div>
                         </div>
 
                         <!-- Privacy & Security -->
@@ -301,18 +299,18 @@
                                                 <p class="text-gray-500 text-sm">Who can see your profile</p>
                                             </div>
                                             <select name="profile_visibility"
-                                                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
+                                                class="setting-select px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
                                                 <option value="public"
-                                                    {{ old('profile_visibility', auth()->user()->settings->profile_visibility ?? 'public') == 'public' ? 'selected' : '' }}>
+                                                    {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'public' ? 'selected' : '' }}>
                                                     Public</option>
                                                 <option value="clients_only"
-                                                    {{ old('profile_visibility', auth()->user()->settings->profile_visibility ?? 'public') == 'clients_only' ? 'selected' : '' }}>
+                                                    {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'clients_only' ? 'selected' : '' }}>
                                                     Only Clients</option>
                                                 <option value="freelancers_only"
-                                                    {{ old('profile_visibility', auth()->user()->settings->profile_visibility ?? 'public') == 'freelancers_only' ? 'selected' : '' }}>
+                                                    {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'freelancers_only' ? 'selected' : '' }}>
                                                     Only Freelancers</option>
                                                 <option value="private"
-                                                    {{ old('profile_visibility', auth()->user()->settings->profile_visibility ?? 'public') == 'private' ? 'selected' : '' }}>
+                                                    {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'private' ? 'selected' : '' }}>
                                                     Private</option>
                                             </select>
                                         </div>
@@ -320,17 +318,18 @@
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <h4 class="font-medium text-gray-900">Show Online Status</h4>
-                                                <p class="text-gray-500 text-sm">Display when you're online to others
+                                                <p class="text-gray-500 text-sm">Display when you're online to
+                                                    others
                                                 </p>
                                             </div>
                                             <div class="relative">
                                                 <input type="checkbox" name="show_online_status" value="1"
-                                                    id="showOnlineStatus" class="sr-only"
-                                                    {{ old('show_online_status', auth()->user()->settings->show_online_status ?? true) ? 'checked' : '' }}>
+                                                    id="showOnlineStatus" class="sr-only setting-checkbox"
+                                                    {{ auth()->user()->settings->show_online_status ?? true ? 'checked' : '' }}>
                                                 <label for="showOnlineStatus"
-                                                    class="block w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ old('show_online_status', auth()->user()->settings->show_online_status ?? true) ? 'bg-blue-600' : 'bg-gray-300' }}">
+                                                    class="toggle-label flex items-center w-12 h-6 rounded-full cursor-pointer transition duration-300 {{ auth()->user()->settings->show_online_status ?? true ? 'bg-green-500' : 'bg-gray-300' }}">
                                                     <span
-                                                        class="block w-4 h-4 mt-1 rounded-full bg-white transition duration-300 transform {{ old('show_online_status', auth()->user()->settings->show_online_status ?? true) ? 'translate-x-7' : 'translate-x-1' }}"></span>
+                                                        class="toggle-span block w-4 h-4 rounded-full bg-white transition duration-300 transform {{ auth()->user()->settings->show_online_status ?? true ? 'translate-x-7' : 'translate-x-1' }}"></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -338,7 +337,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </form>
 
                     <!-- Right Column - Account Actions & Status -->
                     <div class="space-y-6">
@@ -389,7 +388,8 @@
                                             </svg>
                                         </div>
                                         <h3 class="font-medium text-gray-900">Account Secure</h3>
-                                        <p class="text-gray-500 text-sm mt-1">All security settings are up to date</p>
+                                        <p class="text-gray-500 text-sm mt-1">All security settings are up to date
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -411,7 +411,8 @@
 
                                 <div class="pt-4 border-t border-red-100">
                                     <h3 class="font-medium text-gray-900 mb-2">Delete Account</h3>
-                                    <p class="text-gray-500 text-sm mb-3">Permanently delete your account and data</p>
+                                    <p class="text-gray-500 text-sm mb-3">Permanently delete your account and data
+                                    </p>
                                     <button onclick="deleteAccount()"
                                         class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
                                         Delete Account
@@ -430,14 +431,17 @@
                                         <h3 class="font-medium text-gray-900">Apply Settings</h3>
                                         <p class="text-gray-500 text-sm mt-1">Save all your preferences</p>
                                     </div>
-                                    <button id="saveAllSettings"
-                                        class="px-6 py-3 bg-gray-800 text-white rounded-lg font-medium hover:bg-black transition duration-300">
-                                        Save All Changes
+                                    <button id="saveAllSettings" type="button"
+                                        class="flex items-center px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 font-medium select-none">
+                                        <div id="submitSpinner"
+                                            class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
+                                        </div>
+                                        <span id="submitText">Save Changes</span>
                                     </button>
                                 </div>
 
                                 <div class="pt-4 border-t border-gray-200">
-                                    <button onclick="resetToDefaults()"
+                                    <button onclick="resetToDefaults()" type="button"
                                         class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
                                         Reset to Defaults
                                     </button>
@@ -451,265 +455,150 @@
     </div>
 
     <!-- JavaScript for Settings Page -->
-    {{-- <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleBtn = document.getElementById('sidebarToggle');
-
-            if (window.innerWidth <= 1024 &&
-                !sidebar.contains(event.target) &&
-                !toggleBtn.contains(event.target) &&
-                sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-            }
+    <script>
+        // Initialize toggle switches on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeToggleSwitches();
         });
 
         // Toggle switch functionality
-        document.querySelectorAll('input[type="checkbox"].sr-only').forEach(checkbox => {
-            const label = checkbox.nextElementSibling;
+        function initializeToggleSwitches() {
+            document.querySelectorAll('.toggle-label').forEach(label => {
+                // Set initial state from checkbox
+                const checkbox = label.previousElementSibling;
+                const span = label.querySelector('.toggle-span');
 
-            label.addEventListener('click', function() {
-                const span = this.querySelector('span');
+                // Ensure proper initial state
                 if (checkbox.checked) {
-                    this.classList.remove('bg-blue-600');
-                    this.classList.add('bg-gray-300');
-                    span.classList.remove('translate-x-7');
-                    span.classList.add('translate-x-1');
-                } else {
-                    this.classList.remove('bg-gray-300');
-                    this.classList.add('bg-blue-600');
+                    label.classList.remove('bg-gray-300');
+                    label.classList.add('bg-green-500');
                     span.classList.remove('translate-x-1');
                     span.classList.add('translate-x-7');
+                } else {
+                    label.classList.remove('bg-green-500');
+                    label.classList.add('bg-gray-300');
+                    span.classList.remove('translate-x-7');
+                    span.classList.add('translate-x-1');
                 }
-                checkbox.checked = !checkbox.checked;
-            });
-        });
 
-        // Notification frequency selection
-        document.querySelectorAll('.notification-frequency-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const frequency = this.dataset.frequency;
+                // Add click handler
+                label.addEventListener('click', function() {
+                    const checkbox = this.previousElementSibling;
+                    const span = this.querySelector('.toggle-span');
 
-                // Remove active state from all buttons
-                document.querySelectorAll('.notification-frequency-btn').forEach(b => {
-                    b.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200');
-                    b.classList.add('bg-gray-100', 'text-gray-700', 'border-gray-300',
-                        'hover:bg-gray-200');
+                    // Toggle checkbox state
+                    checkbox.checked = !checkbox.checked;
+
+                    // Update checkbox value for form submission
+                    if (checkbox.checked) {
+                        checkbox.setAttribute('value', '1');
+                    } else {
+                        checkbox.setAttribute('value', '0');
+                    }
+
+                    // Update visual state
+                    if (checkbox.checked) {
+                        this.classList.remove('bg-gray-300');
+                        this.classList.add('bg-green-500');
+                        span.classList.remove('translate-x-1');
+                        span.classList.add('translate-x-7');
+                    } else {
+                        this.classList.remove('bg-green-500');
+                        this.classList.add('bg-gray-300');
+                        span.classList.remove('translate-x-7');
+                        span.classList.add('translate-x-1');
+                    }
                 });
-
-                // Add active state to clicked button
-                this.classList.remove('bg-gray-100', 'text-gray-700', 'border-gray-300',
-                    'hover:bg-gray-200');
-                this.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
-
-                // Update hidden input
-                document.getElementById('notificationFrequency').value = frequency;
             });
-        });
+        }
 
         // Save all settings
-        document.getElementById('saveAllSettings').addEventListener('click', async function() {
-            const originalText = this.textContent;
-            this.textContent = 'Saving...';
-            this.disabled = true;
+        document.getElementById('saveAllSettings').addEventListener('click', async function(e) {
+            e.preventDefault();
 
-            // Collect data from all forms
-            const preferencesData = new FormData(document.getElementById('preferencesForm'));
-            const notificationsData = new FormData(document.getElementById('notificationsForm'));
+            const saveAllBtn = this;
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const originalText = submitText.textContent;
 
-            // Combine data
-            const combinedData = new FormData();
-            for (const [key, value] of preferencesData.entries()) {
-                combinedData.append(key, value);
-            }
-            for (const [key, value] of notificationsData.entries()) {
-                combinedData.append(key, value);
-            }
+            // Show loading state
+            submitText.textContent = 'Saving...';
+            submitSpinner.classList.remove('hidden');
+            submitSpinner.classList.add('block');
+            saveAllBtn.disabled = true;
 
             try {
-                const response = await fetch('{{ route('settings.update') }}', {
-                    method: 'POST',
-                    body: combinedData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content'),
-                        'Accept': 'application/json'
+                // Get the main form
+                const form = document.getElementById('preferencesForm');
+
+                // Create FormData object from the form
+                const formData = new FormData(form);
+
+                // For checkboxes that are unchecked, ensure they're included with value '0'
+                document.querySelectorAll('.setting-checkbox').forEach(checkbox => {
+                    if (!checkbox.checked && !formData.has(checkbox.name)) {
+                        formData.append(checkbox.name, '0');
                     }
                 });
 
-                const data = await response.json();
+                // Send the request
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
 
-                if (response.ok) {
-                    this.textContent = 'Saved!';
-                    this.classList.remove('bg-gray-800', 'hover:bg-black');
-                    this.classList.add('bg-green-600');
+                const result = await response.json();
 
-                    // Show success message
-                    showToast('Settings saved successfully!', 'success');
-
-                    setTimeout(() => {
-                        this.textContent = originalText;
-                        this.disabled = false;
-                        this.classList.remove('bg-green-600');
-                        this.classList.add('bg-gray-800', 'hover:bg-black');
-                    }, 2000);
+                if (response.ok && result.success) {
+                    // Show success state
+                    showToast(result.message || 'All settings saved successfully!', 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to save settings');
+                    throw new Error(result.message || 'Failed to save settings');
                 }
             } catch (error) {
-                this.textContent = 'Error!';
-                this.classList.remove('bg-gray-800', 'hover:bg-black');
-                this.classList.add('bg-red-600');
-
-                showToast(error.message, 'error');
-
+                console.error('Save error:', error);
+                showToast(error.message || 'An error occurred while saving settings', 'error');
+            } finally {
+                // Reset button after 2 seconds
                 setTimeout(() => {
-                    this.textContent = originalText;
-                    this.disabled = false;
-                    this.classList.remove('bg-red-600');
-                    this.classList.add('bg-gray-800', 'hover:bg-black');
+                    submitText.textContent = originalText;
+                    submitSpinner.classList.add('hidden');
+                    submitSpinner.classList.remove('block');
+                    saveAllBtn.disabled = false;
                 }, 2000);
             }
         });
 
         // Account actions
-        function changePassword() {
-            // Redirect to password change page or show modal
-            window.location.href = '{{ route('password.change') }}';
-        }
-
-        function manageDevices() {
-            // Show devices management modal
-            alert('Device management feature coming soon!');
-        }
-
-        function exportData() {
-            if (confirm('Request a data export? This may take a few minutes and will be sent to your email.')) {
-                // Make API call to trigger data export
-                fetch('{{ route('settings.data-export') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Data export requested! Check your email for download link.', 'success');
-                        } else {
-                            showToast(data.message || 'Failed to request data export', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showToast('An error occurred. Please try again.', 'error');
-                    });
-            }
-        }
-
-        function requestDataExport() {
-            exportData();
-        }
-
         function verifyEmail() {
-            // Send email verification
-            fetch('{{ route('verification.send') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'verification-link-sent') {
-                        showToast('Verification email sent! Check your inbox.', 'success');
-                    } else {
-                        showToast('Failed to send verification email', 'error');
-                    }
-                })
-                .catch(error => {
-                    showToast('An error occurred. Please try again.', 'error');
-                });
+            //
         }
 
         function deactivateAccount() {
-            if (confirm(
-                    'Are you sure you want to deactivate your account?\n\nYour account will be temporarily disabled and you won\'t be able to log in until you reactivate it.'
-                )) {
-                // Make API call to deactivate account
-                fetch('{{ route('settings.deactivate') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Account deactivated. Redirecting to login...', 'success');
-                            setTimeout(() => {
-                                window.location.href = '{{ route('login') }}';
-                            }, 2000);
-                        } else {
-                            showToast(data.message || 'Failed to deactivate account', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showToast('An error occurred. Please try again.', 'error');
-                    });
-            }
+            //
         }
 
         function deleteAccount() {
-            const confirmation = prompt(
-                'Please type "DELETE" to confirm permanent account deletion:\n\nThis action cannot be undone! All your data will be permanently deleted.'
-            );
-
-            if (confirmation === 'DELETE') {
-                // Make API call to delete account
-                fetch('{{ route('settings.delete') }}', {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Account deleted. Redirecting to homepage...', 'success');
-                            setTimeout(() => {
-                                window.location.href = '/';
-                            }, 2000);
-                        } else {
-                            showToast(data.message || 'Failed to delete account', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showToast('An error occurred. Please try again.', 'error');
-                    });
-            } else if (confirmation) {
-                showToast('Account deletion cancelled. The text did not match "DELETE".', 'error');
-            }
+            //
         }
 
         function resetToDefaults() {
             if (confirm('Reset all settings to default values?')) {
-                // Make API call to reset settings
                 fetch('{{ route('settings.reset') }}', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            _method: 'PUT'
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -730,37 +619,37 @@
 
         // Toast notification function
         function showToast(message, type = 'success') {
+            // Remove existing toasts
+            const existingToasts = document.querySelectorAll('.custom-toast');
+            existingToasts.forEach(toast => toast.remove());
+
             const toast = document.createElement('div');
             toast.className =
-                `fixed top-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-opacity duration-300 z-50 ${type === 'success' ? 'bg-green-400' : 'bg-red-400'}`;
+                `custom-toast fixed top-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'}`;
             toast.textContent = message;
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+
             document.body.appendChild(toast);
 
+            // Animate in
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 10);
+
+            // Remove after 3 seconds
             setTimeout(() => {
                 toast.style.opacity = '0';
-                setTimeout(() => document.body.removeChild(toast), 300);
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
             }, 3000);
         }
-
-        // Auto-update time
-        function updateTime() {
-            const timeElement = document.querySelector('.text-sm.text-gray-500');
-            if (timeElement) {
-                const now = new Date();
-                const options = {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                };
-                timeElement.textContent = now.toLocaleDateString('en-US', options);
-            }
-        }
-
-        // Update time on load and every minute
-        updateTime();
-        setInterval(updateTime, 60000);
-    </script> --}}
+    </script>
 </body>
 
 </html>

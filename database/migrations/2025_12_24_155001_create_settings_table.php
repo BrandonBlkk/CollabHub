@@ -34,9 +34,6 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
-
-            // Ensure one settings record per user
-            $table->unique('user_id');
         });
     }
 
