@@ -37,17 +37,35 @@
                             <!-- Avatar with Verification Badge -->
                             <div class="relative">
                                 @if ($freelancer->profile_photo_path)
-                                    <div class="w-20 h-20 rounded-full flex-shrink-0 select-none">
+                                    <div class="w-32 h-32 rounded-full flex-shrink-0 select-none">
                                         <img src="{{ $freelancer->profile_photo_path }}" alt="Profile Image"
                                             class="w-full h-full rounded-full object-cover border-4 border-white shadow">
                                     </div>
                                 @else
                                     <div
-                                        class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
+                                        class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
                                         <span
-                                            class="text-white font-bold text-2xl">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
+                                            class="text-white font-bold text-4xl">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
                                     </div>
                                 @endif
+
+                                <!-- Edit Photo Button (Only for freelancer viewing their own profile) -->
+                                @auth
+                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                        <button type="button"
+                                            onclick="document.getElementById('profile-photo-upload').click()"
+                                            class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full hover:bg-black transition shadow-lg"
+                                            title="Change profile photo">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </button>
+                                        <input type="file" id="profile-photo-upload" class="hidden" accept="image/*">
+                                    @endif
+                                @endauth
                             </div>
 
                             <!-- Basic Info -->
@@ -80,6 +98,7 @@
                                     <div class="flex flex-col items-start md:items-end gap-2">
                                         <div class="text-2xl font-bold text-gray-900">
                                             ${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr</div>
+
                                         @switch($freelancer->freelancer->availability)
                                             @case('available')
                                                 <div
@@ -118,7 +137,17 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
-                                            {{ $freelancer->location }}
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <input type="text" value="{{ $freelancer->location }}"
+                                                        class="bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5"
+                                                        id="location">
+                                                @else
+                                                    {{ $freelancer->location }}
+                                                @endif
+                                            @else
+                                                {{ $freelancer->location }}
+                                            @endauth
                                         </div>
                                     @endif
 
@@ -129,7 +158,19 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            {{ $freelancer->freelancer->years_experience }}+ years experience
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <input type="number"
+                                                        value="{{ $freelancer->freelancer->years_experience }}"
+                                                        class="bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-20"
+                                                        id="years-experience">
+                                                    <span class="ml-1">+ years experience</span>
+                                                @else
+                                                    {{ $freelancer->freelancer->years_experience }}+ years experience
+                                                @endif
+                                            @else
+                                                {{ $freelancer->freelancer->years_experience }}+ years experience
+                                            @endauth
                                         </div>
                                     @endif
 
@@ -148,74 +189,132 @@
 
                                 <!-- Social Links -->
                                 <div class="flex items-center gap-3 mt-3">
-                                    @if ($freelancer->linkedin_url)
-                                        <a href="{{ $freelancer->linkedin_url }}" target="_blank"
-                                            class="text-gray-400 hover:text-blue-700 transition">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                                            </svg>
-                                        </a>
-                                    @endif
-                                    @if ($freelancer->github_url)
-                                        <a href="{{ $freelancer->github_url }}" target="_blank"
-                                            class="text-gray-400 hover:text-gray-900 transition">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                                            </svg>
-                                        </a>
-                                    @endif
-                                    @if ($freelancer->facebook_url)
-                                        <a href="{{ $freelancer->facebook_url }}" target="_blank"
-                                            class="text-gray-400 hover:text-blue-600 transition">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                                            </svg>
-                                        </a>
-                                    @endif
-                                    @if ($freelancer->twitter_url)
-                                        <a href="{{ $freelancer->twitter_url }}" target="_blank"
-                                            class="text-gray-400 hover:text-blue-500 transition">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.213c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                                            </svg>
-                                        </a>
-                                    @endif
+                                    @auth
+                                        @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                            <!-- LinkedIn -->
+                                            <div class="flex items-center">
+                                                <svg class="w-5 h-5 text-gray-400" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                                </svg>
+                                                <input type="url" value="{{ $freelancer->linkedin_url }}"
+                                                    placeholder="LinkedIn URL"
+                                                    class="ml-1 text-sm bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-40"
+                                                    id="linkedin-url">
+                                            </div>
+                                            <!-- GitHub -->
+                                            <div class="flex items-center">
+                                                <svg class="w-5 h-5 text-gray-400" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                </svg>
+                                                <input type="url" value="{{ $freelancer->github_url }}"
+                                                    placeholder="GitHub URL"
+                                                    class="ml-1 text-sm bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-40"
+                                                    id="github-url">
+                                            </div>
+                                        @else
+                                            @if ($freelancer->linkedin_url)
+                                                <a href="{{ $freelancer->linkedin_url }}" target="_blank"
+                                                    class="text-gray-400 hover:text-blue-700 transition">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                                    </svg>
+                                                </a>
+                                            @endif
+                                            @if ($freelancer->github_url)
+                                                <a href="{{ $freelancer->github_url }}" target="_blank"
+                                                    class="text-gray-400 hover:text-gray-900 transition">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                    </svg>
+                                                </a>
+                                            @endif
+                                        @endif
+                                    @else
+                                        @if ($freelancer->linkedin_url)
+                                            <a href="{{ $freelancer->linkedin_url }}" target="_blank"
+                                                class="text-gray-400 hover:text-blue-700 transition">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                                </svg>
+                                            </a>
+                                        @endif
+                                        @if ($freelancer->github_url)
+                                            <a href="{{ $freelancer->github_url }}" target="_blank"
+                                                class="text-gray-400 hover:text-gray-900 transition">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                                </svg>
+                                            </a>
+                                        @endif
+                                    @endauth
                                 </div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="flex items-center space-x-3 w-full md:w-auto">
-                            @if ($freelancer->freelancer->availability === 'unavailable')
-                                <button
-                                    class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
-                                    disabled title="This freelancer is currently unavailable for hire">
-                                    Unavailable
-                                </button>
+                            @auth
+                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                    <!-- Save All Button for freelancer -->
+                                    <button onclick="saveAllChanges()"
+                                        class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
+                                        Save All Changes
+                                    </button>
+                                @else
+                                    <!-- Hire Button for other users -->
+                                    @if ($freelancer->freelancer->availability === 'unavailable')
+                                        <button
+                                            class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
+                                            disabled title="This freelancer is currently unavailable for hire">
+                                            Unavailable
+                                        </button>
+                                    @else
+                                        <button
+                                            class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
+                                            Hire Now
+                                        </button>
+                                    @endif
+                                @endif
                             @else
+                                <!-- Hire Button for guests -->
+                                @if ($freelancer->freelancer->availability === 'unavailable')
+                                    <button
+                                        class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
+                                        disabled title="This freelancer is currently unavailable for hire">
+                                        Unavailable
+                                    </button>
+                                @else
+                                    <button
+                                        class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
+                                        Hire Now
+                                    </button>
+                                @endif
+                            @endauth
+
+                            @if (auth()->user()->role === 'clients')
                                 <button
-                                    class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
-                                    Hire Now
+                                    class="p-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                </button>
+                                <button
+                                    class="p-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
                                 </button>
                             @endif
-                            <button
-                                class="p-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
-                            <button
-                                class="p-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -275,38 +374,170 @@
                                     <div class="space-y-6">
                                         <!-- Bio -->
                                         <div>
-                                            <h3 class="text-lg font-bold text-gray-900 mb-3">About Me</h3>
-                                            <p class="text-gray-600 text-sm leading-relaxed">
-                                                {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
-                                            </p>
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h3 class="text-lg font-bold text-gray-900">About Me</h3>
+                                                @auth
+                                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                        <button type="button" onclick="editBio()"
+                                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                            Edit Bio
+                                                        </button>
+                                                    @endif
+                                                @endauth
+                                            </div>
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <textarea id="bio-text"
+                                                        class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[120px]"
+                                                        placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
+                                                    <div class="flex justify-end mt-2">
+                                                        <button type="button" onclick="saveBio()"
+                                                            class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                            Save Bio
+                                                        </button>
+                                                    </div>
+                                                @else
+                                                    <p class="text-gray-600 text-sm leading-relaxed">
+                                                        {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                    </p>
+                                                @endif
+                                            @else
+                                                <p class="text-gray-600 text-sm leading-relaxed">
+                                                    {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                </p>
+                                            @endauth
                                         </div>
 
                                         <!-- Skills -->
                                         <div>
-                                            <h3 class="text-lg font-bold text-gray-900 mb-3">Skills & Expertise</h3>
-                                            <div class="flex flex-wrap gap-2">
-                                                @forelse($freelancer->skills as $skill)
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
-                                                        {{ $skill->name }}
-                                                    </span>
-                                                @empty
-                                                    <!-- Fallback skills when none are added -->
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
-                                                    <span
-                                                        class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
-                                                    <span
-                                                        class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
-                                                        CSS</span>
-                                                @endforelse
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h3 class="text-lg font-bold text-gray-900">Skills & Expertise</h3>
+                                                @auth
+                                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                        <button type="button" onclick="editSkills()"
+                                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                            Edit Skills
+                                                        </button>
+                                                    @endif
+                                                @endauth
                                             </div>
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <div id="skills-edit-mode" class="hidden">
+                                                        <div class="flex flex-wrap gap-2 mb-3">
+                                                            @forelse($freelancer->skills as $skill)
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full flex items-center">
+                                                                    {{ $skill->name }}
+                                                                    <button type="button" onclick="removeSkill(this)"
+                                                                        class="ml-2 text-blue-600 hover:text-blue-800">
+                                                                        <svg class="w-4 h-4" fill="none"
+                                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round" stroke-width="2"
+                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </span>
+                                                            @empty
+                                                                <p class="text-gray-500 text-sm">No skills added yet.</p>
+                                                            @endforelse
+                                                        </div>
+                                                        <div class="flex gap-2">
+                                                            <input type="text" id="new-skill-input"
+                                                                placeholder="Add a new skill..."
+                                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                            <button type="button" onclick="addSkill()"
+                                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                                Add
+                                                            </button>
+                                                        </div>
+                                                        <div class="flex justify-end gap-2 mt-3">
+                                                            <button type="button" onclick="cancelEditSkills()"
+                                                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                                Cancel
+                                                            </button>
+                                                            <button type="button" onclick="saveSkills()"
+                                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                                Save Skills
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="skills-view-mode">
+                                                        <div class="flex flex-wrap gap-2">
+                                                            @forelse($freelancer->skills as $skill)
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
+                                                                    {{ $skill->name }}
+                                                                </span>
+                                                            @empty
+                                                                <!-- Fallback skills when none are added -->
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
+                                                                <span
+                                                                    class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
+                                                                <span
+                                                                    class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
+                                                                    CSS</span>
+                                                            @endforelse
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="flex flex-wrap gap-2">
+                                                        @forelse($freelancer->skills as $skill)
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
+                                                                {{ $skill->name }}
+                                                            </span>
+                                                        @empty
+                                                            <!-- Fallback skills when none are added -->
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
+                                                            <span
+                                                                class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
+                                                            <span
+                                                                class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
+                                                                CSS</span>
+                                                        @endforelse
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <div class="flex flex-wrap gap-2">
+                                                    @forelse($freelancer->skills as $skill)
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
+                                                            {{ $skill->name }}
+                                                        </span>
+                                                    @empty
+                                                        <!-- Fallback skills when none are added -->
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
+                                                        <span
+                                                            class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
+                                                        <span
+                                                            class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
+                                                            CSS</span>
+                                                    @endforelse
+                                                </div>
+                                            @endauth
                                         </div>
 
                                         <!-- Stats -->
@@ -332,51 +563,6 @@
                                                 <div class="text-gray-500 text-sm mt-1">Total Earned</div>
                                             </div>
                                         </div>
-
-                                        <!-- Project History Timeline -->
-                                        <div>
-                                            <h3 class="text-lg font-bold text-gray-900 mb-4">Project History Timeline
-                                            </h3>
-                                            <div class="relative pl-8">
-                                                <!-- Timeline line -->
-                                                <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-
-                                                <!-- Timeline items -->
-                                                <div class="relative mb-6">
-                                                    <div
-                                                        class="absolute left-0 w-6 h-6 bg-blue-500 rounded-full border-4 border-white">
-                                                    </div>
-                                                    <div class="ml-10">
-                                                        <h4 class="font-bold text-gray-900">E-commerce Platform</h4>
-                                                        <p class="text-gray-500 text-sm">Completed 2 weeks ago</p>
-                                                        <p class="text-gray-600 text-sm mt-1">Built a full-featured
-                                                            e-commerce platform with payment integration</p>
-                                                    </div>
-                                                </div>
-                                                <div class="relative mb-6">
-                                                    <div
-                                                        class="absolute left-0 w-6 h-6 bg-green-500 rounded-full border-4 border-white">
-                                                    </div>
-                                                    <div class="ml-10">
-                                                        <h4 class="font-bold text-gray-900">SaaS Dashboard</h4>
-                                                        <p class="text-gray-500 text-sm">Completed 1 month ago</p>
-                                                        <p class="text-gray-600 text-sm mt-1">Developed analytics
-                                                            dashboard with real-time data visualization</p>
-                                                    </div>
-                                                </div>
-                                                <div class="relative">
-                                                    <div
-                                                        class="absolute left-0 w-6 h-6 bg-purple-500 rounded-full border-4 border-white">
-                                                    </div>
-                                                    <div class="ml-10">
-                                                        <h4 class="font-bold text-gray-900">Mobile App</h4>
-                                                        <p class="text-gray-500 text-sm">Completed 2 months ago</p>
-                                                        <p class="text-gray-600 text-sm mt-1">Created cross-platform
-                                                            mobile application with React Native</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -388,7 +574,7 @@
                                             class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-6">
                                             <div
                                                 class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <div>
+                                                <div class="w-full">
                                                     <h3
                                                         class="text-xl font-bold text-gray-900 flex items-center gap-3">
                                                         <svg class="w-6 h-6 text-indigo-600" fill="none"
@@ -401,64 +587,61 @@
                                                     </h3>
                                                     <p class="text-gray-600 text-sm mt-1">View my complete work and
                                                         case studies</p>
-                                                    <p class="text-gray-500 text-sm mt-1">
-                                                        {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
-                                                    </p>
+                                                    @auth
+                                                        @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                            <div class="flex items-center gap-2 mt-2">
+                                                                <input type="url"
+                                                                    value="{{ $freelancer->freelancer->portfolio_url ?? '' }}"
+                                                                    placeholder="https://your-portfolio.com"
+                                                                    class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                                    id="portfolio-url">
+                                                                <button type="button" onclick="savePortfolioUrl()"
+                                                                    class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                                    Save
+                                                                </button>
+                                                            </div>
+                                                        @else
+                                                            <p class="text-gray-500 text-sm mt-1">
+                                                                {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
+                                                            </p>
+                                                        @endif
+                                                    @else
+                                                        <p class="text-gray-500 text-sm mt-1">
+                                                            {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
+                                                        </p>
+                                                    @endauth
                                                 </div>
-                                                <a href="{{ $freelancer->freelancer->portfolio_url ?? '#' }}"
-                                                    target="_blank" rel="noopener noreferrer"
-                                                    class="{{ $freelancer->freelancer->portfolio_url ? 'inline-flex' : 'hidden' }} items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
-                                                    <span>Visit Portfolio</span>
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <!-- Featured Projects -->
-                                        <div class="space-y-4">
-                                            <h3 class="text-lg font-bold text-gray-900">Featured Projects</h3>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div
-                                                    class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 ease-in-out">
-                                                    <div
-                                                        class="h-40 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg mb-3">
-                                                    </div>
-                                                    <h4 class="font-bold text-gray-900 mb-1 text-base">E-commerce
-                                                        Platform</h4>
-                                                    <p class="text-gray-600 text-sm mb-3">Full-stack e-commerce
-                                                        solution with React, Node.js, and MongoDB</p>
-                                                    <div class="flex flex-wrap gap-1">
-                                                        <span
-                                                            class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">React</span>
-                                                        <span
-                                                            class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Node.js</span>
-                                                        <span
-                                                            class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">MongoDB</span>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 ease-in-out">
-                                                    <div
-                                                        class="h-40 bg-gradient-to-r from-green-400 to-teal-500 rounded-lg mb-3">
-                                                    </div>
-                                                    <h4 class="font-bold text-gray-900 mb-1 text-base">SaaS Dashboard
-                                                    </h4>
-                                                    <p class="text-gray-600 text-sm mb-3">Analytics dashboard with
-                                                        real-time data visualization</p>
-                                                    <div class="flex flex-wrap gap-1">
-                                                        <span
-                                                            class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Next.js</span>
-                                                        <span
-                                                            class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">TypeScript</span>
-                                                        <span
-                                                            class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Chart.js</span>
-                                                    </div>
-                                                </div>
+                                                @auth
+                                                    @if (!(auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer'))
+                                                        @if ($freelancer->freelancer->portfolio_url)
+                                                            <a href="{{ $freelancer->freelancer->portfolio_url }}"
+                                                                target="_blank" rel="noopener noreferrer"
+                                                                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
+                                                                <span>Visit Portfolio</span>
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                            </a>
+                                                        @endif
+                                                    @endif
+                                                @else
+                                                    @if ($freelancer->freelancer->portfolio_url)
+                                                        <a href="{{ $freelancer->freelancer->portfolio_url }}"
+                                                            target="_blank" rel="noopener noreferrer"
+                                                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
+                                                            <span>Visit Portfolio</span>
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+                                                @endauth
                                             </div>
                                         </div>
                                     </div>
@@ -503,41 +686,8 @@
                                                 <div class="text-right">
                                                     <div class="text-gray-600 text-sm">Job Success</div>
                                                     <div class="text-2xl font-bold text-gray-900">
-                                                        {{ $freelancer->freelancer->job_success_rate }}%</div>
+                                                        {{ $freelancer->freelancer->job_success_rate ?? '0' }}%</div>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="space-y-4">
-                                            <div class="border border-gray-200 rounded-xl p-4">
-                                                <div class="flex items-start justify-between">
-                                                    <div class="flex items-center">
-                                                        <div
-                                                            class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500">
-                                                        </div>
-                                                        <div class="ml-3">
-                                                            <h4 class="font-bold text-gray-900 text-base">Sarah Johnson
-                                                            </h4>
-                                                            <div class="flex items-center">
-                                                                <div class="flex text-yellow-500">
-                                                                    @for ($i = 1; $i <= 5; $i++)
-                                                                        <svg class="w-4 h-4" fill="currentColor"
-                                                                            viewBox="0 0 20 20">
-                                                                            <path
-                                                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                                        </svg>
-                                                                    @endfor
-                                                                </div>
-                                                                <span class="text-gray-500 text-sm ml-2">2 weeks
-                                                                    ago</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="text-gray-600 text-sm">$2,500 project</div>
-                                                </div>
-                                                <p class="text-gray-600 text-sm mt-3">Excellent work! Delivered ahead
-                                                    of schedule with exceptional quality. Communication was perfect
-                                                    throughout the project.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -546,8 +696,24 @@
                                 <!-- Experience Tab -->
                                 <div x-show="activeTab === 'experience'" x-transition>
                                     <div class="space-y-6">
-                                        <h3 class="text-lg font-bold text-gray-900">Work Experience</h3>
-                                        <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-bold text-gray-900">Work Experience</h3>
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <button type="button" onclick="addExperience()"
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        Add Experience
+                                                    </button>
+                                                @endif
+                                            @endauth
+                                        </div>
+                                        <div class="space-y-4" id="experience-list">
+                                            <!-- Experience items will be loaded here -->
                                             <div class="border-l-4 border-blue-500 pl-4 py-2">
                                                 <div class="flex justify-between items-start">
                                                     <div>
@@ -579,8 +745,24 @@
                                 <!-- Education Tab -->
                                 <div x-show="activeTab === 'education'" x-transition>
                                     <div class="space-y-6">
-                                        <h3 class="text-lg font-bold text-gray-900">Education</h3>
-                                        <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-bold text-gray-900">Education</h3>
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <button type="button" onclick="addEducation()"
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        Add Education
+                                                    </button>
+                                                @endif
+                                            @endauth
+                                        </div>
+                                        <div class="space-y-4" id="education-list">
+                                            <!-- Education items will be loaded here -->
                                             <div class="border-l-4 border-indigo-500 pl-4 py-2">
                                                 <div class="flex justify-between items-start">
                                                     <div>
@@ -612,8 +794,24 @@
                                 <!-- Certifications Tab -->
                                 <div x-show="activeTab === 'certifications'" x-transition>
                                     <div class="space-y-6">
-                                        <h3 class="text-lg font-bold text-gray-900">Certifications</h3>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-bold text-gray-900">Certifications</h3>
+                                            @auth
+                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                                    <button type="button" onclick="addCertification()"
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        Add Certification
+                                                    </button>
+                                                @endif
+                                            @endauth
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="certifications-list">
+                                            <!-- Certifications will be loaded here -->
                                             <div class="border border-gray-200 rounded-xl p-4">
                                                 <div class="flex items-start gap-3">
                                                     <div
@@ -665,8 +863,18 @@
                     <div class="space-y-3">
                         <!-- Contact Card -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
-                            <div class="space-y-3 text-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-gray-900">Contact Information</h3>
+                                @auth
+                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                        <button type="button" onclick="editContactInfo()"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Edit
+                                        </button>
+                                    @endif
+                                @endauth
+                            </div>
+                            <div class="space-y-3 text-sm" id="contact-info-view">
                                 @if ($freelancer->email)
                                     <div class="flex items-center text-gray-600">
                                         <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -713,15 +921,87 @@
                                     </div>
                                 @endif
                             </div>
-                            <button
-                                class="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 rounded-lg transition duration-300 text-sm select-none">
-                                Send Message
-                            </button>
+
+                            @auth
+                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                    <div id="contact-info-edit" class="hidden space-y-3">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 8l7.89-5.26a2 2 0 012.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                            <input type="email" value="{{ $freelancer->email }}"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                id="edit-email" placeholder="Email">
+                                        </div>
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                            <input type="tel" value="{{ $freelancer->phone }}"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                id="edit-phone" placeholder="Phone number">
+                                        </div>
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <input type="tel" value="{{ $freelancer->location }}"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                id="edit-phone" placeholder="Location">
+                                        </div>
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                            </svg>
+                                            <input type="tel" value="{{ $freelancer->portfolio_url }}"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                id="edit-phone" placeholder="Portfolio URL">
+                                        </div>
+                                        <div class="flex justify-end gap-2 mt-3">
+                                            <button type="button" onclick="cancelEditContactInfo()"
+                                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                Cancel
+                                            </button>
+                                            <button type="button" onclick="saveContactInfo()"
+                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endauth
+
+                            @if (auth()->user()->role === 'clients')
+                                <button
+                                    class="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 rounded-lg transition duration-300 text-sm select-none">
+                                    Send Message
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Hourly Rate Breakdown -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Hourly Rate Breakdown</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-gray-900">Hourly Rate Breakdown</h3>
+                                @auth
+                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                        <button type="button" onclick=""
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Edit
+                                        </button>
+                                    @endif
+                                @endauth
+                            </div>
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Base Rate</span>
@@ -730,19 +1010,20 @@
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Minimum Hours</span>
-                                    <span class="text-gray-900 font-medium">10 hours</span>
+                                    <span class="text-gray-900 text-sm font-medium">10 hours</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Response Time</span>
-                                    <span class="text-gray-900 font-medium">2 hours</span>
+                                    <span class="text-gray-900 text-sm font-medium">2 hours</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Revision Limit</span>
-                                    <span class="text-gray-900 font-medium">3 revisions</span>
+                                    <span class="text-gray-900 text-sm font-medium">3 revisions</span>
                                 </div>
                                 <div class="pt-3 border-t border-gray-100">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-gray-900 font-medium">Estimated 20-hour project</span>
+                                        <span class="text-gray-900 text-sm font-medium">Estimated 20-hour
+                                            project</span>
                                         <span
                                             class="text-xl font-bold text-gray-900">${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}</span>
                                     </div>
@@ -784,30 +1065,23 @@
                                         <span>Usually responds within 2 hours</span>
                                     </div>
                                 </div>
-                                <div class="pt-4 border-t border-gray-100">
-                                    <h4 class="font-medium text-gray-900 text-sm mb-2">Working Hours</h4>
-                                    <div class="text-gray-600 text-sm">
-                                        <div class="flex justify-between">
-                                            <span>Monday - Friday</span>
-                                            <span>9:00 AM - 6:00 PM</span>
-                                        </div>
-                                        <div class="flex justify-between mt-1">
-                                            <span>Saturday</span>
-                                            <span>10:00 AM - 2:00 PM</span>
-                                        </div>
-                                        <div class="flex justify-between mt-1">
-                                            <span>Sunday</span>
-                                            <span class="text-gray-400">Not Available</span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
                         <!-- Languages Card -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Languages</h3>
-                            <div class="space-y-3 text-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-gray-900">Languages</h3>
+                                @auth
+                                    @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                        <button type="button" onclick="editLanguages()"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Edit
+                                        </button>
+                                    @endif
+                                @endauth
+                            </div>
+                            <div class="space-y-3 text-sm" id="languages-view">
                                 <div class="flex items-center justify-between">
                                     <span class="text-gray-600">Myanmar</span>
                                     <span class="text-gray-900 font-medium">Fluent</span>
@@ -821,41 +1095,59 @@
                                     <span class="text-gray-900 font-medium">Intermediate</span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Similar Freelancers -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Similar Freelancers</h3>
-                            <div class="space-y-3 mb-5">
-                                @foreach ($similarFreelancers as $freelancer)
-                                    <div class="flex items-center gap-3 px-3 hover:bg-gray-50 rounded-lg transition">
-                                        {{-- Profile Photo --}}
-                                        @if ($freelancer->profile_photo_path)
-                                            <div class="w-10 rounded-full select-none">
-                                                <img src="{{ $freelancer->profile_photo_path }}" alt="Profile Image"
-                                                    class="w-full h-full object-cover rounded-full">
-                                            </div>
-                                        @else
-                                            <div
-                                                class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
-                                                <span
-                                                    class="text-white font-bold text-sm">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
-                                            </div>
-                                        @endif
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-medium text-gray-900 text-sm truncate">
-                                                {{ $freelancer->name }}</h4>
-                                            <p class="text-gray-500 text-xs truncate">Full Stack Developer</p>
+                            @auth
+                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                    <div id="languages-edit" class="hidden space-y-3">
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="text" value="Myanmar"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                placeholder="Language">
+                                            <select
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                <option value="fluent" selected>Fluent</option>
+                                                <option value="professional">Professional</option>
+                                                <option value="intermediate">Intermediate</option>
+                                                <option value="basic">Basic</option>
+                                            </select>
                                         </div>
-                                        <span
-                                            class="text-gray-900 font-medium text-sm">${{ $freelancer->freelancer->hourly_rate }}/hr</span>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="text" value="English"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                placeholder="Language">
+                                            <select
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                <option value="fluent">Fluent</option>
+                                                <option value="professional" selected>Professional</option>
+                                                <option value="intermediate">Intermediate</option>
+                                                <option value="basic">Basic</option>
+                                            </select>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="text" value="French"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                placeholder="Language">
+                                            <select
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                <option value="fluent">Fluent</option>
+                                                <option value="professional">Professional</option>
+                                                <option value="intermediate" selected>Intermediate</option>
+                                                <option value="basic">Basic</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex justify-end gap-2 mt-3 select-none">
+                                            <button type="button" onclick="cancelEditLanguages()"
+                                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                Cancel
+                                            </button>
+                                            <button type="button" onclick="saveLanguages()"
+                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                Save
+                                            </button>
+                                        </div>
                                     </div>
-                                @endforeach
-                            </div>
-                            <a href="{{ route('find-freelancers') }}"
-                                class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium py-2">
-                                View All Similar Freelancers →
-                            </a>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 </div>
@@ -865,9 +1157,179 @@
 
     <script>
         document.addEventListener('alpine:init', () => {});
+
         console.log('Freelancer profile loaded:', {
             name: '{{ $freelancer->name }}',
-            availability: '{{ $freelancer->availability }}'
+            availability: '{{ $freelancer->freelancer->availability }}',
+            isOwner: {{ auth()->check() && auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer' ? 'true' : 'false' }}
+        });
+
+        // Edit functions for freelancer
+        function editBio() {
+            const bioTextarea = document.getElementById('bio-text');
+            if (bioTextarea) {
+                bioTextarea.focus();
+            }
+        }
+
+        function saveBio() {
+            const bioText = document.getElementById('bio-text').value;
+            console.log('Saving bio:', bioText);
+            // Here you would typically make an API call to save the bio
+            alert('Bio saved successfully!');
+        }
+
+        function editSkills() {
+            document.getElementById('skills-view-mode').classList.add('hidden');
+            document.getElementById('skills-edit-mode').classList.remove('hidden');
+        }
+
+        function cancelEditSkills() {
+            document.getElementById('skills-edit-mode').classList.add('hidden');
+            document.getElementById('skills-view-mode').classList.remove('hidden');
+        }
+
+        function addSkill() {
+            const input = document.getElementById('new-skill-input');
+            const skill = input.value.trim();
+            if (skill) {
+                // Here you would add the skill to the list and make an API call
+                console.log('Adding skill:', skill);
+                input.value = '';
+            }
+        }
+
+        function removeSkill(button) {
+            const skillElement = button.parentElement;
+            skillElement.remove();
+            console.log('Removing skill');
+        }
+
+        function saveSkills() {
+            console.log('Saving skills');
+            // Here you would make an API call to save all skills
+            alert('Skills saved successfully!');
+            cancelEditSkills();
+        }
+
+        function editContactInfo() {
+            document.getElementById('contact-info-view').classList.add('hidden');
+            document.getElementById('contact-info-edit').classList.remove('hidden');
+        }
+
+        function cancelEditContactInfo() {
+            document.getElementById('contact-info-edit').classList.add('hidden');
+            document.getElementById('contact-info-view').classList.remove('hidden');
+        }
+
+        function saveContactInfo() {
+            const email = document.getElementById('edit-email').value;
+            const phone = document.getElementById('edit-phone').value;
+            console.log('Saving contact info:', {
+                email,
+                phone
+            });
+            // Here you would make an API call to save contact info
+            alert('Contact information saved successfully!');
+            cancelEditContactInfo();
+        }
+
+        function editLanguages() {
+            document.getElementById('languages-view').classList.add('hidden');
+            document.getElementById('languages-edit').classList.remove('hidden');
+        }
+
+        function cancelEditLanguages() {
+            document.getElementById('languages-edit').classList.add('hidden');
+            document.getElementById('languages-view').classList.remove('hidden');
+        }
+
+        function saveLanguages() {
+            console.log('Saving languages');
+            // Here you would make an API call to save languages
+            alert('Languages saved successfully!');
+            cancelEditLanguages();
+        }
+
+        function savePortfolioUrl() {
+            const url = document.getElementById('portfolio-url').value;
+            console.log('Saving portfolio URL:', url);
+            // Here you would make an API call to save portfolio URL
+            alert('Portfolio URL saved successfully!');
+        }
+
+        function saveProfileField(field) {
+            let value;
+            switch (field) {
+                case 'name':
+                    value = document.getElementById('profile-name').value;
+                    break;
+                case 'job_title':
+                    value = document.getElementById('job-title').value;
+                    break;
+                case 'hourly_rate':
+                    value = document.getElementById('hourly-rate').value;
+                    break;
+                case 'availability':
+                    value = document.getElementById('availability').value;
+                    break;
+                case 'location':
+                    value = document.getElementById('location').value;
+                    break;
+                case 'years_experience':
+                    value = document.getElementById('years-experience').value;
+                    break;
+            }
+
+            console.log(`Saving ${field}:`, value);
+            // Here you would make an API call to save the field
+            alert(`${field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} saved successfully!`);
+        }
+
+        function saveSocialLinks() {
+            const linkedinUrl = document.getElementById('linkedin-url').value;
+            const githubUrl = document.getElementById('github-url').value;
+
+            console.log('Saving social links:', {
+                linkedinUrl,
+                githubUrl
+            });
+            // Here you would make an API call to save social links
+            alert('Social links saved successfully!');
+        }
+
+        function saveAllChanges() {
+            console.log('Saving all changes');
+            // Here you would collect all form data and make a single API call
+            alert('All changes saved successfully!');
+        }
+
+        function addExperience() {
+            console.log('Adding new experience');
+            // Here you would show a modal or form to add new experience
+            alert('Feature: Add new work experience');
+        }
+
+        function addEducation() {
+            console.log('Adding new education');
+            // Here you would show a modal or form to add new education
+            alert('Feature: Add new education');
+        }
+
+        function addCertification() {
+            console.log('Adding new certification');
+            // Here you would show a modal or form to add new certification
+            alert('Feature: Add new certification');
+        }
+
+        // Profile photo upload
+        document.getElementById('profile-photo-upload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Uploading profile photo:', file.name);
+                // Here you would upload the file to your server
+                alert('Profile photo uploaded successfully!');
+            }
         });
     </script>
 </body>

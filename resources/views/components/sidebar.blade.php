@@ -110,10 +110,18 @@
             x-transition:leave-end="transform opacity-0 scale-95"
             class="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
 
+            @php
+                $current_user_role = auth()->user()->role;
+
+                $profileRoute = match ($current_user_role) {
+                    'freelancer' => route('freelancer-profile.show', auth()->user()->id),
+                    'user' => route('profile.show', auth()->user()->id),
+                };
+            @endphp
+
             @auth
                 <!-- For Authenticated Users -->
-                <a href="{{ route('profile.show', auth()->user()->id) }}"
-                    class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700">
+                <a href="{{ $profileRoute }}" class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700">
                     <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
