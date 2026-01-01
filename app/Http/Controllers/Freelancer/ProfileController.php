@@ -63,7 +63,23 @@ class ProfileController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $freelancer = User::findOrFail($id);
+
+        $freelancer->update([
+            'phone' => $request->phone,
+            'location' => $request->location,
+            'updated_at' => now(),
+        ]);
+
+        $freelancer->freelancer()->update([
+            'bio' => $request->bio,
+            'hourly_rate' => $request->hourly_rate,
+            'portfolio_url' => $request->portfolio_url,
+            'response_time' => $request->response_time,
+            'updated_at' => now(),
+        ]);
+
+        return back();
     }
 
     /**

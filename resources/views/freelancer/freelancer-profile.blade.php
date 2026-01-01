@@ -28,7 +28,11 @@
             <x-header />
 
             <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-3">
+            <form action="{{ route('freelancer-profile.update', $freelancer->id) }}" method="POST"
+                class="flex-1 overflow-y-auto p-3">
+                @csrf
+                @method('PUT')
+
                 <!-- Profile Header -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-3">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
@@ -138,14 +142,6 @@
                                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                             @auth
-                                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                                    <input type="text" value="{{ $freelancer->location }}"
-                                                        class="bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5"
-                                                        id="location">
-                                                @else
-                                                    {{ $freelancer->location }}
-                                                @endif
-                                            @else
                                                 {{ $freelancer->location }}
                                             @endauth
                                         </div>
@@ -264,7 +260,7 @@
                             @auth
                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                     <!-- Save All Button for freelancer -->
-                                    <button onclick="saveAllChanges()"
+                                    <button type="submit"
                                         class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
                                         Save All Changes
                                     </button>
@@ -328,37 +324,37 @@
                             <!-- Tab Headers -->
                             <div class="border-b border-gray-200">
                                 <nav class="flex space-x-1 px-6 pt-2 overflow-x-auto">
-                                    <button @click="activeTab = 'overview'"
+                                    <button type="button" @click="activeTab = 'overview'"
                                         :class="activeTab === 'overview' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
                                         Overview
                                     </button>
-                                    <button @click="activeTab = 'portfolio'"
+                                    <button type="button" @click="activeTab = 'portfolio'"
                                         :class="activeTab === 'portfolio' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
                                         Portfolio
                                     </button>
-                                    <button @click="activeTab = 'reviews'"
+                                    <button type="button" @click="activeTab = 'reviews'"
                                         :class="activeTab === 'reviews' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
                                         Reviews
                                     </button>
-                                    <button @click="activeTab = 'experience'"
+                                    <button type="button" @click="activeTab = 'experience'"
                                         :class="activeTab === 'experience' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
                                         Experience
                                     </button>
-                                    <button @click="activeTab = 'education'"
+                                    <button type="button" @click="activeTab = 'education'"
                                         :class="activeTab === 'education' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
                                         Education
                                     </button>
-                                    <button @click="activeTab = 'certifications'"
+                                    <button type="button" @click="activeTab = 'certifications'"
                                         :class="activeTab === 'certifications' ?
                                             'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                         class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
@@ -387,14 +383,19 @@
                                             </div>
                                             @auth
                                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                                    <textarea id="bio-text"
-                                                        class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[120px]"
-                                                        placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
-                                                    <div class="flex justify-end mt-2">
-                                                        <button type="button" onclick="saveBio()"
-                                                            class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                                            Save Bio
-                                                        </button>
+                                                    <p id="bio" class="text-gray-600 text-sm leading-relaxed">
+                                                        {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                    </p>
+                                                    <div id="bio-container" class="hidden">
+                                                        <textarea id="bio-text" name="bio"
+                                                            class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[120px]"
+                                                            placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
+                                                        <div class="flex justify-end mt-2">
+                                                            <button type="submite"
+                                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                                                Save Bio
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 @else
                                                     <p class="text-gray-600 text-sm leading-relaxed">
@@ -574,7 +575,7 @@
                                             class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-6">
                                             <div
                                                 class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <div class="w-full">
+                                                <div>
                                                     <h3
                                                         class="text-xl font-bold text-gray-900 flex items-center gap-3">
                                                         <svg class="w-6 h-6 text-indigo-600" fill="none"
@@ -587,61 +588,29 @@
                                                     </h3>
                                                     <p class="text-gray-600 text-sm mt-1">View my complete work and
                                                         case studies</p>
-                                                    @auth
-                                                        @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                                            <div class="flex items-center gap-2 mt-2">
-                                                                <input type="url"
-                                                                    value="{{ $freelancer->freelancer->portfolio_url ?? '' }}"
-                                                                    placeholder="https://your-portfolio.com"
-                                                                    class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                                                    id="portfolio-url">
-                                                                <button type="button" onclick="savePortfolioUrl()"
-                                                                    class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                                                    Save
-                                                                </button>
-                                                            </div>
-                                                        @else
-                                                            <p class="text-gray-500 text-sm mt-1">
-                                                                {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
-                                                            </p>
-                                                        @endif
-                                                    @else
-                                                        <p class="text-gray-500 text-sm mt-1">
-                                                            {{ $freelancer->freelancer->portfolio_url ?? 'No portfolio website added yet.' }}
-                                                        </p>
-                                                    @endauth
-                                                </div>
-                                                @auth
-                                                    @if (!(auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer'))
-                                                        @if ($freelancer->freelancer->portfolio_url)
-                                                            <a href="{{ $freelancer->freelancer->portfolio_url }}"
-                                                                target="_blank" rel="noopener noreferrer"
-                                                                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
-                                                                <span>Visit Portfolio</span>
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                    viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                </svg>
-                                                            </a>
-                                                        @endif
-                                                    @endif
-                                                @else
+
                                                     @if ($freelancer->freelancer->portfolio_url)
-                                                        <a href="{{ $freelancer->freelancer->portfolio_url }}"
-                                                            target="_blank" rel="noopener noreferrer"
-                                                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
-                                                            <span>Visit Portfolio</span>
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                            </svg>
-                                                        </a>
+                                                        <p class="text-gray-500 text-sm mt-1">
+                                                            {{ $freelancer->freelancer->portfolio_url }}</p>
+                                                    @else
+                                                        <p class="text-gray-500 text-sm mt-1">No portfolio website
+                                                            added yet.</p>
                                                     @endif
-                                                @endauth
+                                                </div>
+
+                                                @if ($freelancer->freelancer->portfolio_url)
+                                                    <a href="{{ $freelancer->freelancer->portfolio_url }}"
+                                                        target="_blank" rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
+                                                        <p>Visit
+                                                            Portfolio</p><svg class="w-4 h-4" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                        </svg>
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -933,7 +902,8 @@
                                             </svg>
                                             <input type="email" value="{{ $freelancer->email }}"
                                                 class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                                id="edit-email" placeholder="Email">
+                                                id="edit-email" placeholder="Email" disabled>
+                                            <input type="hidden" value="{{ $freelancer->email }}">
                                         </div>
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -943,7 +913,7 @@
                                             </svg>
                                             <input type="tel" value="{{ $freelancer->phone }}"
                                                 class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                                id="edit-phone" placeholder="Phone number">
+                                                id="edit-phone" name="phone" placeholder="Phone number">
                                         </div>
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -955,7 +925,7 @@
                                             </svg>
                                             <input type="tel" value="{{ $freelancer->location }}"
                                                 class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                                id="edit-phone" placeholder="Location">
+                                                id="edit-phone" name="location" placeholder="Location">
                                         </div>
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -963,16 +933,16 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                             </svg>
-                                            <input type="tel" value="{{ $freelancer->portfolio_url }}"
+                                            <input type="text" value="{{ $freelancer->freelancer->portfolio_url }}"
                                                 class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                                id="edit-phone" placeholder="Portfolio URL">
+                                                id="edit-phone" name="portfolio_url" placeholder="Portfolio URL">
                                         </div>
                                         <div class="flex justify-end gap-2 mt-3">
                                             <button type="button" onclick="cancelEditContactInfo()"
                                                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
                                                 Cancel
                                             </button>
-                                            <button type="button" onclick="saveContactInfo()"
+                                            <button type="submit"
                                                 class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
                                                 Save
                                             </button>
@@ -995,41 +965,197 @@
                                 <h3 class="text-lg font-bold text-gray-900">Hourly Rate Breakdown</h3>
                                 @auth
                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                        <button type="button" onclick=""
+                                        <button type="button" onclick="editHourlyRate()" id="edit-hourly-rate-btn"
                                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                             Edit
                                         </button>
                                     @endif
                                 @endauth
                             </div>
-                            <div class="space-y-3">
+
+                            <!-- View Mode -->
+                            <div class="space-y-3" id="hourly-rate-view">
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Base Rate</span>
-                                    <span
-                                        class="text-gray-900 font-medium">${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr</span>
+                                    <span class="text-gray-900 font-medium">
+                                        ${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Minimum Hours</span>
-                                    <span class="text-gray-900 text-sm font-medium">10 hours</span>
+                                    <span class="text-gray-900 text-sm font-medium">
+                                        {{ $freelancer->freelancer->minimum_hours ?? '10' }} hours
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Response Time</span>
-                                    <span class="text-gray-900 text-sm font-medium">2 hours</span>
+                                    <span class="text-gray-900 text-sm font-medium">
+                                        {{ $freelancer->freelancer->response_time_hours ?? '2' }} hours
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Revision Limit</span>
-                                    <span class="text-gray-900 text-sm font-medium">3 revisions</span>
+                                    <span class="text-gray-900 text-sm font-medium">
+                                        {{ $freelancer->freelancer->revision_limit ?? '3' }} revisions
+                                    </span>
                                 </div>
                                 <div class="pt-3 border-t border-gray-100">
                                     <div class="flex justify-between items-center">
                                         <span class="text-gray-900 text-sm font-medium">Estimated 20-hour
                                             project</span>
-                                        <span
-                                            class="text-xl font-bold text-gray-900">${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}</span>
+                                        <span class="text-xl font-bold text-gray-900">
+                                            ${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Edit Mode (Only for freelancer viewing their own profile) -->
+                            @auth
+                                @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                    <div id="hourly-rate-edit" class="hidden space-y-4">
+                                        <div class="space-y-3">
+                                            <div class="flex flex-col">
+                                                <label class="text-gray-600 text-sm mb-1">Base Rate ($/hr)</label>
+                                                <div class="flex items-center">
+                                                    <span class="text-gray-500 mr-2">$</span>
+                                                    <input type="number"
+                                                        value="{{ $freelancer->freelancer->hourly_rate }}" step="0.01"
+                                                        min="0"
+                                                        class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                        id="edit-hourly-rate" name="hourly_rate">
+                                                </div>
+                                            </div>
+
+                                            <div class="flex flex-col">
+                                                <label class="text-gray-600 text-sm mb-1">Minimum Hours</label>
+                                                <input type="number"
+                                                    value="{{ $freelancer->freelancer->minimum_hours ?? '10' }}"
+                                                    min="1"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    id="edit-minimum-hours" name="minimum_hours">
+                                            </div>
+
+                                            <div class="flex flex-col">
+                                                <label class="text-gray-600 text-sm mb-1">Response Time (hours)</label>
+                                                <input type="number"
+                                                    value="{{ $freelancer->freelancer->response_time ?? '2' }}"
+                                                    min="1" max="24"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    id="edit-response-time" name="response_time">
+                                            </div>
+
+                                            <div class="flex flex-col">
+                                                <label class="text-gray-600 text-sm mb-1">Revision Limit</label>
+                                                <input type="number"
+                                                    value="{{ $freelancer->freelancer->revision_limit ?? '3' }}"
+                                                    min="0"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    id="edit-revision-limit">
+                                            </div>
+                                        </div>
+
+                                        <!-- Preview of estimated project cost -->
+                                        <div class="pt-3 border-t border-gray-100 bg-gray-50 rounded-lg p-3">
+                                            <div class="text-sm text-gray-600 mb-1">Estimated 20-hour project cost:</div>
+                                            <div class="text-lg font-bold text-gray-900" id="estimated-cost-preview">
+                                                ${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-end gap-2 pt-3">
+                                            <button type="button" onclick="cancelEditHourlyRate()"
+                                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                Cancel
+                                            </button>
+                                            <button type="submit"
+                                                class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endauth
                         </div>
+
+                        <script>
+                            function editHourlyRate() {
+                                document.getElementById('hourly-rate-view').classList.add('hidden');
+                                document.getElementById('hourly-rate-edit').classList.remove('hidden');
+                                document.getElementById('edit-hourly-rate-btn').classList.add('hidden');
+
+                                // Add event listener for real-time calculation
+                                document.getElementById('edit-hourly-rate').addEventListener('input', updateEstimatedCost);
+                            }
+
+                            function cancelEditHourlyRate() {
+                                document.getElementById('hourly-rate-edit').classList.add('hidden');
+                                document.getElementById('hourly-rate-view').classList.remove('hidden');
+                                document.getElementById('edit-hourly-rate-btn').classList.remove('hidden');
+
+                                // Remove event listener
+                                document.getElementById('edit-hourly-rate').removeEventListener('input', updateEstimatedCost);
+                            }
+
+                            function updateEstimatedCost() {
+                                const hourlyRate = parseFloat(document.getElementById('edit-hourly-rate').value) || 0;
+                                const estimatedCost = hourlyRate * 20;
+                                document.getElementById('estimated-cost-preview').textContent = `$${estimatedCost.toFixed(2)}`;
+                            }
+
+                            function saveHourlyRate() {
+                                const hourlyRate = document.getElementById('edit-hourly-rate').value;
+                                const minimumHours = document.getElementById('edit-minimum-hours').value;
+                                const responseTime = document.getElementById('edit-response-time').value;
+                                const revisionLimit = document.getElementById('edit-revision-limit').value;
+
+                                // Prepare form data
+                                const formData = new FormData();
+                                formData.append('hourly_rate', hourlyRate);
+                                formData.append('minimum_hours', minimumHours);
+                                formData.append('response_time_hours', responseTime);
+                                formData.append('revision_limit', revisionLimit);
+                                formData.append('_method', 'PUT');
+
+                                // Get the CSRF token
+                                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                                // Make the API call
+                                fetch("{{ route('freelancer-profile.update', $freelancer->id) }}", {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'Accept': 'application/json',
+                                        },
+                                        body: formData
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Update the view with new values
+                                            document.querySelector('#hourly-rate-view div:nth-child(1) span:nth-child(2)').textContent =
+                                                `$${parseFloat(hourlyRate).toFixed(2)}/hr`;
+                                            document.querySelector('#hourly-rate-view div:nth-child(2) span:nth-child(2)').textContent =
+                                                `${minimumHours} hours`;
+                                            document.querySelector('#hourly-rate-view div:nth-child(3) span:nth-child(2)').textContent =
+                                                `${responseTime} hours`;
+                                            document.querySelector('#hourly-rate-view div:nth-child(4) span:nth-child(2)').textContent =
+                                                `${revisionLimit} revisions`;
+                                            document.querySelector('#hourly-rate-view div:nth-child(5) div span:nth-child(2)').textContent =
+                                                `$${(parseFloat(hourlyRate) * 20).toFixed(2)}`;
+
+                                            cancelEditHourlyRate();
+                                            alert('Hourly rate breakdown updated successfully!');
+                                        } else {
+                                            alert('Error updating hourly rate: ' + (data.message || 'Unknown error'));
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert('Error updating hourly rate. Please try again.');
+                                    });
+                            }
+                        </script>
 
                         <!-- Availability Card -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -1074,10 +1200,21 @@
                                 <h3 class="text-lg font-bold text-gray-900">Languages</h3>
                                 @auth
                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                        <button type="button" onclick="editLanguages()"
-                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            Edit
-                                        </button>
+                                        <div class="flex gap-3">
+                                            <button type="button" onclick="addEducation()"
+                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                Add Language
+                                            </button>
+                                            <button type="button" onclick="editLanguages()"
+                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                Edit
+                                            </button>
+                                        </div>
                                     @endif
                                 @endauth
                             </div>
@@ -1151,7 +1288,7 @@
                         </div>
                     </div>
                 </div>
-            </main>
+                </main>
         </div>
     </div>
 
@@ -1166,17 +1303,15 @@
 
         // Edit functions for freelancer
         function editBio() {
+            const bio = document.getElementById('bio');
             const bioTextarea = document.getElementById('bio-text');
-            if (bioTextarea) {
+            const bioContainer = document.getElementById('bio-container');
+            if (bioTextarea && bioContainer) {
                 bioTextarea.focus();
-            }
-        }
 
-        function saveBio() {
-            const bioText = document.getElementById('bio-text').value;
-            console.log('Saving bio:', bioText);
-            // Here you would typically make an API call to save the bio
-            alert('Bio saved successfully!');
+                bio.classList.add('hidden');
+                bioContainer.classList.remove('hidden');
+            }
         }
 
         function editSkills() {
@@ -1222,18 +1357,6 @@
             document.getElementById('contact-info-view').classList.remove('hidden');
         }
 
-        function saveContactInfo() {
-            const email = document.getElementById('edit-email').value;
-            const phone = document.getElementById('edit-phone').value;
-            console.log('Saving contact info:', {
-                email,
-                phone
-            });
-            // Here you would make an API call to save contact info
-            alert('Contact information saved successfully!');
-            cancelEditContactInfo();
-        }
-
         function editLanguages() {
             document.getElementById('languages-view').classList.add('hidden');
             document.getElementById('languages-edit').classList.remove('hidden');
@@ -1251,41 +1374,6 @@
             cancelEditLanguages();
         }
 
-        function savePortfolioUrl() {
-            const url = document.getElementById('portfolio-url').value;
-            console.log('Saving portfolio URL:', url);
-            // Here you would make an API call to save portfolio URL
-            alert('Portfolio URL saved successfully!');
-        }
-
-        function saveProfileField(field) {
-            let value;
-            switch (field) {
-                case 'name':
-                    value = document.getElementById('profile-name').value;
-                    break;
-                case 'job_title':
-                    value = document.getElementById('job-title').value;
-                    break;
-                case 'hourly_rate':
-                    value = document.getElementById('hourly-rate').value;
-                    break;
-                case 'availability':
-                    value = document.getElementById('availability').value;
-                    break;
-                case 'location':
-                    value = document.getElementById('location').value;
-                    break;
-                case 'years_experience':
-                    value = document.getElementById('years-experience').value;
-                    break;
-            }
-
-            console.log(`Saving ${field}:`, value);
-            // Here you would make an API call to save the field
-            alert(`${field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} saved successfully!`);
-        }
-
         function saveSocialLinks() {
             const linkedinUrl = document.getElementById('linkedin-url').value;
             const githubUrl = document.getElementById('github-url').value;
@@ -1296,12 +1384,6 @@
             });
             // Here you would make an API call to save social links
             alert('Social links saved successfully!');
-        }
-
-        function saveAllChanges() {
-            console.log('Saving all changes');
-            // Here you would collect all form data and make a single API call
-            alert('All changes saved successfully!');
         }
 
         function addExperience() {
