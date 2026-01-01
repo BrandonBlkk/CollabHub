@@ -87,6 +87,9 @@ class ProfileController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $freelancer = User::findOrFail($id);
+        $freelancer->delete();
+
+        return redirect()->route('startup');
     }
 }

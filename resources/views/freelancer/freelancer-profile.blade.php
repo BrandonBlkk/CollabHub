@@ -390,8 +390,12 @@
                                                         <textarea id="bio-text" name="bio"
                                                             class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[120px]"
                                                             placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
-                                                        <div class="flex justify-end mt-2">
-                                                            <button type="submite"
+                                                        <div class="flex justify-end gap-2 mt-2">
+                                                            <button type="button" onclick="cancelEditBio()"
+                                                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                                                Cancel
+                                                            </button>
+                                                            <button type="submit"
                                                                 class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
                                                                 Save Bio
                                                             </button>
@@ -1311,6 +1315,15 @@
 
                 bio.classList.add('hidden');
                 bioContainer.classList.remove('hidden');
+            }
+        }
+
+        function cancelEditBio() {
+            const bio = document.getElementById('bio');
+            const bioContainer = document.getElementById('bio-container');
+            if (bio && bioContainer) {
+                bio.classList.remove('hidden');
+                bioContainer.classList.add('hidden');
             }
         }
 

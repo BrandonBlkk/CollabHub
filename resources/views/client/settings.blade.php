@@ -411,10 +411,22 @@
                                     <h3 class="font-medium text-gray-900 mb-2">Delete Account</h3>
                                     <p class="text-gray-500 text-sm mb-3">Permanently delete your account and data
                                     </p>
-                                    <button onclick="deleteAccount()"
-                                        class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
-                                        Delete Account
-                                    </button>
+                                    @if (auth()->user()->role === 'client')
+                                        <button onclick="deleteAccount()"
+                                            class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                            Delete Account
+                                        </button>
+                                    @elseif (auth()->user()->role === 'freelancer')
+                                        <form action="{{ route('freelancer-profile.destroy', auth()->user()->id) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                                Delete Account
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
