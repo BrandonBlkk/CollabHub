@@ -27,6 +27,91 @@
             <!-- Top Navigation -->
             <x-header />
 
+            <!-- Add Certification Modal -->
+            <div id="addCertificationModal"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+                style="display: none;">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Add New Certification</h3>
+                    </div>
+
+                    <form id="certificationForm" method="POST"
+                        action="{{ route('freelancer-profile.certificate.store') }}" class="p-6 space-y-4">
+                        @csrf
+                        @method('POST')
+                        <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+
+                        <div>
+                            <label for="certification_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                Certification Name *
+                            </label>
+                            <input type="text" id="certification_name" name="name"
+                                placeholder="Enter your certificate name" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="issuer" class="block text-sm font-medium text-gray-700 mb-1">
+                                Issuing Organization *
+                            </label>
+                            <input type="text" id="issuer" name="issuer" placeholder="Enter your issuer" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="issued_year" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Issued Year
+                                </label>
+                                <select id="issued_year" name="issued_year"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select Year</option>
+                                    @for ($year = date('Y'); $year >= 1990; $year--)
+                                        <option value="{{ $year }}">{{ $year }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="expiry_year" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Expiry Year
+                                </label>
+                                <select id="expiry_year" name="expiry_year"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">No Expiry</option>
+                                    @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
+                                        <option value="{{ $year }}">{{ $year }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="certificate_url" class="block text-sm font-medium text-gray-700 mb-1">
+                                Certificate URL
+                            </label>
+                            <input type="url" id="certificate_url" name="certificate_url"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="https://example.com/verify">
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="hideAddCertificationModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
+                                Save Certification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Main Content Area -->
             <form action="{{ route('freelancer-profile.update', $freelancer->id) }}" method="POST"
                 class="flex-1 overflow-y-auto p-3">
@@ -771,63 +856,111 @@
                                             <h3 class="text-lg font-bold text-gray-900">Certifications</h3>
                                             @auth
                                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                                    <button type="button" onclick="addCertification()"
-                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                    <button type="button" onclick="showAddCertificationModal()"
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M12 4v16m8-8H4" />
                                                         </svg>
-                                                        Add Certification
                                                     </button>
                                                 @endif
                                             @endauth
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="certifications-list">
-                                            <!-- Certifications will be loaded here -->
-                                            <div class="border border-gray-200 rounded-xl p-4">
-                                                <div class="flex items-start gap-3">
-                                                    <div
-                                                        class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                        <svg class="w-6 h-6 text-blue-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                                        </svg>
+                                            @foreach ($certificates as $certificate)
+                                                <div class="border border-gray-200 rounded-xl p-4 relative group">
+                                                    <div class="absolute top-3 right-3">
+                                                        <button type="button"
+                                                            class="text-gray-400 group-hover:text-blue-600 transition-colors duration-200 p-1 rounded-full group-hover:bg-blue-50">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
-                                                    <div>
-                                                        <h4 class="font-bold text-gray-900">AWS Certified Solutions
-                                                            Architect</h4>
-                                                        <p class="text-gray-600 text-sm">Amazon Web Services</p>
-                                                        <p class="text-gray-500 text-xs mt-1">Issued: 2022 | Expires:
-                                                            2025</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="border border-gray-200 rounded-xl p-4">
-                                                <div class="flex items-start gap-3">
-                                                    <div
-                                                        class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                                        <svg class="w-6 h-6 text-green-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <h4 class="font-bold text-gray-900">Google Cloud Professional
-                                                            Developer</h4>
-                                                        <p class="text-gray-600 text-sm">Google Cloud</p>
-                                                        <p class="text-gray-500 text-xs mt-1">Issued: 2021 | No
-                                                            Expiration</p>
+
+                                                    <div class="flex items-start gap-3 pr-8">
+                                                        <div
+                                                            class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                                            <svg class="w-6 h-6 text-green-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <h4 class="font-bold text-gray-900">
+                                                                {{ $certificate->name }}</h4>
+                                                            <p class="text-gray-600 text-sm">
+                                                                {{ $certificate->issuer }}</p>
+                                                            <p class="text-gray-500 text-xs mt-1">Issued:
+                                                                {{ $certificate->issued_year ?? 'No Issued Date' }} |
+                                                                {{ $certificate->expiry_year ?? 'No Expiry' }}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Success Message Toast -->
+                                <div id="successToast"
+                                    class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50">
+                                    Certification added successfully!
+                                </div>
+
+                                <script>
+                                    function showAddCertificationModal() {
+                                        document.getElementById('addCertificationModal').style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
+                                    }
+
+                                    function hideAddCertificationModal() {
+                                        document.getElementById('addCertificationModal').style.display = 'none';
+                                        document.body.style.overflow = 'auto';
+                                        document.getElementById('certificationForm').reset();
+                                    }
+
+                                    // Close modal when clicking outside
+                                    document.getElementById('addCertificationModal').addEventListener('click', function(e) {
+                                        if (e.target === this) {
+                                            hideAddCertificationModal();
+                                        }
+                                    })
+
+                                    function addCertificationToDOM(certificate) {
+                                        const certificationsList = document.getElementById('certifications-list');
+
+                                        const certificationHTML = `
+        <div class="border border-gray-200 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900">${certificate.name}</h4>
+                    <p class="text-gray-600 text-sm">${certificate.issuer}</p>
+                    <p class="text-gray-500 text-xs mt-1">
+                        Issued: ${certificate.issued_year || 'No Issued Date'} |
+                        ${certificate.expiry_year || 'No Expiry'}
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+                                        // Add new certification at the beginning of the list
+                                        certificationsList.insertAdjacentHTML('afterbegin', certificationHTML);
+                                    }
+                                </script>
                             </div>
                         </div>
                     </div>

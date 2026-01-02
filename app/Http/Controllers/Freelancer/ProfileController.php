@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Freelancer;
 
 use App\Http\Controllers\Controller;
+use App\Models\FreelancerCertification;
 use App\Models\User;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -34,6 +36,8 @@ class ProfileController extends Controller
      */
     public function show(string $id)
     {
+        $user = User::findOrFail($id);
+
         $freelancer = User::with(['freelancer', 'skills'])
             ->where('role', 'freelancer')
             ->where('id', $id)
@@ -47,7 +51,9 @@ class ProfileController extends Controller
             ->limit(4)
             ->get();
 
-        return view('freelancer.freelancer-profile', compact("freelancer", "similarFreelancers"));
+        $certificates = $user->freelancer->certificates;
+
+        return view('freelancer.freelancer-profile', compact("freelancer", "similarFreelancers", "certificates"));
     }
 
     /**
@@ -91,5 +97,19 @@ class ProfileController extends Controller
         $freelancer->delete();
 
         return redirect()->route('startup');
+    }
+
+    // Certificate
+    public function storeCertificate(Request $request)
+    {
+        FreelancerCertification::create([
+            'name' => $request->name,
+            'freelancer_id' => $request->freelancer_id,
+            'issuer' => $request->issuer,
+            'issued_year' => $request->issued_year,
+            'expiry_year' => $request->expiry_year,
+        ]);
+
+        return back();
     }
 }

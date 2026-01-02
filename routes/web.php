@@ -54,6 +54,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //  Freelancer-Only Routes
     Route::middleware('role:freelancer')->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
+
+        // Certificate
+        Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])
+            ->name('freelancer-profile.certificate.store');
     });
 });
 
