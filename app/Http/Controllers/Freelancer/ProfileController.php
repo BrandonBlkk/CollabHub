@@ -99,32 +99,89 @@ class ProfileController extends Controller
         return redirect()->route('startup');
     }
 
-    // Certificate
+    // Certifications
     public function storeCertificate(Request $request)
     {
-        FreelancerCertification::create([
+        $certificate = FreelancerCertification::create([
             'name' => $request->name,
             'freelancer_id' => $request->freelancer_id,
             'issuer' => $request->issuer,
             'issued_year' => $request->issued_year,
             'expiry_year' => $request->expiry_year,
+            'certificate_url' => $request->certificate_url,
         ]);
 
-        return back();
+        return response()->json([
+            'success' => true,
+            'certificate' => [
+                'id' => $certificate->id,
+                'name' => $certificate->name,
+                'issuer' => $certificate->issuer,
+                'issued_year' => $certificate->issued_year,
+                'expiry_year' => $certificate->expiry_year,
+                'certificate_url' => $certificate->certificate_url,
+            ],
+            'message' => 'Certification added successfully!'
+        ]);
+    }
+
+    public function editCertificate($id)
+    {
+        $certicate = FreelancerCertification::findOrFail($id);
+
+        if (Auth::user()->id !== $certicate->freelancer_id) {
+            return back();
+        }
+
+        return response()->json($certicate);
+    }
+
+    public function updateCertificate(Request $request, $id)
+    {
+        $certificate = FreelancerCertification::findOrFail($id);
+
+        // Check authorization
+        if (Auth::user()->id !== $certificate->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'issuer' => 'required|string|max:255',
+            'certificate_url' => 'nullable|url',
+            'issued_year' => 'nullable|integer|min:1990|max:' . date('Y'),
+            'expiry_year' => 'nullable|integer|min:' . date('Y'),
+        ]);
+
+        $certificate->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Certification updated successfully',
+            'certificate' => $certificate
+        ]);
     }
 
     public function deleteCertificate($id)
     {
         $certificate = FreelancerCertification::findOrFail($id);
 
-        // Using auth() helper - no import needed
-        if (Auth::id() === $certificate->freelancer_id) {
-            $certificate->delete();
-            $response = ['success' => true];
-        } else {
-            $response = ['success' => false];
+        // Check authorization
+        if (Auth::user()->id !== $certificate->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ], 403);
         }
 
-        return response()->json($response);
+        $certificate->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Certification deleted successfully'
+        ]);
     }
 }

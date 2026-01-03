@@ -113,6 +113,89 @@
                 </div>
             </div>
 
+            <!-- Edit Certification Modal -->
+            <div id="editCertificationModal"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+                style="display: none;">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Edit Certification</h3>
+                    </div>
+
+                    <form id="editCertificationForm" method="POST" class="p-6 space-y-4">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_certificate_id" name="id">
+
+                        <div>
+                            <label for="edit_certification_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                Certification Name *
+                            </label>
+                            <input type="text" id="edit_certification_name" name="name"
+                                placeholder="Enter your certificate name" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="edit_issuer" class="block text-sm font-medium text-gray-700 mb-1">
+                                Issuing Organization *
+                            </label>
+                            <input type="text" id="edit_issuer" name="issuer" placeholder="Enter your issuer"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="edit_issued_year" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Issued Year
+                                </label>
+                                <select id="edit_issued_year" name="issued_year"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select Year</option>
+                                    @for ($year = date('Y'); $year >= 1990; $year--)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="edit_expiry_year" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Expiry Year
+                                </label>
+                                <select id="edit_expiry_year" name="expiry_year"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">No Expiry</option>
+                                    @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="edit_certificate_url" class="block text-sm font-medium text-gray-700 mb-1">
+                                Certificate URL
+                            </label>
+                            <input type="url" id="edit_certificate_url" name="certificate_url"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="https://example.com/verify">
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="hideEditCertificationModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center gap-2">
+                                Update Certification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Main Content Area -->
             <form action="{{ route('freelancer-profile.update', $freelancer->id) }}" method="POST"
                 class="flex-1 overflow-y-auto p-3">
@@ -146,7 +229,8 @@
                                             onclick="document.getElementById('profile-photo-upload').click()"
                                             class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full hover:bg-black transition shadow-lg"
                                             title="Change profile photo">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -945,6 +1029,7 @@
                                 </div>
 
                                 <script>
+                                    // Existing functions remain the same
                                     function showAddCertificationModal() {
                                         document.getElementById('addCertificationModal').style.display = 'flex';
                                         document.body.style.overflow = 'hidden';
@@ -956,41 +1041,160 @@
                                         document.getElementById('certificationForm').reset();
                                     }
 
-                                    // Close modal when clicking outside
-                                    document.getElementById('addCertificationModal').addEventListener('click', function(e) {
+                                    function showEditCertificationModal(certificateId) {
+                                        // Show loading state
+                                        const modal = document.getElementById('editCertificationModal');
+                                        modal.style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
+
+                                        // Clear previous data
+                                        document.getElementById('edit_certificate_id').value = '';
+                                        document.getElementById('edit_certification_name').value = '';
+                                        document.getElementById('edit_issuer').value = '';
+                                        document.getElementById('edit_issued_year').value = '';
+                                        document.getElementById('edit_expiry_year').value = '';
+                                        document.getElementById('edit_certificate_url').value = '';
+
+                                        // Fetch certificate data
+                                        fetch(`/freelancer-profile/certificate/${certificateId}/edit`)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Failed to fetch certificate data');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                // Populate form fields
+                                                document.getElementById('edit_certificate_id').value = data.id;
+                                                document.getElementById('edit_certification_name').value = data.name || '';
+                                                document.getElementById('edit_issuer').value = data.issuer || '';
+                                                document.getElementById('edit_issued_year').value = data.issued_year || '';
+                                                document.getElementById('edit_expiry_year').value = data.expiry_year || '';
+                                                document.getElementById('edit_certificate_url').value = data.certificate_url || '';
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching certificate:', error);
+                                                alert('Failed to load certification data. Please try again.');
+                                                hideEditCertificationModal();
+                                            });
+                                    }
+
+                                    function hideEditCertificationModal() {
+                                        document.getElementById('editCertificationModal').style.display = 'none';
+                                        document.body.style.overflow = 'auto';
+                                    }
+
+                                    // Close modals when clicking outside
+                                    document.getElementById('addCertificationModal')?.addEventListener('click', function(e) {
                                         if (e.target === this) {
                                             hideAddCertificationModal();
                                         }
-                                    })
+                                    });
 
-                                    function addCertificationToDOM(certificate) {
-                                        const certificationsList = document.getElementById('certifications-list');
+                                    document.getElementById('editCertificationModal')?.addEventListener('click', function(e) {
+                                        if (e.target === this) {
+                                            hideEditCertificationModal();
+                                        }
+                                    });
 
-                                        const certificationHTML = `
-        <div class="border border-gray-200 rounded-xl p-4">
-            <div class="flex items-start gap-3">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="font-bold text-gray-900">${certificate.name}</h4>
-                    <p class="text-gray-600 text-sm">${certificate.issuer}</p>
-                    <p class="text-gray-500 text-xs mt-1">
-                        Issued: ${certificate.issued_year || 'No Issued Date'} |
-                        ${certificate.expiry_year || 'No Expiry'}
-                    </p>
-                </div>
-            </div>
-        </div>
-    `;
+                                    // Handle edit form submission
+                                    document.getElementById('editCertificationForm')?.addEventListener('submit', function(e) {
+                                        e.preventDefault();
 
-                                        // Add new certification at the beginning of the list
-                                        certificationsList.insertAdjacentHTML('afterbegin', certificationHTML);
+                                        const formData = new FormData(this);
+                                        const certificateId = formData.get('id');
+
+                                        // Get CSRF token
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Show loading state
+                                        const submitBtn = this.querySelector('button[type="submit"]');
+                                        const originalText = submitBtn.textContent;
+                                        submitBtn.textContent = 'Updating...';
+                                        submitBtn.disabled = true;
+
+                                        // Make update request
+                                        fetch(`/freelancer-profile/certificate/${certificateId}`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'X-Requested-With': 'XMLHttpRequest',
+                                                    'Accept': 'application/json'
+                                                },
+                                                body: formData
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success || data.message) {
+                                                    // Update the certificate card in the DOM
+                                                    updateCertificateCard(certificateId, {
+                                                        name: formData.get('name'),
+                                                        issuer: formData.get('issuer'),
+                                                        issued_year: formData.get('issued_year'),
+                                                        expiry_year: formData.get('expiry_year'),
+                                                        certificate_url: formData.get('certificate_url')
+                                                    });
+
+                                                    hideEditCertificationModal();
+                                                    showSuccessToast('Certification updated successfully!');
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to update certification');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error updating certification:', error);
+                                                alert('Failed to update certification: ' + error.message);
+                                            })
+                                            .finally(() => {
+                                                submitBtn.textContent = originalText;
+                                                submitBtn.disabled = false;
+                                            });
+                                    });
+
+                                    // Update certificate card in the DOM
+                                    function updateCertificateCard(certificateId, certificateData) {
+                                        const card = document.querySelector(`[data-certificate-id="${certificateId}"]`);
+                                        if (card) {
+                                            // Update card content
+                                            const title = card.querySelector('h4');
+                                            const issuer = card.querySelector('.text-gray-600.text-sm');
+                                            const dateInfo = card.querySelector('.text-gray-500.text-xs');
+
+                                            if (title) title.textContent = certificateData.name;
+                                            if (issuer) issuer.textContent = certificateData.issuer;
+                                            if (dateInfo) {
+                                                dateInfo.textContent =
+                                                    `Issued: ${certificateData.issued_year || 'No Issued Date'} | ${certificateData.expiry_year || 'No Expiry'}`;
+                                            }
+                                        }
                                     }
 
+                                    // Show success toast notification
+                                    function showSuccessToast(message) {
+                                        const toast = document.getElementById('successToast');
+                                        if (toast) {
+                                            toast.textContent = message;
+                                            toast.classList.remove('translate-y-full', 'opacity-0');
+                                            toast.classList.add('translate-y-0', 'opacity-100');
+
+                                            setTimeout(() => {
+                                                toast.classList.remove('translate-y-0', 'opacity-100');
+                                                toast.classList.add('translate-y-full', 'opacity-0');
+                                            }, 3000);
+                                        }
+                                    }
+
+                                    // Enhanced confirmRemoveCertification function
                                     function confirmRemoveCertification(certificateId) {
                                         if (!confirm('Are you sure you want to remove this certification?')) {
                                             return;
@@ -1005,6 +1209,16 @@
                                         if (!csrfToken) {
                                             alert('Security token not found. Please refresh the page.');
                                             return;
+                                        }
+
+                                        // Show loading state on the button
+                                        const card = document.querySelector(`[data-certificate-id="${certificateId}"]`);
+                                        const removeBtn = card?.querySelector('button[onclick*="confirmRemoveCertification"]');
+                                        if (removeBtn) {
+                                            const originalHTML = removeBtn.innerHTML;
+                                            removeBtn.innerHTML =
+                                                '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+                                            removeBtn.disabled = true;
                                         }
 
                                         // Make the AJAX request
@@ -1025,15 +1239,35 @@
                                                     return response.json();
                                                 }
                                                 return response.text().then(text => {
-                                                    throw new Error(`Server returned: ${text.substring(0, 200)}`);
+                                                    try {
+                                                        return JSON.parse(text);
+                                                    } catch {
+                                                        throw new Error(`Server returned: ${text.substring(0, 200)}`);
+                                                    }
                                                 });
                                             })
                                             .then(data => {
                                                 if (data.success) {
-                                                    // Find and remove the card with animation
+                                                    // Remove the card with animation
                                                     const card = document.querySelector(`[data-certificate-id="${certificateId}"]`);
                                                     if (card) {
-                                                        card.remove();
+                                                        card.style.opacity = '0';
+                                                        card.style.transition = 'all 0.3s ease';
+
+                                                        setTimeout(() => {
+                                                            card.remove();
+                                                            showSuccessToast('Certification removed successfully!');
+
+                                                            // If no certifications left, show empty state
+                                                            const certificationsList = document.getElementById('certifications-list');
+                                                            if (certificationsList && certificationsList.children.length === 0) {
+                                                                certificationsList.innerHTML = `
+                                                                    <div class="col-span-2 text-center py-8">
+                                                                        <p class="text-gray-500 text-sm">No certifications added yet</p>
+                                                                    </div>
+                                                                `;
+                                                            }
+                                                        }, 300);
                                                     }
                                                 } else {
                                                     throw new Error(data.message || 'Failed to remove certificate');
@@ -1041,7 +1275,117 @@
                                             })
                                             .catch(error => {
                                                 console.error('Delete error:', error);
+                                                alert('Failed to remove certification: ' + error.message);
                                             })
+                                            .finally(() => {
+                                                // Restore button state
+                                                if (removeBtn) {
+                                                    removeBtn.innerHTML = originalHTML;
+                                                    removeBtn.disabled = false;
+                                                }
+                                            });
+                                    }
+
+                                    // Handle add certification form submission
+                                    document.getElementById('certificationForm')?.addEventListener('submit', function(e) {
+                                        e.preventDefault();
+
+                                        const formData = new FormData(this);
+
+                                        // Get CSRF token
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Show loading state
+                                        const submitBtn = this.querySelector('button[type="submit"]');
+                                        const originalText = submitBtn.textContent;
+                                        submitBtn.textContent = 'Saving...';
+                                        submitBtn.disabled = true;
+
+                                        // Make request
+                                        fetch(this.action, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'X-Requested-With': 'XMLHttpRequest',
+                                                    'Accept': 'application/json'
+                                                },
+                                                body: formData
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success || data.certificate) {
+                                                    addCertificationToDOM(data.certificate || data);
+                                                    hideAddCertificationModal();
+                                                    showSuccessToast('Certification added successfully!');
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to add certification');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error adding certification:', error);
+                                                alert('Failed to add certification: ' + error.message);
+                                            })
+                                            .finally(() => {
+                                                submitBtn.textContent = originalText;
+                                                submitBtn.disabled = false;
+                                            });
+                                    });
+
+                                    // Updated addCertificationToDOM function
+                                    function addCertificationToDOM(certificate) {
+                                        const certificationsList = document.getElementById('certifications-list');
+
+                                        // Remove empty state if it exists
+                                        const emptyState = certificationsList.querySelector('.col-span-2');
+                                        if (emptyState) {
+                                            emptyState.remove();
+                                        }
+
+                                        const certificationHTML = `
+            <div class="border border-gray-200 rounded-xl p-4 relative group" data-certificate-id="${certificate.id}">
+                <div class="absolute top-3 right-3 flex gap-1">
+                    <!-- Edit Button -->
+                    <button type="button" onclick="showEditCertificationModal(${certificate.id})"
+                        class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                        title="Edit certification">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <!-- Remove Button -->
+                    <button type="button" onclick="confirmRemoveCertification(${certificate.id})"
+                        class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                        title="Remove certification">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-start gap-3 pr-8">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-900">${certificate.name}</h4>
+                        <p class="text-gray-600 text-sm">${certificate.issuer}</p>
+                        <p class="text-gray-500 text-xs mt-1">Issued: ${certificate.issued_year || 'No Issued Date'} | ${certificate.expiry_year || 'No Expiry'}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                                        // Add new certification
+                                        certificationsList.insertAdjacentHTML('beforeend', certificationHTML);
                                     }
                                 </script>
                             </div>

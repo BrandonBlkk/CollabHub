@@ -58,6 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Certificate
         Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])
             ->name('freelancer-profile.certificate.store');
+        Route::get('freelancer-profile/certificate/{id}/edit', [FreelancerProfileController::class, 'editCertificate'])->name('freelancer-profile.certificate.edit');
+        Route::put('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'updateCertificate'])->name('freelancer-profile.certificate.update');
         Route::delete('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'deleteCertificate'])
             ->name('freelancer-profile.certificate.delete');
     });
