@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $freelancer->name }} | Freelancer Profile | CollabHub</title>
 
     <!-- Fonts -->
@@ -461,7 +462,12 @@
                                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                         <button type="button" onclick="editBio()"
                                                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                            Edit Bio
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
                                                         </button>
                                                     @endif
                                                 @endauth
@@ -506,7 +512,12 @@
                                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                         <button type="button" onclick="editSkills()"
                                                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                            Edit Skills
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
                                                         </button>
                                                     @endif
                                                 @endauth
@@ -759,13 +770,12 @@
                                             @auth
                                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                     <button type="button" onclick="addExperience()"
-                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M12 4v16m8-8H4" />
                                                         </svg>
-                                                        Add Experience
                                                     </button>
                                                 @endif
                                             @endauth
@@ -808,13 +818,12 @@
                                             @auth
                                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                     <button type="button" onclick="addEducation()"
-                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M12 4v16m8-8H4" />
                                                         </svg>
-                                                        Add Education
                                                     </button>
                                                 @endif
                                             @endauth
@@ -868,16 +877,33 @@
                                             @endauth
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="certifications-list">
-                                            @foreach ($certificates as $certificate)
-                                                <div class="border border-gray-200 rounded-xl p-4 relative group">
-                                                    <div class="absolute top-3 right-3">
+                                            @forelse ($certificates as $certificate)
+                                                <div class="border border-gray-200 rounded-xl p-4 relative group"
+                                                    data-certificate-id="{{ $certificate->id }}">
+                                                    <div class="absolute top-3 right-3 flex gap-1">
+                                                        <!-- Edit Button -->
                                                         <button type="button"
-                                                            class="text-gray-400 group-hover:text-blue-600 transition-colors duration-200 p-1 rounded-full group-hover:bg-blue-50">
+                                                            onclick="showEditCertificationModal({{ $certificate->id }})"
+                                                            class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                                                            title="Edit certification">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                                 viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+
+                                                        <!-- Remove Button -->
+                                                        <button type="button"
+                                                            onclick="confirmRemoveCertification({{ $certificate->id }})"
+                                                            class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                                                            title="Remove certification">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                             </svg>
                                                         </button>
                                                     </div>
@@ -903,7 +929,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endforeach
+                                            @empty
+                                                <div class="col-span-2 text-center py-8">
+                                                    <p class="text-gray-500 text-sm">No certifications added yet</p>
+                                                </div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
@@ -960,6 +990,59 @@
                                         // Add new certification at the beginning of the list
                                         certificationsList.insertAdjacentHTML('afterbegin', certificationHTML);
                                     }
+
+                                    function confirmRemoveCertification(certificateId) {
+                                        if (!confirm('Are you sure you want to remove this certification?')) {
+                                            return;
+                                        }
+
+                                        // Get the base URL dynamically
+                                        const baseUrl = window.location.origin;
+
+                                        // Get CSRF token safely
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Make the AJAX request
+                                        fetch(`${baseUrl}/freelancer-profile/certificate/${certificateId}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                },
+                                                credentials: 'same-origin'
+                                            })
+                                            .then(response => {
+                                                // Check if response is JSON
+                                                const contentType = response.headers.get('content-type');
+                                                if (contentType && contentType.includes('application/json')) {
+                                                    return response.json();
+                                                }
+                                                return response.text().then(text => {
+                                                    throw new Error(`Server returned: ${text.substring(0, 200)}`);
+                                                });
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Find and remove the card with animation
+                                                    const card = document.querySelector(`[data-certificate-id="${certificateId}"]`);
+                                                    if (card) {
+                                                        card.remove();
+                                                    }
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to remove certificate');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Delete error:', error);
+                                            })
+                                    }
                                 </script>
                             </div>
                         </div>
@@ -975,7 +1058,11 @@
                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                         <button type="button" onclick="editContactInfo()"
                                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            Edit
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
                                         </button>
                                     @endif
                                 @endauth
@@ -1104,7 +1191,11 @@
                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                         <button type="button" onclick="editHourlyRate()" id="edit-hourly-rate-btn"
                                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            Edit
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
                                         </button>
                                     @endif
                                 @endauth
@@ -1127,7 +1218,7 @@
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 text-sm">Response Time</span>
                                     <span class="text-gray-900 text-sm font-medium">
-                                        {{ $freelancer->freelancer->response_time_hours ?? '2' }} hours
+                                        {{ $freelancer->freelancer->response_time ?? '2' }} hours
                                     </span>
                                 </div>
                                 <div class="flex justify-between items-center">
@@ -1325,7 +1416,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span>Usually responds within 2 hours</span>
+                                        <span>Usually responds within
+                                            {{ $freelancer->freelancer->response_time ?? '2' }} hours</span>
                                     </div>
                                 </div>
                             </div>
@@ -1339,17 +1431,20 @@
                                     @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                         <div class="flex gap-3">
                                             <button type="button" onclick="addEducation()"
-                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M12 4v16m8-8H4" />
                                                 </svg>
-                                                Add Language
                                             </button>
                                             <button type="button" onclick="editLanguages()"
                                                 class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                Edit
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
                                             </button>
                                         </div>
                                     @endif

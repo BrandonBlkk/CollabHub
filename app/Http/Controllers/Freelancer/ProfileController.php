@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Freelancer;
 use App\Http\Controllers\Controller;
 use App\Models\FreelancerCertification;
 use App\Models\User;
-use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -111,5 +111,20 @@ class ProfileController extends Controller
         ]);
 
         return back();
+    }
+
+    public function deleteCertificate($id)
+    {
+        $certificate = FreelancerCertification::findOrFail($id);
+
+        // Using auth() helper - no import needed
+        if (Auth::id() === $certificate->freelancer_id) {
+            $certificate->delete();
+            $response = ['success' => true];
+        } else {
+            $response = ['success' => false];
+        }
+
+        return response()->json($response);
     }
 }
