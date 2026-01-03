@@ -32,10 +32,14 @@
                     class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
             </button>
 
-            <a href="{{ route('my-jobs.create') }}"
-                class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-black transition duration-300 font-medium text-sm">
-                Post a Job
-            </a>
+            @if (Auth::user()->role === 'clients')
+                <a href="{{ route('my-jobs.create') }}"
+                    class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-black transition duration-300 font-medium text-sm">
+                    Post a Job
+                </a>
+            @else
+                {{--  --}}
+            @endif
         </div>
     </div>
 </header>

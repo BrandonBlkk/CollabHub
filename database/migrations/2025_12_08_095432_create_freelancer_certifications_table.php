@@ -20,6 +20,7 @@ return new class extends Migration
             $table->year('issued_year');
             $table->year('expiry_year')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

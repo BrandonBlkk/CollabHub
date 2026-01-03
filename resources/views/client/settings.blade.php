@@ -61,17 +61,15 @@
             <!-- Main Content Area -->
             <main class="flex-1 overflow-y-auto p-3">
                 <!-- Page Header -->
-                <div class="mb-3">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Account Settings</h1>
-                            <p class="text-gray-600 mt-1">
-                                Manage your account preferences and application settings
-                            </p>
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ now()->format('l, F j, Y') }}
-                        </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Account Settings</h1>
+                        <p class="text-gray-600 mt-1">
+                            Manage your account preferences and application settings
+                        </p>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        {{ now()->format('l, F j, Y') }}
                     </div>
                 </div>
 
@@ -340,7 +338,7 @@
                     </form>
 
                     <!-- Right Column - Account Actions & Status -->
-                    <div class="space-y-6">
+                    <div class="space-y-3 mt-3">
                         <!-- Account Status -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h2 class="text-xl font-bold text-gray-900 mb-6">Account Status</h2>
@@ -413,10 +411,22 @@
                                     <h3 class="font-medium text-gray-900 mb-2">Delete Account</h3>
                                     <p class="text-gray-500 text-sm mb-3">Permanently delete your account and data
                                     </p>
-                                    <button onclick="deleteAccount()"
-                                        class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
-                                        Delete Account
-                                    </button>
+                                    @if (auth()->user()->role === 'client')
+                                        <button onclick="deleteAccount()"
+                                            class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                            Delete Account
+                                        </button>
+                                    @elseif (auth()->user()->role === 'freelancer')
+                                        <form action="{{ route('freelancer-profile.destroy', auth()->user()->id) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                                Delete Account
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
