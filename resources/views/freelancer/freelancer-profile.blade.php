@@ -28,6 +28,207 @@
             <!-- Top Navigation -->
             <x-header />
 
+            <!-- Add Experience Modal -->
+            <div id="addExperienceModal"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+                style="display: none;">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Add New Experience</h3>
+                    </div>
+
+                    <form id="experienceForm" method="POST" action="{{ route('freelancer-profile.experience.store') }}"
+                        class="p-6 space-y-4">
+                        @csrf
+                        <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+
+                        {{-- Job Role --}}
+                        <div>
+                            <label for="job_role_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                Job Role *
+                            </label>
+                            <select name="job_role_id" id="job_role_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                                <option value="">Select Job Role</option>
+                                @foreach ($jobRoles as $jobRole)
+                                    <option value="{{ $jobRole->id }}">{{ $jobRole->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">
+                                Company Name *
+                            </label>
+                            <input type="text" id="company" name="company" placeholder="e.g., TechCorp Inc."
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                            </label>
+                            <textarea id="description" name="description" rows="3"
+                                placeholder="Describe your responsibilities and achievements..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
+                        </div>
+
+                        <div>
+                            <label for="employment_type" class="block text-sm font-medium text-gray-700 mb-1">
+                                Employment Type
+                            </label>
+                            <input type="text" id="employment_type" name="employment_type"
+                                placeholder="e.g., Full-time" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Start Date
+                                </label>
+                                <input type="month" id="start_date" name="start_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            </div>
+
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    End Date
+                                </label>
+                                <input type="month" id="end_date" name="end_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                                <div class="flex items-center mt-2">
+                                    <input type="checkbox" id="is_current" name="is_current" class="mr-2"
+                                        value="1">
+                                    <label for="is_current" class="text-sm text-gray-600">Currently working here</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
+                                Location
+                            </label>
+                            <input type="text" id="location" name="location" placeholder="e.g., San Francisco, CA"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="hideAddExperienceModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
+                                Save Experience
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Experience Modal -->
+            <div id="editExperienceModal"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+                style="display: none;">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900">Edit Experience</h3>
+                    </div>
+
+                    <form id="editExperienceForm" method="POST" class="p-6 space-y-4">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_experience_id" name="id">
+
+                        <!-- Job Role -->
+                        <div>
+                            <label for="edit_job_role_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                Job Role *
+                            </label>
+                            <select name="job_role_id" id="edit_job_role_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                                <option value="">Select Job Role</option>
+                                @foreach ($jobRoles as $jobRole)
+                                    <option value="{{ $jobRole->id }}">{{ $jobRole->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="edit_company" class="block text-sm font-medium text-gray-700 mb-1">
+                                Company Name *
+                            </label>
+                            <input type="text" id="edit_company" name="company" placeholder="e.g., TechCorp Inc."
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div>
+                            <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                            </label>
+                            <textarea id="edit_description" name="description" rows="3"
+                                placeholder="Describe your responsibilities and achievements..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
+                        </div>
+
+                        <div>
+                            <label for="edit_employment_type" class="block text-sm font-medium text-gray-700 mb-1">
+                                Employment Type
+                            </label>
+                            <input type="text" id="edit_employment_type" name="employment_type"
+                                placeholder="e.g., Full-time"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="edit_start_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Start Date
+                                </label>
+                                <input type="month" id="edit_start_date" name="start_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            </div>
+
+                            <div>
+                                <label for="edit_end_date" class="block text-sm font-medium text-gray-700 mb-1">
+                                    End Date
+                                </label>
+                                <input type="month" id="edit_end_date" name="end_date"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                                <div class="flex items-center mt-2">
+                                    <input type="checkbox" id="edit_is_current" name="is_current" class="mr-2">
+                                    <label for="edit_is_current" class="text-sm text-gray-600">Currently working
+                                        here</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="edit_location" class="block text-sm font-medium text-gray-700 mb-1">
+                                Location
+                            </label>
+                            <input type="text" id="edit_location" name="location"
+                                placeholder="e.g., San Francisco, CA"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="hideEditExperienceModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
+                                Update Experience
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Add Certification Modal -->
             <div id="addCertificationModal"
                 class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
@@ -49,15 +250,16 @@
                             </label>
                             <input type="text" id="certification_name" name="name"
                                 placeholder="Enter your certificate name" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         </div>
 
                         <div>
                             <label for="issuer" class="block text-sm font-medium text-gray-700 mb-1">
                                 Issuing Organization *
                             </label>
-                            <input type="text" id="issuer" name="issuer" placeholder="Enter your issuer" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <input type="text" id="issuer" name="issuer" placeholder="Enter your issuer"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -66,7 +268,7 @@
                                     Issued Year
                                 </label>
                                 <select id="issued_year" name="issued_year"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                                     <option value="">Select Year</option>
                                     @for ($year = date('Y'); $year >= 1990; $year--)
                                         <option value="{{ $year }}">{{ $year }}
@@ -80,7 +282,7 @@
                                     Expiry Year
                                 </label>
                                 <select id="expiry_year" name="expiry_year"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                                     <option value="">No Expiry</option>
                                     @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
                                         <option value="{{ $year }}">{{ $year }}
@@ -95,7 +297,7 @@
                                 Certificate URL
                             </label>
                             <input type="url" id="certificate_url" name="certificate_url"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                                 placeholder="https://example.com/verify">
                         </div>
 
@@ -133,7 +335,7 @@
                             </label>
                             <input type="text" id="edit_certification_name" name="name"
                                 placeholder="Enter your certificate name" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         </div>
 
                         <div>
@@ -142,7 +344,7 @@
                             </label>
                             <input type="text" id="edit_issuer" name="issuer" placeholder="Enter your issuer"
                                 required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -151,7 +353,7 @@
                                     Issued Year
                                 </label>
                                 <select id="edit_issued_year" name="issued_year"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                                     <option value="">Select Year</option>
                                     @for ($year = date('Y'); $year >= 1990; $year--)
                                         <option value="{{ $year }}">{{ $year }}</option>
@@ -164,7 +366,7 @@
                                     Expiry Year
                                 </label>
                                 <select id="edit_expiry_year" name="expiry_year"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                                     <option value="">No Expiry</option>
                                     @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
                                         <option value="{{ $year }}">{{ $year }}</option>
@@ -178,7 +380,7 @@
                                 Certificate URL
                             </label>
                             <input type="url" id="edit_certificate_url" name="certificate_url"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                                 placeholder="https://example.com/verify">
                         </div>
 
@@ -188,7 +390,7 @@
                                 Cancel
                             </button>
                             <button type="submit"
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center gap-2">
+                                class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
                                 Update Certification
                             </button>
                         </div>
@@ -563,7 +765,7 @@
                                                     </p>
                                                     <div id="bio-container" class="hidden">
                                                         <textarea id="bio-text" name="bio"
-                                                            class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[120px]"
+                                                            class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200 min-h-[120px]"
                                                             placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
                                                         <div class="flex justify-end gap-2 mt-2">
                                                             <button type="button" onclick="cancelEditBio()"
@@ -631,7 +833,7 @@
                                                         <div class="flex gap-2">
                                                             <input type="text" id="new-skill-input"
                                                                 placeholder="Add a new skill..."
-                                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
                                                             <button type="button" onclick="addSkill()"
                                                                 class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
                                                                 Add
@@ -853,7 +1055,7 @@
                                             <h3 class="text-lg font-bold text-gray-900">Work Experience</h3>
                                             @auth
                                                 @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                                    <button type="button" onclick="addExperience()"
+                                                    <button type="button" onclick="showAddExperienceModal()"
                                                         class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
@@ -865,34 +1067,667 @@
                                             @endauth
                                         </div>
                                         <div class="space-y-4" id="experience-list">
-                                            <!-- Experience items will be loaded here -->
-                                            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                                                <div class="flex justify-between items-start">
-                                                    <div>
-                                                        <h4 class="font-bold text-gray-900 text-base">Senior Frontend
-                                                            Developer</h4>
-                                                        <p class="text-gray-600 text-sm">TechCorp Inc.</p>
+                                            @forelse ($experiences as $experience)
+                                                <div class="border-l-4 border-blue-500 pl-4 py-2 relative group"
+                                                    data-experience-id="{{ $experience->id }}">
+                                                    <div
+                                                        class="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <!-- Edit Button -->
+                                                        <button type="button"
+                                                            onclick="showEditExperienceModal({{ $experience->id }})"
+                                                            class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                                                            title="Edit experience">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+                                                        <!-- Remove Button -->
+                                                        <button type="button"
+                                                            onclick="confirmRemoveExperience({{ $experience->id }})"
+                                                            class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                                                            title="Remove experience">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
-                                                    <span class="text-sm text-gray-500">2019 - Present</span>
-                                                </div>
-                                                <p class="text-gray-600 text-sm mt-2">Led frontend development for
-                                                    multiple enterprise applications using React and TypeScript.</p>
-                                            </div>
-                                            <div class="border-l-4 border-green-500 pl-4 py-2">
-                                                <div class="flex justify-between items-start">
-                                                    <div>
-                                                        <h4 class="font-bold text-gray-900 text-base">Full Stack
-                                                            Developer</h4>
-                                                        <p class="text-gray-600 text-sm">StartupXYZ</p>
+                                                    <div class="flex justify-between items-start pr-10">
+                                                        <div>
+                                                            <h4 class="font-bold text-gray-900 text-base">
+                                                                {{ $experience->jobRole->title ?? 'Job Role Not Found' }}
+                                                            </h4>
+                                                            <p class="text-gray-600 text-sm">
+                                                                {{ $experience->company }}</p>
+                                                            @if ($experience->location)
+                                                                <p class="text-gray-500 text-xs mt-1">
+                                                                    {{ $experience->location }}</p>
+                                                            @endif
+                                                        </div>
+                                                        <span class="text-sm text-gray-500">
+                                                            {{ date('M Y', strtotime($experience->start_date)) }} -
+                                                            @if ($experience->is_current)
+                                                                Present
+                                                            @elseif($experience->end_date)
+                                                                {{ date('M Y', strtotime($experience->end_date)) }}
+                                                            @else
+                                                                Present
+                                                            @endif
+                                                        </span>
                                                     </div>
-                                                    <span class="text-sm text-gray-500">2017 - 2019</span>
+                                                    @if ($experience->description)
+                                                        <p class="text-gray-600 text-sm mt-2 pr-10">
+                                                            {{ $experience->description }}</p>
+                                                    @endif
                                                 </div>
-                                                <p class="text-gray-600 text-sm mt-2">Built and maintained full-stack
-                                                    applications using Node.js, React, and MongoDB.</p>
-                                            </div>
+                                            @empty
+                                                <div class="text-center py-8">
+                                                    <p class="text-gray-500 text-sm">No work experience added yet</p>
+                                                </div>
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
+
+                                <script>
+                                    // Experience Modal Functions
+                                    function showAddExperienceModal() {
+                                        document.getElementById('addExperienceModal').style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
+                                    }
+
+                                    function hideAddExperienceModal() {
+                                        document.getElementById('addExperienceModal').style.display = 'none';
+                                        document.body.style.overflow = 'auto';
+                                        document.getElementById('experienceForm').reset();
+                                    }
+
+                                    function showEditExperienceModal(experienceId) {
+                                        const modal = document.getElementById('editExperienceModal');
+                                        modal.style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
+
+                                        // Clear previous data
+                                        document.getElementById('edit_experience_id').value = '';
+                                        document.getElementById('edit_job_role_id').value = '';
+                                        document.getElementById('edit_company').value = '';
+                                        document.getElementById('edit_description').value = '';
+                                        document.getElementById('edit_employment_type').value = '';
+                                        document.getElementById('edit_start_date').value = '';
+                                        document.getElementById('edit_end_date').value = '';
+                                        document.getElementById('edit_location').value = '';
+                                        document.getElementById('edit_is_current').checked = false;
+
+                                        // Fetch experience data
+                                        fetch(`/freelancer-profile/experience/${experienceId}/edit`)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Failed to fetch experience data');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                console.log('Experience data loaded:', data);
+
+                                                // Populate form fields
+                                                document.getElementById('edit_experience_id').value = data.id;
+                                                document.getElementById('edit_job_role_id').value = data.job_role_id || '';
+                                                document.getElementById('edit_company').value = data.company || '';
+                                                document.getElementById('edit_description').value = data.description || '';
+                                                document.getElementById('edit_employment_type').value = data.employment_type || '';
+                                                document.getElementById('edit_location').value = data.location || '';
+
+                                                // Format dates for input[type="month"]
+                                                if (data.start_date) {
+                                                    const startDate = new Date(data.start_date);
+                                                    document.getElementById('edit_start_date').value =
+                                                        startDate.toISOString().slice(0, 7);
+                                                }
+
+                                                if (data.end_date) {
+                                                    const endDate = new Date(data.end_date);
+                                                    document.getElementById('edit_end_date').value =
+                                                        endDate.toISOString().slice(0, 7);
+                                                }
+
+                                                // Handle current job checkbox
+                                                const isCurrent = data.is_current || false;
+                                                document.getElementById('edit_is_current').checked = isCurrent;
+
+                                                // Disable end date if currently working here
+                                                const endDateInput = document.getElementById('edit_end_date');
+                                                if (isCurrent) {
+                                                    endDateInput.disabled = true;
+                                                    endDateInput.value = '';
+                                                } else {
+                                                    endDateInput.disabled = false;
+                                                }
+
+                                                // Set form action
+                                                document.getElementById('editExperienceForm').action =
+                                                    `/freelancer-profile/experience/${experienceId}`;
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching experience:', error);
+                                                alert('Failed to load experience data. Please try again.');
+                                                hideEditExperienceModal();
+                                            });
+                                    }
+
+                                    function hideEditExperienceModal() {
+                                        document.getElementById('editExperienceModal').style.display = 'none';
+                                        document.body.style.overflow = 'auto';
+                                        document.getElementById('editExperienceForm').reset();
+                                    }
+
+                                    // Close experience modals when clicking outside
+                                    document.getElementById('addExperienceModal')?.addEventListener('click', function(e) {
+                                        if (e.target === this) {
+                                            hideAddExperienceModal();
+                                        }
+                                    });
+
+                                    document.getElementById('editExperienceModal')?.addEventListener('click', function(e) {
+                                        if (e.target === this) {
+                                            hideEditExperienceModal();
+                                        }
+                                    });
+
+                                    // Handle current job checkbox in edit modal
+                                    document.getElementById('edit_is_current')?.addEventListener('change', function(e) {
+                                        const endDateInput = document.getElementById('edit_end_date');
+                                        if (e.target.checked) {
+                                            endDateInput.disabled = true;
+                                            endDateInput.value = '';
+                                        } else {
+                                            endDateInput.disabled = false;
+                                        }
+                                    });
+
+                                    // Handle current job checkbox in add modal
+                                    document.getElementById('is_current')?.addEventListener('change', function(e) {
+                                        const endDateInput = document.getElementById('end_date');
+                                        if (e.target.checked) {
+                                            endDateInput.disabled = true;
+                                            endDateInput.value = '';
+                                        } else {
+                                            endDateInput.disabled = false;
+                                        }
+                                    });
+
+                                    // Handle add experience form submission
+                                    document.getElementById('experienceForm')?.addEventListener('submit', function(e) {
+                                        e.preventDefault();
+
+                                        const formData = new FormData(this);
+
+                                        // Get CSRF token
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Show loading state
+                                        const submitBtn = this.querySelector('button[type="submit"]');
+                                        const originalText = submitBtn.textContent;
+                                        submitBtn.textContent = 'Saving...';
+                                        submitBtn.disabled = true;
+
+                                        // Make request
+                                        fetch(this.action, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'X-Requested-With': 'XMLHttpRequest',
+                                                    'Accept': 'application/json'
+                                                },
+                                                body: formData
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success || data.experience) {
+                                                    // Use the proper addExperienceToDOM function to ensure consistent design
+                                                    addExperienceToDOM(data.experience || data);
+                                                    hideAddExperienceModal();
+                                                    showSuccessToast('Experience added successfully!');
+
+                                                    // Sort the list after adding
+                                                    sortExperienceList();
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to add experience');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error adding experience:', error);
+                                                alert('Failed to add experience: ' + error.message);
+                                            })
+                                            .finally(() => {
+                                                submitBtn.textContent = originalText;
+                                                submitBtn.disabled = false;
+                                            });
+                                    });
+
+                                    // Handle edit experience form submission
+                                    document.getElementById('editExperienceForm')?.addEventListener('submit', function(e) {
+                                        e.preventDefault();
+
+                                        const formData = new FormData(this);
+                                        const experienceId = formData.get('id');
+
+                                        // Convert is_current checkbox to boolean
+                                        const isCurrentCheckbox = document.getElementById('edit_is_current');
+                                        formData.set('is_current', isCurrentCheckbox ? isCurrentCheckbox.checked : false);
+
+                                        // Get CSRF token
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Show loading state
+                                        const submitBtn = this.querySelector('button[type="submit"]');
+                                        const originalText = submitBtn.textContent;
+                                        submitBtn.textContent = 'Updating...';
+                                        submitBtn.disabled = true;
+
+                                        // Make update request
+                                        fetch(this.action, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                },
+                                                body: formData
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    return response.json().then(errData => {
+                                                        throw new Error(errData.message || `Server error: ${response.status}`);
+                                                    });
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Update the item in DOM
+                                                    updateExperienceItem(experienceId, data.experience);
+                                                    hideEditExperienceModal();
+                                                    showSuccessToast('Experience updated successfully!');
+
+                                                    // Sort the list after updating
+                                                    sortExperienceList();
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to update experience');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error updating experience:', error);
+                                                alert('Failed to update experience: ' + error.message);
+                                            })
+                                            .finally(() => {
+                                                submitBtn.textContent = originalText;
+                                                submitBtn.disabled = false;
+                                            });
+                                    });
+
+                                    // Updated addExperienceToDOM function to insert in correct position
+                                    function addExperienceToDOM(experience) {
+                                        const experienceList = document.getElementById('experience-list');
+
+                                        // Remove empty state if it exists
+                                        const emptyState = experienceList.querySelector('.text-center');
+                                        if (emptyState) {
+                                            emptyState.remove();
+                                        }
+
+                                        // Format dates
+                                        const startDate = experience.start_date ? formatDate(experience.start_date) : '';
+                                        const endDate = experience.is_current ? 'Present' :
+                                            (experience.end_date ? formatDate(experience.end_date) : '');
+
+                                        const experienceHTML = `
+            <div class="border-l-4 border-blue-500 pl-4 py-2 relative group" data-experience-id="${experience.id}">
+                <div class="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <!-- Edit Button -->
+                    <button type="button" onclick="showEditExperienceModal(${experience.id})"
+                        class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                        title="Edit experience">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <!-- Remove Button -->
+                    <button type="button" onclick="confirmRemoveExperience(${experience.id})"
+                        class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                        title="Remove experience">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start pr-10">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-base">${experience.job_role_title || (experience.job_role ? experience.job_role.title : 'Job Role Not Found')}</h4>
+                        <p class="text-gray-600 text-sm">${experience.company}</p>
+                        ${experience.location ? `<p class="text-gray-500 text-xs mt-1">${experience.location}</p>` : ''}
+                    </div>
+                    <span class="text-sm text-gray-500">
+                        ${startDate} -
+                        ${experience.is_current ? 'Present' : (experience.end_date ? formatDate(experience.end_date) : 'Present')}
+                    </span>
+                </div>
+                ${experience.description ? `<p class="text-gray-600 text-sm mt-2 pr-10">${experience.description}</p>` : ''}
+            </div>
+        `;
+
+                                        // Add the new experience
+                                        experienceList.insertAdjacentHTML('beforeend', experienceHTML);
+                                    }
+
+                                    // Function to sort experiences by date
+                                    function sortExperienceList() {
+                                        const experienceList = document.getElementById('experience-list');
+                                        const experiences = Array.from(experienceList.querySelectorAll('[data-experience-id]'));
+
+                                        if (experiences.length <= 1) return;
+
+                                        experiences.sort((a, b) => {
+                                            const aDateSpan = a.querySelector('span.text-sm.text-gray-500');
+                                            const bDateSpan = b.querySelector('span.text-sm.text-gray-500');
+
+                                            // Extract dates
+                                            const aDateInfo = extractDateInfo(aDateSpan ? aDateSpan.textContent : '');
+                                            const bDateInfo = extractDateInfo(bDateSpan ? bDateSpan.textContent : '');
+
+                                            // Sort logic:
+                                            // 1. "Present" experiences come first
+                                            if (aDateInfo.isPresent && !bDateInfo.isPresent) return -1;
+                                            if (!aDateInfo.isPresent && bDateInfo.isPresent) return 1;
+
+                                            // 2. Both present or both not present - sort by start date (most recent first)
+                                            if (aDateInfo.startDate && bDateInfo.startDate) {
+                                                return bDateInfo.startDate.getTime() - aDateInfo.startDate.getTime();
+                                            }
+
+                                            // 3. If one has a date and the other doesn't, put the one with date first
+                                            if (aDateInfo.startDate && !bDateInfo.startDate) return -1;
+                                            if (!aDateInfo.startDate && bDateInfo.startDate) return 1;
+
+                                            return 0;
+                                        });
+
+                                        // Clear the list and re-add in sorted order
+                                        const fragment = document.createDocumentFragment();
+                                        experiences.forEach(exp => {
+                                            fragment.appendChild(exp);
+                                        });
+
+                                        experienceList.innerHTML = '';
+                                        experienceList.appendChild(fragment);
+                                    }
+
+                                    // Helper function to extract date information from the date span text
+                                    function extractDateInfo(dateText) {
+                                        const result = {
+                                            isPresent: false,
+                                            startDate: null,
+                                            endDate: null
+                                        };
+
+                                        if (!dateText) return result;
+
+                                        // Check if it contains "Present"
+                                        result.isPresent = dateText.includes('Present');
+
+                                        // Extract start date (first part before " - ")
+                                        const parts = dateText.split(' - ');
+                                        if (parts.length > 0) {
+                                            const startDateStr = parts[0].trim();
+                                            result.startDate = parseDateString(startDateStr);
+                                        }
+
+                                        return result;
+                                    }
+
+                                    // Helper function to parse date strings like "Jan 2023" or "January 2023"
+                                    function parseDateString(dateStr) {
+                                        if (!dateStr) return null;
+
+                                        // Try to parse the date
+                                        const date = new Date(dateStr);
+                                        if (!isNaN(date.getTime())) {
+                                            return date;
+                                        }
+
+                                        // Try parsing common month abbreviations
+                                        const monthAbbreviations = {
+                                            'Jan': 0,
+                                            'Feb': 1,
+                                            'Mar': 2,
+                                            'Apr': 3,
+                                            'May': 4,
+                                            'Jun': 5,
+                                            'Jul': 6,
+                                            'Aug': 7,
+                                            'Sep': 8,
+                                            'Oct': 9,
+                                            'Nov': 10,
+                                            'Dec': 11
+                                        };
+
+                                        const parts = dateStr.split(' ');
+                                        if (parts.length === 2) {
+                                            const monthStr = parts[0];
+                                            const yearStr = parts[1];
+
+                                            if (monthAbbreviations.hasOwnProperty(monthStr) && !isNaN(yearStr)) {
+                                                return new Date(parseInt(yearStr), monthAbbreviations[monthStr], 1);
+                                            }
+                                        }
+
+                                        return null;
+                                    }
+
+                                    // Update experience item in DOM
+                                    function updateExperienceItem(experienceId, experienceData) {
+                                        const item = document.querySelector(`[data-experience-id="${experienceId}"]`);
+                                        if (item) {
+                                            // Update item content with consistent design
+                                            const title = item.querySelector('h4');
+                                            const company = item.querySelector('.text-gray-600.text-sm');
+                                            const location = item.querySelector('.text-gray-500.text-xs');
+                                            const dateSpan = item.querySelector('.text-sm.text-gray-500');
+                                            const description = item.querySelector('.text-gray-600.text-sm.mt-2');
+
+                                            const jobRoleTitle = experienceData.job_role_title ||
+                                                (experienceData.job_role ? experienceData.job_role.title : 'Job Role Not Found');
+
+                                            if (title) title.textContent = jobRoleTitle;
+                                            if (company) company.textContent = experienceData.company;
+
+                                            // Update location
+                                            if (location) {
+                                                if (experienceData.location) {
+                                                    location.textContent = experienceData.location;
+                                                    location.classList.remove('hidden');
+                                                } else {
+                                                    location.remove();
+                                                }
+                                            } else if (experienceData.location) {
+                                                const locationHTML = `<p class="text-gray-500 text-xs mt-1">${experienceData.location}</p>`;
+                                                company.insertAdjacentHTML('afterend', locationHTML);
+                                            }
+
+                                            // Update date
+                                            if (dateSpan) {
+                                                const startDate = experienceData.start_date ? formatDate(experienceData.start_date) : '';
+                                                const endDate = experienceData.is_current ? 'Present' :
+                                                    (experienceData.end_date ? formatDate(experienceData.end_date) : 'Present');
+                                                dateSpan.textContent = `${startDate} - ${endDate}`;
+                                            }
+
+                                            // Update description
+                                            if (description) {
+                                                if (experienceData.description) {
+                                                    description.textContent = experienceData.description;
+                                                    description.classList.remove('hidden');
+                                                } else {
+                                                    description.remove();
+                                                }
+                                            } else if (experienceData.description) {
+                                                const container = item.querySelector('.flex.justify-between.items-start').parentElement;
+                                                const descHTML = `<p class="text-gray-600 text-sm mt-2 pr-10">${experienceData.description}</p>`;
+                                                container.insertAdjacentHTML('beforeend', descHTML);
+                                            }
+                                        }
+                                    }
+
+                                    // Format date to "MMM YYYY"
+                                    function formatDate(dateString) {
+                                        if (!dateString) return '';
+                                        const date = new Date(dateString);
+                                        return date.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            year: 'numeric'
+                                        });
+                                    }
+
+                                    // Show success toast notification
+                                    function showSuccessToast(message) {
+                                        // Create toast if it doesn't exist
+                                        let toast = document.getElementById('successToast');
+                                        if (!toast) {
+                                            toast = document.createElement('div');
+                                            toast.id = 'successToast';
+                                            toast.className =
+                                                'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50';
+                                            document.body.appendChild(toast);
+                                        }
+
+                                        toast.textContent = message;
+                                        toast.classList.remove('translate-y-full', 'opacity-0');
+                                        toast.classList.add('translate-y-0', 'opacity-100');
+
+                                        setTimeout(() => {
+                                            toast.classList.remove('translate-y-0', 'opacity-100');
+                                            toast.classList.add('translate-y-full', 'opacity-0');
+                                        }, 3000);
+                                    }
+
+                                    // Enhanced confirm and remove experience function
+                                    function confirmRemoveExperience(experienceId) {
+                                        if (!confirm('Are you sure you want to remove this experience?')) {
+                                            return;
+                                        }
+
+                                        // Get the CSRF token
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                        if (!csrfToken) {
+                                            alert('Security token not found. Please refresh the page.');
+                                            return;
+                                        }
+
+                                        // Show loading state on the button
+                                        const item = document.querySelector(`[data-experience-id="${experienceId}"]`);
+                                        const removeBtn = item?.querySelector('button[onclick*="confirmRemoveExperience"]');
+                                        if (removeBtn) {
+                                            const originalHTML = removeBtn.innerHTML;
+                                            removeBtn.innerHTML =
+                                                '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+                                            removeBtn.disabled = true;
+                                        }
+
+                                        // Make the AJAX request
+                                        fetch(`/freelancer-profile/experience/${experienceId}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                },
+                                                credentials: 'same-origin'
+                                            })
+                                            .then(response => {
+                                                // Check if response is JSON
+                                                const contentType = response.headers.get('content-type');
+                                                if (contentType && contentType.includes('application/json')) {
+                                                    return response.json();
+                                                }
+                                                return response.text().then(text => {
+                                                    try {
+                                                        return JSON.parse(text);
+                                                    } catch {
+                                                        throw new Error(`Server returned: ${text.substring(0, 200)}`);
+                                                    }
+                                                });
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Remove the item with animation
+                                                    const item = document.querySelector(`[data-experience-id="${experienceId}"]`);
+                                                    if (item) {
+                                                        item.style.opacity = '0';
+                                                        item.style.transition = 'all 0.3s ease';
+
+                                                        setTimeout(() => {
+                                                            item.remove();
+                                                            showSuccessToast('Experience removed successfully!');
+
+                                                            // If no experiences left, show empty state
+                                                            const experienceList = document.getElementById('experience-list');
+                                                            if (experienceList && experienceList.children.length === 0) {
+                                                                experienceList.innerHTML = `
+                                    <div class="text-center py-8">
+                                        <p class="text-gray-500 text-sm">No work experience added yet</p>
+                                    </div>
+                                `;
+                                                            }
+                                                        }, 300);
+                                                    }
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to remove experience');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Delete error:', error);
+                                                alert('Failed to remove experience: ' + error.message);
+                                            })
+                                            .finally(() => {
+                                                // Restore button state
+                                                if (removeBtn) {
+                                                    removeBtn.innerHTML = originalHTML;
+                                                    removeBtn.disabled = false;
+                                                }
+                                            });
+                                    }
+
+                                    // Initialize and sort experiences on page load
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        // Sort experiences when page loads
+                                        sortExperienceList();
+
+                                        // Set up edit experience form action
+                                        const editExperienceForm = document.getElementById('editExperienceForm');
+                                        if (editExperienceForm) {
+                                            editExperienceForm.action = '/freelancer-profile/experience/' + (document.getElementById(
+                                                'edit_experience_id')?.value || '');
+                                        }
+                                    });
+                                </script>
 
                                 <!-- Education Tab -->
                                 <div x-show="activeTab === 'education'" x-transition>
@@ -1469,7 +2304,7 @@
                                                     d="M3 8l7.89-5.26a2 2 0 012.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
                                             <input type="email" value="{{ $freelancer->email }}"
-                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 id="edit-email" placeholder="Email" disabled>
                                             <input type="hidden" value="{{ $freelancer->email }}">
                                         </div>
@@ -1480,7 +2315,7 @@
                                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
                                             <input type="tel" value="{{ $freelancer->phone }}"
-                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 id="edit-phone" name="phone" placeholder="Phone number">
                                         </div>
                                         <div class="flex items-center">
@@ -1492,7 +2327,7 @@
                                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                             <input type="tel" value="{{ $freelancer->location }}"
-                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 id="edit-phone" name="location" placeholder="Location">
                                         </div>
                                         <div class="flex items-center">
@@ -1502,7 +2337,7 @@
                                                     d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                             </svg>
                                             <input type="text" value="{{ $freelancer->freelancer->portfolio_url }}"
-                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 id="edit-phone" name="portfolio_url" placeholder="Portfolio URL">
                                         </div>
                                         <div class="flex justify-end gap-2 mt-3">
@@ -1594,7 +2429,7 @@
                                                     <input type="number"
                                                         value="{{ $freelancer->freelancer->hourly_rate }}" step="0.01"
                                                         min="0"
-                                                        class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                        class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                         id="edit-hourly-rate" name="hourly_rate">
                                                 </div>
                                             </div>
@@ -1604,7 +2439,7 @@
                                                 <input type="number"
                                                     value="{{ $freelancer->freelancer->minimum_hours ?? '10' }}"
                                                     min="1"
-                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                     id="edit-minimum-hours" name="minimum_hours">
                                             </div>
 
@@ -1613,7 +2448,7 @@
                                                 <input type="number"
                                                     value="{{ $freelancer->freelancer->response_time ?? '2' }}"
                                                     min="1" max="24"
-                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                     id="edit-response-time" name="response_time">
                                             </div>
 
@@ -1622,7 +2457,7 @@
                                                 <input type="number"
                                                     value="{{ $freelancer->freelancer->revision_limit ?? '3' }}"
                                                     min="0"
-                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                    class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                     id="edit-revision-limit">
                                             </div>
                                         </div>
@@ -1814,10 +2649,10 @@
                                     <div id="languages-edit" class="hidden space-y-3">
                                         <div class="grid grid-cols-2 gap-2">
                                             <input type="text" value="Myanmar"
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 placeholder="Language">
                                             <select
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
                                                 <option value="fluent" selected>Fluent</option>
                                                 <option value="professional">Professional</option>
                                                 <option value="intermediate">Intermediate</option>
@@ -1826,10 +2661,10 @@
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
                                             <input type="text" value="English"
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 placeholder="Language">
                                             <select
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
                                                 <option value="fluent">Fluent</option>
                                                 <option value="professional" selected>Professional</option>
                                                 <option value="intermediate">Intermediate</option>
@@ -1838,10 +2673,10 @@
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
                                             <input type="text" value="French"
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                 placeholder="Language">
                                             <select
-                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                                                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
                                                 <option value="fluent">Fluent</option>
                                                 <option value="professional">Professional</option>
                                                 <option value="intermediate" selected>Intermediate</option>

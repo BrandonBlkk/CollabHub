@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class FreelancerExperience extends Pivot
+class FreelancerExperience extends Model // Changed from Pivot to Model
 {
     use SoftDeletes;
 

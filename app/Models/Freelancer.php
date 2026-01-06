@@ -50,6 +50,11 @@ class Freelancer extends Model
         return $this->hasMany(Proposal::class);
     }
 
+    public function experiences()
+    {
+        return $this->hasMany(FreelancerExperience::class);
+    }
+
     public function certificates()
     {
         return $this->hasMany(FreelancerCertification::class);
