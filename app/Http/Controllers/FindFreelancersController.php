@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobRole;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,9 +54,28 @@ class FindFreelancersController extends Controller
             ->limit(4)
             ->get();
 
+        // Get active job roles
+        $jobRoles = JobRole::where('is_active', true)
+            ->whereNull('deleted_at')
+            ->orderBy('title')
+            ->get();
+
+        // Get freelancer experiences with jobRole, ordered by present first, then by start_date descending
+        $experiences = $freelancer->freelancer->experiences()
+            ->with('jobRole')
+            ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END') // Present experiences first
+            ->orderBy('start_date', 'desc') // Then by start date descending
+            ->get();
+
+        // Get freelancer certificates
+        $certificates = $freelancer->freelancer->certificates;
+
         return view('freelancer.freelancer-profile', compact(
             'freelancer',
-            'similarFreelancers'
+            'similarFreelancers',
+            'jobRoles',
+            'experiences',
+            'certificates'
         ));
     }
 }

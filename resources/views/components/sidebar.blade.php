@@ -115,7 +115,7 @@
 
                 $profileRoute = match ($current_user_role) {
                     'freelancer' => route('freelancer-profile.show', auth()->user()->id),
-                    'user' => route('profile.show', auth()->user()->id),
+                    'client' => route('profile.show', auth()->user()->id),
                 };
             @endphp
 

@@ -1,423 +1,378 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@extends('layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Post a Job | CollabHub</title>
+@section('title', 'Post a New Job')
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="font-['Figtree'] text-gray-800 bg-gray-50">
-    <!-- Main Container -->
-    <div class="flex h-screen overflow-hidden">
-
-        <!-- Sidebar Component -->
-        <x-sidebar />
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Navigation -->
-            <x-header />
-
-            <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-3">
-                <!-- Page Header -->
-                <div class="mb-3">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Post a New Job</h1>
-                            <p class="text-gray-600 mt-1">
-                                Fill out the form below to post a new job and find the perfect freelancer
-                            </p>
-                        </div>
-                        <button onclick="window.location.href='{{ route('my-jobs.index') }}'"
-                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200 flex items-center space-x-2 select-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            <span>Back to Jobs</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Job Post Form -->
-                <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-6">
-                    @csrf
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 class="text-lg font-bold text-gray-900 mb-3">Basic Information</h2>
-
-                        <input type="hidden" name="client_id" value="{{ Auth::user()->client->id }}">
-                        <!-- Job Title -->
-                        <div class="mb-3">
-                            <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
-                                Job Title <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <input type="text" id="job_title" name="title"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                    placeholder="e.g., Senior React Developer with TypeScript Experience"
-                                    maxlength="255">
-                                @error('title')
-                                    <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                        {{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
-                            <p class="text-gray-500 text-xs mt-2">Be specific about the role you're hiring for</p>
-                        </div>
-
-                        <!-- Job Description -->
-                        <div class="mb-3">
-                            <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
-                                Job Description <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <div
-                                        class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center space-x-2">
-                                        <button type="button" onclick="formatText('bold')"
-                                            class="p-1 hover:bg-gray-200 rounded">
-                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                        </button>
-                                        <button type="button" onclick="formatText('italic')"
-                                            class="p-1 hover:bg-gray-200 rounded">
-                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                            </svg>
-                                        </button>
-                                        <button type="button" onclick="formatText('ul')"
-                                            class="p-1 hover:bg-gray-200 rounded">
-                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 6h16M4 12h16M4 18h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <textarea id="job_description" name="description" rows="8" class="w-full px-4 py-3 focus:outline-none resize-none"
-                                        placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals..."></textarea>
-                                </div>
-                                @error('description')
-                                    <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                        {{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
-                            <div class="flex justify-between mt-2">
-                                <p class="text-gray-500 text-xs">Describe what you need done in detail</p>
-                                <p id="charCount" class="text-gray-500 text-xs">0/5000 characters</p>
-                            </div>
-                        </div>
-
-                        <!-- Job Type -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Job Type <span class="text-red-500">*</span>
-                            </label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <label class="relative">
-                                    <input type="radio" name="type" value="fixed" checked class="peer sr-only">
-                                    <div
-                                        class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-200">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center peer-checked:border-blue-500">
-                                                <div
-                                                    class="w-2.5 h-2.5 rounded-full bg-blue-500 hidden peer-checked:block">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-medium text-gray-900">Fixed Price</div>
-                                                <div class="text-gray-600 text-sm mt-1">Pay a fixed amount for the
-                                                    entire project</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="relative">
-                                    <input type="radio" name="type" value="hourly" class="peer sr-only">
-                                    <div
-                                        class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center peer-checked:border-blue-500">
-                                                <div
-                                                    class="w-2.5 h-2.5 rounded-full bg-blue-500 hidden peer-checked:block">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="font-medium text-gray-900">Hourly Rate</div>
-                                                <div class="text-gray-600 text-sm mt-1">Pay by the hour for ongoing
-                                                    work</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Skills Required -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 class="text-lg font-bold text-gray-900 mb-3">Skills Required</h2>
-
-                        <div class="mb-3">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Add Required Skills <span class="text-red-500">*</span>
-                            </label>
-                            <div class="border border-gray-300 rounded-lg p-4">
-                                <div id="skillsContainer" class="flex flex-wrap gap-2 mb-3">
-                                    <!-- Skills will be added here dynamically -->
-                                </div>
-                                <div class="relative">
-                                    <div class="flex">
-                                        <input type="text" id="skillInput"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            placeholder="Type a skill and press Enter (e.g., React, Python, UI/UX Design)">
-                                        <button type="button" onclick="addSkill()"
-                                            class="px-4 py-2 bg-gray-800 text-white rounded-r-lg hover:bg-black transition duration-200 select-none">
-                                            Add
-                                        </button>
-                                    </div>
-                                    @error('skills_required')
-                                        <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-                                <p class="text-gray-500 text-xs mt-2">Add at least 3 skills that are required for this
-                                    job</p>
-                            </div>
-                            <input type="hidden" id="skills_required" name="skills_required">
-                        </div>
-
-                        <!-- Experience Level -->
-                        <div class="mb-3">
-                            <label for="experience_level" class="block text-sm font-medium text-gray-700 mb-2">
-                                Experience Level <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select id="experience_level" name="experience_level"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                    <option value="">Select experience level</option>
-                                    <option value="entry">Entry Level (0-2 years)</option>
-                                    <option value="intermediate" selected>Intermediate (2-5 years)</option>
-                                    <option value="expert">Expert (5+ years)</option>
-                                </select>
-                                @error('experience_level')
-                                    <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                        {{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Duration -->
-                        <div>
-                            <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
-                                Expected Duration
-                            </label>
-                            <select id="duration" name="duration"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                <option value="">Select expected duration</option>
-                                <option value="less_than_1_month">Less than 1 month</option>
-                                <option value="1_to_3_months">1 to 3 months</option>
-                                <option value="3_to_6_months">3 to 6 months</option>
-                                <option value="more_than_6_months">More than 6 months</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Budget & Timeline -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 class="text-lg font-bold text-gray-900 mb-3">Budget & Timeline</h2>
-
-                        <!-- Budget Type Toggle -->
-                        <div class="mb-3">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Budget Range <span class="text-red-500">*</span>
-                            </label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="budgetFields">
-                                <!-- Fixed Price Fields -->
-                                <div class="md:col-span-2">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="budget_min"
-                                                class="block text-sm font-medium text-gray-700 mb-2">
-                                                Minimum Budget ($)
-                                            </label>
-                                            <div class="relative">
-                                                <div
-                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="number" id="budget_min" name="budget_min"
-                                                        min="0" step="0.01"
-                                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="e.g., 1000">
-                                                    @error('budget_min')
-                                                        <p
-                                                            class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                                            {{ $message }}
-                                                        </p>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label for="budget_max"
-                                                class="block text-sm font-medium text-gray-700 mb-2">
-                                                Maximum Budget ($)
-                                            </label>
-                                            <div class="relative">
-                                                <div
-                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
-                                                </div>
-                                                <div class="relative">
-                                                    <input type="number" id="budget_max" name="budget_max"
-                                                        min="0" step="0.01"
-                                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="e.g., 5000">
-                                                    @error('budget_max')
-                                                        <p
-                                                            class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
-                                                            {{ $message }}
-                                                        </p>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-500 text-xs mt-2">Set a realistic budget range for your project
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Project Deadline -->
-                        <div class="mb-3">
-                            <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">
-                                Application Deadline (Optional)
-                            </label>
-                            <input type="date" id="expires_at" name="expires_at"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                min="{{ date('Y-m-d') }}">
-                            <p class="text-gray-500 text-xs mt-2">Set a deadline for freelancer applications</p>
-                        </div>
-
-                        <!-- Privacy Settings -->
-                        <div class="mb-3">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Privacy Settings
-                            </label>
-                            <div class="space-y-3 inline-block">
-                                <label class="flex items-center space-x-3">
-                                    <input type="checkbox" id="is_featured" name="is_featured"
-                                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-sm text-gray-900">Feature this job (extra $50)</span>
-                                    <span
-                                        class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Recommended</span>
-                                </label>
-                                <label class="flex items-center space-x-3">
-                                    <input type="checkbox" id="is_private" name="is_private"
-                                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-sm text-gray-900">Make job private (only invited freelancers can
-                                        apply)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Category -->
-                        <div>
-                            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Category (Optional)
-                            </label>
-                            <select id="category_id" name="category_id"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                <option value="">Select a category</option>
-
-                                {{-- Get all categories --}}
-                                @forelse ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                    <option value="9">Other</option>
-                                @empty
-                                    <option value="" disabled>No categories found</option>
-                                @endforelse
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between select-none">
-                            <button type="button" onclick="saveAsDraft()"
-                                class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
-                                Save as Draft
-                            </button>
-                            <div class="flex items-center space-x-4">
-                                <button type="button" onclick="previewJob()"
-                                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
-                                    Preview
-                                </button>
-                                <button type="submit"
-                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition duration-200">
-                                    Publish Job
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-gray-500 text-sm text-center mt-4">
-                            By clicking "Publish Job", you agree to our <a href="#"
-                                class="text-blue-600 hover:text-blue-800">Terms of Service</a>
-                        </p>
-                    </div>
-                </form>
-
-                <!-- Preview Modal (Hidden by default) -->
-                <div id="previewModal"
-                    class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-xl bg-white">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
-                            <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
-                            <!-- Preview content will be inserted here -->
-                        </div>
-                        <div class="mt-6 flex justify-end space-x-4">
-                            <button onclick="closePreview()"
-                                class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
-                                Close
-                            </button>
-                            <button onclick="submitForm()"
-                                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                                Publish Job
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </main>
+@section('content')
+    <div class="mb-3">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Post a New Job</h1>
+                <p class="text-gray-600 mt-1">
+                    Fill out the form below to post a new job and find the perfect freelancer
+                </p>
+            </div>
+            <button onclick="window.location.href='{{ route('my-jobs.index') }}'"
+                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200 flex items-center space-x-2 select-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Jobs</span>
+            </button>
         </div>
     </div>
 
+    <!-- Job Post Form -->
+    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-6">
+        @csrf
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-3">Basic Information</h2>
+
+            <input type="hidden" name="client_id" value="{{ Auth::user()->client->id }}">
+            <!-- Job Title -->
+            <div class="mb-3">
+                <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
+                    Job Title <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="job_title" name="title"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="e.g., Senior React Developer with TypeScript Experience" maxlength="255">
+                    @error('title')
+                        <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+                <p class="text-gray-500 text-xs mt-2">Be specific about the role you're hiring for</p>
+            </div>
+
+            <!-- Job Description -->
+            <div class="mb-3">
+                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Job Description <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <div class="border border-gray-300 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center space-x-2">
+                            <button type="button" onclick="formatText('bold')" class="p-1 hover:bg-gray-200 rounded">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </button>
+                            <button type="button" onclick="formatText('italic')" class="p-1 hover:bg-gray-200 rounded">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                </svg>
+                            </button>
+                            <button type="button" onclick="formatText('ul')" class="p-1 hover:bg-gray-200 rounded">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        </div>
+                        <textarea id="job_description" name="description" rows="8" class="w-full px-4 py-3 focus:outline-none resize-none"
+                            placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals..."></textarea>
+                    </div>
+                    @error('description')
+                        <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-gray-500 text-xs">Describe what you need done in detail</p>
+                    <p id="charCount" class="text-gray-500 text-xs">0/5000 characters</p>
+                </div>
+            </div>
+
+            <!-- Job Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Job Type <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative">
+                        <input type="radio" name="type" value="fixed" checked class="peer sr-only">
+                        <div
+                            class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-200">
+                            <div class="flex items-center">
+                                <div
+                                    class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center peer-checked:border-blue-500">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-500 hidden peer-checked:block">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Fixed Price</div>
+                                    <div class="text-gray-600 text-sm mt-1">Pay a fixed amount for the
+                                        entire project</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="relative">
+                        <input type="radio" name="type" value="hourly" class="peer sr-only">
+                        <div
+                            class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                            <div class="flex items-center">
+                                <div
+                                    class="w-5 h-5 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center peer-checked:border-blue-500">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-500 hidden peer-checked:block">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">Hourly Rate</div>
+                                    <div class="text-gray-600 text-sm mt-1">Pay by the hour for ongoing
+                                        work</div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Required -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-3">Skills Required</h2>
+
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Add Required Skills <span class="text-red-500">*</span>
+                </label>
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <div id="skillsContainer" class="flex flex-wrap gap-2 mb-3">
+                        <!-- Skills will be added here dynamically -->
+                    </div>
+                    <div class="relative">
+                        <div class="flex">
+                            <input type="text" id="skillInput"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Type a skill and press Enter (e.g., React, Python, UI/UX Design)">
+                            <button type="button" onclick="addSkill()"
+                                class="px-4 py-2 bg-gray-800 text-white rounded-r-lg hover:bg-black transition duration-200 select-none">
+                                Add
+                            </button>
+                        </div>
+                        @error('skills_required')
+                            <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                    <p class="text-gray-500 text-xs mt-2">Add at least 3 skills that are required for this
+                        job</p>
+                </div>
+                <input type="hidden" id="skills_required" name="skills_required">
+            </div>
+
+            <!-- Experience Level -->
+            <div class="mb-3">
+                <label for="experience_level" class="block text-sm font-medium text-gray-700 mb-2">
+                    Experience Level <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <select id="experience_level" name="experience_level"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        <option value="">Select experience level</option>
+                        <option value="entry">Entry Level (0-2 years)</option>
+                        <option value="intermediate" selected>Intermediate (2-5 years)</option>
+                        <option value="expert">Expert (5+ years)</option>
+                    </select>
+                    @error('experience_level')
+                        <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Duration -->
+            <div>
+                <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
+                    Expected Duration
+                </label>
+                <select id="duration" name="duration"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                    <option value="">Select expected duration</option>
+                    <option value="less_than_1_month">Less than 1 month</option>
+                    <option value="1_to_3_months">1 to 3 months</option>
+                    <option value="3_to_6_months">3 to 6 months</option>
+                    <option value="more_than_6_months">More than 6 months</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Budget & Timeline -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-3">Budget & Timeline</h2>
+
+            <!-- Budget Type Toggle -->
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Budget Range <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="budgetFields">
+                    <!-- Fixed Price Fields -->
+                    <div class="md:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="budget_min" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Minimum Budget ($)
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500">$</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="budget_min" name="budget_min" min="0"
+                                            step="0.01"
+                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="e.g., 1000">
+                                        @error('budget_min')
+                                            <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="budget_max" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Maximum Budget ($)
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500">$</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="budget_max" name="budget_max" min="0"
+                                            step="0.01"
+                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="e.g., 5000">
+                                        @error('budget_max')
+                                            <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-xs mt-2">Set a realistic budget range for your project
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Deadline -->
+            <div class="mb-3">
+                <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">
+                    Application Deadline (Optional)
+                </label>
+                <input type="date" id="expires_at" name="expires_at"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    min="{{ date('Y-m-d') }}">
+                <p class="text-gray-500 text-xs mt-2">Set a deadline for freelancer applications</p>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Privacy Settings
+                </label>
+                <div class="space-y-3 inline-block">
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" id="is_featured" name="is_featured"
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <span class="text-sm text-gray-900">Feature this job (extra $50)</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Recommended</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" id="is_private" name="is_private"
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <span class="text-sm text-gray-900">Make job private (only invited freelancers can
+                            apply)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category (Optional)
+                </label>
+                <select id="category_id" name="category_id"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                    <option value="">Select a category</option>
+
+                    {{-- Get all categories --}}
+                    @forelse ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        <option value="9">Other</option>
+                    @empty
+                        <option value="" disabled>No categories found</option>
+                    @endforelse
+                </select>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between select-none">
+                <button type="button" onclick="saveAsDraft()"
+                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
+                    Save as Draft
+                </button>
+                <div class="flex items-center space-x-4">
+                    <button type="button" onclick="previewJob()"
+                        class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
+                        Preview
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition duration-200">
+                        Publish Job
+                    </button>
+                </div>
+            </div>
+            <p class="text-gray-500 text-sm text-center mt-4">
+                By clicking "Publish Job", you agree to our <a href="#"
+                    class="text-blue-600 hover:text-blue-800">Terms of Service</a>
+            </p>
+        </div>
+    </form>
+
+    <!-- Preview Modal (Hidden by default) -->
+    <div id="previewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-xl bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
+                <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
+                <!-- Preview content will be inserted here -->
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button onclick="closePreview()"
+                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
+                    Close
+                </button>
+                <button onclick="submitForm()"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                    Publish Job
+                </button>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
     <script>
         // Skills Management
         let skills = [];
@@ -810,6 +765,4 @@
             }
         });
     </script>
-</body>
-
-</html>
+@endpush

@@ -23,10 +23,13 @@
             <div class="flex items-start justify-between">
                 <div>
                     <h3 class="font-bold text-gray-900">{{ $freelancer->name }}</h3>
-                    <p class="text-gray-600 text-sm mt-1">{{ $freelancer->freelancer->job_title }}</p>
+                    <p class="text-gray-600 text-sm mt-1">
+                        {{ $freelancer->freelancer->job_title ?? 'Freelancer' }}
+                    </p>
                 </div>
                 <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">${{ $freelancer->freelancer->hourly_rate ?: '0' }}/hr
+                    <div class="text-lg font-bold text-gray-900">
+                        ${{ $freelancer->freelancer->hourly_rate ?? 0 }}/hr
                     </div>
                     <div class="flex items-center text-yellow-500 mt-1">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -40,8 +43,8 @@
 
                         {{-- Dynamic Review Count --}}
                         <span class="text-gray-500 text-sm ml-1">
-                            ({{ $freelancer->reviewsReceived->count() }}
-                            review{{ $freelancer->reviewsReceived->count() !== 1 ? 's' : '' }})
+                            ({{ $freelancer->reviewsReceived->count() ?? 0 }}
+                            review{{ ($freelancer->reviewsReceived->count() ?? 0) !== 1 ? 's' : '' }})
                         </span>
                     </div>
                 </div>
@@ -63,7 +66,10 @@
                 </div>
                 <!-- Availability Badge -->
                 <div class="flex items-center text-sm font-medium">
-                    @switch($freelancer->freelancer->availability)
+                    @php
+                        $availability = $freelancer->freelancer->availability ?? 'unknown';
+                    @endphp
+                    @switch($availability)
                         @case('available')
                             <div class="flex items-center text-green-600">
                                 <div class="w-2 h-2 rounded-full bg-green-500 mr-1.5"></div>
@@ -95,7 +101,7 @@
             </div>
             <!-- Skills -->
             <div class="flex flex-wrap gap-2 mt-4 select-none">
-                @forelse($freelancer->skills as $skill)
+                @forelse($freelancer->skills ?? [] as $skill)
                     <span
                         class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full hover:bg-blue-200 transition cursor-pointer">
                         {{ $skill->name }}
@@ -108,35 +114,45 @@
             </div>
             <!-- Description -->
             <p class="text-gray-600 text-sm mt-4 line-clamp-2">
-                {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                {{ $freelancer->freelancer->bio ?? 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
             </p>
             <!-- Stats -->
             <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100">
                 <div class="text-center">
                     <div class="text-lg font-bold text-gray-900">
-                        {{ $freelancer->freelancer->completed_projects ?: '0' }}</div>
+                        {{ $freelancer->freelancer->completed_projects ?? 0 }}</div>
                     <div class="text-gray-500 text-xs">Projects</div>
                 </div>
                 <div class="text-center">
                     <div class="text-lg font-bold text-gray-900">
-                        {{ $freelancer->freelancer->jobb_success_rate ?: '0' }}%
+                        {{ $freelancer->freelancer->jobb_success_rate ?? 0 }}%
                     </div>
                     <div class="text-gray-500 text-xs">Job Success</div>
                 </div>
                 <div class="text-center">
                     <div class="text-lg font-bold text-gray-900">
-                        {{ number_format($freelancer->freelancer->total_hours) }}</div>
+                        {{ number_format($freelancer->freelancer->total_hours ?? 0) }}</div>
                     <div class="text-gray-500 text-xs">Hours</div>
                 </div>
             </div>
             <!-- Actions -->
             <div class="flex items-center space-x-3 mt-6 select-none">
-                @if ($freelancer->freelancer->availability === 'unavailable')
+                @php
+                    $freelancerAvailability = $freelancer->freelancer->availability ?? 'unknown';
+                @endphp
+                @if ($freelancerAvailability === 'unavailable')
                     <!-- Disabled Hire Now Button -->
                     <button
                         class="flex-1 bg-gray-300 text-gray-500 font-medium py-2.5 rounded-lg cursor-not-allowed text-sm"
                         disabled title="This freelancer is currently unavailable for hire">
                         Unavailable
+                    </button>
+                @elseif($freelancerAvailability === 'unknown')
+                    <!-- Unknown Status Button -->
+                    <button
+                        class="flex-1 bg-gray-300 text-gray-500 font-medium py-2.5 rounded-lg cursor-not-allowed text-sm"
+                        disabled title="Availability status unknown">
+                        Unknown Status
                     </button>
                 @else
                     <!-- Active Hire Now Button -->
@@ -146,7 +162,7 @@
                     </button>
                 @endif
                 <!-- View Profile Button - Always Enabled -->
-                <a href="{{ route('freelancer-profile', $freelancer) }}"
+                <a href="{{ route('freelancer-profile', $freelancer->id) }}"
                     class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2.5 rounded-lg transition duration-300 text-sm">
                     View Profile
                 </a>
@@ -158,20 +174,6 @@
                     </svg>
                 </button>
             </div>
-
-            {{-- <!-- Optional: Note for "busy" status -->
-            @if ($freelancer->availability === 'busy')
-                <div class="mt-3 text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        This freelancer is currently busy but may still accept new projects
-                    </div>
-                </div>
-            @endif --}}
         </div>
     </div>
 </div>
