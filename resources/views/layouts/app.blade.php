@@ -6,40 +6,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-    @vite('resources/css/app.css')
+    @hasSection('title')
+        <title>@yield('title') | CollabHub</title>
+    @else
+        <title>CollabHub</title>
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css"
-        integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Scripts -->
+    <!-- Alpine JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Additional styles -->
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .notification-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+
+    @stack('styles')
 </head>
 
-<body class="font-sans antialiased">
-    <div class="bg-gray-100">
-        @include('layouts.navigation')
+<body class="font-['Figtree'] text-gray-800 bg-gray-50">
+    <!-- Main Container -->
+    <div class="flex h-screen overflow-hidden">
 
-        <!-- Page Heading -->
-        @isset($header)
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
+        <!-- Sidebar Component -->
+        <x-sidebar />
 
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <x-header />
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-3">
+                @yield('content')
+            </main>
+        </div>
     </div>
 
-    @include('layouts.footer')
+    <!-- JavaScript -->
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+
+            if (window.innerWidth <= 1024 &&
+                !sidebar.contains(event.target) &&
+                !toggleBtn.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Initialize progress bars animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+
+        // Notification bell animation
+        const notificationBell = document.querySelector('button.relative.text-gray-500');
+        if (notificationBell) {
+            notificationBell.addEventListener('click', function() {
+                const notificationDot = this.querySelector('span.bg-red-500');
+                if (notificationDot) {
+                    notificationDot.remove();
+                }
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.querySelector('input[type="search"]');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.trim();
+                    if (query) {
+                        console.log('Searching for:', query);
+                    }
+                }
+            });
+        }
+
+        // Auto-update time
+        function updateTime() {
+            const timeElement = document.querySelector('.text-sm.text-gray-500');
+            if (timeElement) {
+                const now = new Date();
+                const options = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+                timeElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        // Update time on load and every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
+
+    @stack('scripts')
 </body>
 
 </html>
