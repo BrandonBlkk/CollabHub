@@ -10,4 +10,9 @@ class Major extends Model
     use SoftDeletes;
 
     protected $fillable = ['name'];
+
+    public function freelancerEducations()
+    {
+        return $this->hasMany(FreelancerEducation::class);
+    }
 }
