@@ -11,8 +11,8 @@ class University extends Model
 
     protected $fillable = ['name', 'country'];
 
-    public function educations()
+    public function freelancerEducations()
     {
-        return $this->hasMany(UserUniversity::class);
+        return $this->hasMany(FreelancerEducation::class);
     }
 }

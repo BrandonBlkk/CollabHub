@@ -46,16 +46,6 @@ class User extends Authenticatable
         return $this->belongsToMany(Skill::class, 'user_skills');
     }
 
-    public function universities()
-    {
-        return $this->hasMany(UserUniversity::class);
-    }
-
-    public function majors()
-    {
-        return $this->hasMany(UserMajor::class);
-    }
-
     public function jobs()
     {
         return $this->hasManyThrough(Job::class, Client::class, 'user_id', 'client_id');
