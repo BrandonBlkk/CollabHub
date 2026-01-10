@@ -189,8 +189,11 @@ class ProfileController extends Controller
     {
         $experience = FreelancerExperience::findOrFail($id);
 
-        if (Auth::user()->id !== $experience->freelancer_id) {
-            return back();
+        if (Auth::user()->freelancer->id !== $experience->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
         }
 
         return response()->json($experience);
@@ -438,8 +441,11 @@ class ProfileController extends Controller
     {
         $certicate = FreelancerCertification::findOrFail($id);
 
-        if (Auth::user()->id !== $certicate->freelancer_id) {
-            return back();
+        if (Auth::user()->freelancer->id !== $certicate->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
         }
 
         return response()->json($certicate);

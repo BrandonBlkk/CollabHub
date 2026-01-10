@@ -12,7 +12,7 @@
             <form id="experienceForm" method="POST" action="{{ route('freelancer-profile.experience.store') }}"
                 class="p-6 space-y-4">
                 @csrf
-                <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
                 {{-- Job Role --}}
                 <div>
@@ -205,7 +205,7 @@
             <form id="educationForm" method="POST" action="{{ route('freelancer-profile.education.store') }}"
                 class="p-6 space-y-4">
                 @csrf
-                <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
                 <!-- University -->
                 <div>
@@ -464,7 +464,7 @@
                 class="p-6 space-y-4">
                 @csrf
                 @method('POST')
-                <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
                 <div>
                     <label for="certification_name" class="block text-sm font-medium text-gray-700 mb-1">
