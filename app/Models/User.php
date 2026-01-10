@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->hasManyThrough(Job::class, Client::class, 'user_id', 'client_id');
     }
 
+    public function userLanguages()
+    {
+        return $this->hasMany(UserLanguage::class);
+    }
+
     public function proposals()
     {
         return $this->hasManyThrough(Proposal::class, Freelancer::class, 'user_id', 'freelancer_id');
