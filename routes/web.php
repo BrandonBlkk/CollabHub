@@ -70,6 +70,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'deleteExperience'])
             ->name('freelancer-profile.experience.delete');
 
+        // Education
+        Route::post('freelancer-profile/education', [FreelancerProfileController::class, 'storeEducation'])
+            ->name('freelancer-profile.education.store');
+        Route::get('freelancer-profile/education/{id}/edit', [FreelancerProfileController::class, 'editEducation'])
+            ->name('freelancer-profile.education.edit');
+        Route::put('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'updateEducation'])
+            ->name('freelancer-profile.education.update');
+        Route::delete('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'deleteEducation'])
+            ->name('freelancer-profile.education.delete');
+
         // Certificate
         Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])
             ->name('freelancer-profile.certificate.store');

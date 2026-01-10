@@ -12,7 +12,7 @@ class FreelancerEducation extends Model
     protected $table = 'freelancer_educations';
 
     protected $fillable = [
-        'user_id',
+        'freelancer_id',
         'university_id',
         'major_id',
         'degree',
@@ -24,7 +24,7 @@ class FreelancerEducation extends Model
         'is_current',
     ];
 
-    protected $cast = [
+    protected $casts = [
         'start_year' => 'integer',
         'end_year' => 'integer',
         'is_current' => 'boolean',
@@ -33,9 +33,9 @@ class FreelancerEducation extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function user()
+    public function freelancer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Freelancer::class);
     }
 
     public function university()
