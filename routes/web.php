@@ -30,6 +30,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
 
+    // User Languages Routes
+    Route::get('/freelancer-profile/languages', [FreelancerProfileController::class, 'getLanguages'])
+        ->name('freelancer_profile.languages.index');
+    Route::post('/freelancer-profile/languages', [FreelancerProfileController::class, 'storeLanguage'])
+        ->name('freelancer_profile.languages.store');
+    Route::put('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'updateLanguage'])
+        ->name('freelancer_profile.languages.update');
+    Route::delete('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'deleteLanguage'])
+        ->name('freelancer_profile.languages.delete');
+
     // Admin-Only Routes
     Route::middleware(['auth', 'verified', 'role:admin|super_admin'])
         ->prefix('admin')
@@ -69,6 +79,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('freelancer-profile.experience.update');
         Route::delete('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'deleteExperience'])
             ->name('freelancer-profile.experience.delete');
+
+        // Education
+        Route::post('freelancer-profile/education', [FreelancerProfileController::class, 'storeEducation'])
+            ->name('freelancer-profile.education.store');
+        Route::get('freelancer-profile/education/{id}/edit', [FreelancerProfileController::class, 'editEducation'])
+            ->name('freelancer-profile.education.edit');
+        Route::put('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'updateEducation'])
+            ->name('freelancer-profile.education.update');
+        Route::delete('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'deleteEducation'])
+            ->name('freelancer-profile.education.delete');
 
         // Certificate
         Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])

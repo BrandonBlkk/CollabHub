@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Freelancer;
 
 use App\Http\Controllers\Controller;
 use App\Models\FreelancerCertification;
+use App\Models\FreelancerEducation;
 use App\Models\FreelancerExperience;
 use App\Models\JobRole;
+use App\Models\Major;
+use App\Models\University;
 use App\Models\User;
+use App\Models\UserLanguage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -44,6 +48,10 @@ class ProfileController extends Controller
         $freelancer = User::with([
             'freelancer',
             'skills',
+            'freelancer.experiences',
+            'freelancer.educations.university',
+            'freelancer.educations.major',
+            'freelancer.certificates',
         ])
             ->where('role', 'freelancer')
             ->where('id', $id)
@@ -63,17 +71,42 @@ class ProfileController extends Controller
             ->orderBy('title')
             ->get();
 
-        // Get freelancer experiences with jobRole, ordered by present first, then by start_date descending
+        // Get freelancer experiences with jobRole
         $experiences = $user->freelancer->experiences()
             ->with('jobRole')
-            ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END') // Present experiences first
-            ->orderBy('start_date', 'desc') // Then by start date descending
+            ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
+            ->orderBy('start_date', 'desc')
             ->get();
+
+        // Get freelancer educations with university and major
+        $educations = $user->freelancer->educations()
+            ->with(['university', 'major'])
+            ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
+            ->orderBy('start_year', 'desc')
+            ->get();
+
+        $universities = University::all();
+        $majors = Major::all();
+
+        $languages = UserLanguage::where('user_id', $user->id)->get();
 
         // Get freelancer certificates
         $certificates = $user->freelancer->certificates;
 
-        return view('freelancer.freelancer-profile', compact("freelancer", "similarFreelancers", "jobRoles", "experiences", "certificates"));
+        return view(
+            'freelancer.freelancer-profile',
+            compact(
+                "freelancer",
+                "similarFreelancers",
+                "jobRoles",
+                "experiences",
+                "educations",
+                "universities",
+                "majors",
+                "languages",
+                "certificates"
+            )
+        );
     }
 
     /**
@@ -160,8 +193,11 @@ class ProfileController extends Controller
     {
         $experience = FreelancerExperience::findOrFail($id);
 
-        if (Auth::user()->id !== $experience->freelancer_id) {
-            return back();
+        if (Auth::user()->freelancer->id !== $experience->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
         }
 
         return response()->json($experience);
@@ -245,7 +281,7 @@ class ProfileController extends Controller
     {
         $experience = FreelancerExperience::findOrFail($id);
 
-        if (Auth::user()->id !== $experience->freelancer_id) {
+        if (Auth::user()->freelancer->id !== $experience->freelancer_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized action'
@@ -257,6 +293,125 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Experience deleted successfully'
+        ]);
+    }
+
+    public function storeEducation(Request $request)
+    {
+        $validated = $request->validate([
+            'university_id' => 'required|exists:universities,id',
+            'major_id' => 'required|exists:majors,id',
+            'degree' => 'required|string|max:255',
+            'field_of_study' => 'nullable|string|max:255',
+            'start_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'end_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'grade' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'is_current' => 'boolean'
+        ]);
+
+        // Handle is_current checkbox
+        if ($request->has('is_current') && $request->input('is_current')) {
+            $validated['is_current'] = true;
+            $validated['end_year'] = null;
+        } else {
+            $validated['is_current'] = false;
+        }
+
+        // Handle "present" end_year
+        if ($request->input('end_year') === 'present') {
+            $validated['end_year'] = null;
+            $validated['is_current'] = true;
+        }
+
+        // Create education through the relationship
+        $education = Auth::user()->freelancer->educations()->create($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'education' => $education->load(['university', 'major'])
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Education added successfully');
+    }
+
+    public function editEducation($id)
+    {
+        $education = FreelancerEducation::findOrFail($id);
+
+        if (Auth::user()->freelancer->id !== $education->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
+        }
+
+        return response()->json($education);
+    }
+
+    public function updateEducation(Request $request, $id)
+    {
+        $education = FreelancerEducation::findOrFail($id);
+
+        if (Auth::user()->freelancer->id !== $education->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
+        }
+
+        $validated = $request->validate([
+            'university_id' => 'required|exists:universities,id',
+            'major_id' => 'required|exists:majors,id',
+            'degree' => 'required|string|max:255',
+            'field_of_study' => 'nullable|string|max:255',
+            'start_year' => 'required|integer|min:1900|max:' . date('Y'),
+            'end_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'grade' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        // Handle "present" end_year
+        if ($request->input('end_year') === 'present') {
+            $validated['end_year'] = null;
+            $validated['is_current'] = true;
+        } else {
+            // Handle is_current checkbox - check if it exists in request
+            if ($request->has('is_current') && $request->input('is_current') === 'on') {
+                $validated['is_current'] = true;
+                $validated['end_year'] = null;
+            } else {
+                $validated['is_current'] = false;
+            }
+        }
+
+        $education->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Education updated successfully',
+            'education' => $education->load(['university', 'major'])
+        ]);
+    }
+
+    public function deleteEducation($id)
+    {
+        $education = FreelancerEducation::findOrFail($id);
+
+        if (Auth::user()->freelancer->id !== $education->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
+        }
+
+        $education->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Education deleted successfully'
         ]);
     }
 
@@ -290,8 +445,11 @@ class ProfileController extends Controller
     {
         $certicate = FreelancerCertification::findOrFail($id);
 
-        if (Auth::user()->id !== $certicate->freelancer_id) {
-            return back();
+        if (Auth::user()->freelancer->id !== $certicate->freelancer_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ]);
         }
 
         return response()->json($certicate);
@@ -302,7 +460,7 @@ class ProfileController extends Controller
         $certificate = FreelancerCertification::findOrFail($id);
 
         // Check authorization
-        if (Auth::user()->id !== $certificate->freelancer_id) {
+        if (Auth::user()->freelancer->id !== $certificate->freelancer_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized action'
@@ -331,7 +489,7 @@ class ProfileController extends Controller
         $certificate = FreelancerCertification::findOrFail($id);
 
         // Check authorization
-        if (Auth::user()->id !== $certificate->freelancer_id) {
+        if (Auth::user()->freelancer->id !== $certificate->freelancer_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized action'
@@ -344,5 +502,122 @@ class ProfileController extends Controller
             'success' => true,
             'message' => 'Certification deleted successfully'
         ]);
+    }
+
+    public function getLanguages(Request $request)
+    {
+        try {
+            // Get the authenticated user
+            $user = Auth::user();
+
+            // Get languages for the user
+            $languages = UserLanguage::where('user_id', $user->id)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'languages' => $languages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching languages: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function storeLanguage(Request $request)
+    {
+        try {
+            $userId = Auth::id();
+            $languages = $request->languages;
+
+            $createdLanguages = [];
+
+            foreach ($languages as $lang) {
+                $language = UserLanguage::create([
+                    'user_id' => $userId,
+                    'language' => $lang['language'],
+                    'proficiency' => $lang['proficiency'],
+                ]);
+
+                $createdLanguages[] = [
+                    'id' => $language->id,
+                    'language' => $language->language,
+                    'proficiency' => $language->proficiency
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Languages added successfully',
+                'languages' => $createdLanguages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error adding languages: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateLanguage(Request $request, $id)
+    {
+        try {
+            $language = UserLanguage::findOrFail($id);
+
+            if (Auth::id() !== $language->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized action'
+                ], 403);
+            }
+
+            // Validate the request
+            $validated = $request->validate([
+                'language' => 'required|string|max:255',
+                'proficiency' => 'required|in:native,fluent,professional,intermediate,basic'
+            ]);
+
+            // Update the language
+            $language->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Language updated successfully',
+                'language' => $language
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating language: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteLanguage(Request $request, $id)
+    {
+        try {
+            $language = UserLanguage::findOrFail($id);
+
+            if (Auth::id() !== $language->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized action'
+                ], 403);
+            }
+
+            $language->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Language deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting language: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

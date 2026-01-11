@@ -12,7 +12,7 @@
             <form id="experienceForm" method="POST" action="{{ route('freelancer-profile.experience.store') }}"
                 class="p-6 space-y-4">
                 @csrf
-                <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
                 {{-- Job Role --}}
                 <div>
@@ -194,6 +194,264 @@
         </div>
     </div>
 
+    <!-- Add Education Modal -->
+    <div id="addEducationModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+        style="display: none;">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900">Add New Education</h3>
+            </div>
+
+            <form id="educationForm" method="POST" action="{{ route('freelancer-profile.education.store') }}"
+                class="p-6 space-y-4">
+                @csrf
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
+
+                <!-- University -->
+                <div>
+                    <label for="university_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        University *
+                    </label>
+                    <select name="university_id" id="university_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        <option value="">Select University</option>
+                        @forelse ($universities as $university)
+                            <option value="{{ $university->id }}">{{ $university->name }}</option>
+                        @empty
+                            <option value="">No universities found</option>
+                        @endforelse
+                    </select>
+                </div>
+
+                <!-- Major -->
+                <div>
+                    <label for="major_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        Major/Field of Study *
+                    </label>
+                    <select name="major_id" id="major_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        <option value="">Select Major</option>
+                        @forelse ($majors as $major)
+                            <option value="{{ $major->id }}">{{ $major->name }}</option>
+                        @empty
+                            <option value="">No majors found</option>
+                        @endforelse
+                    </select>
+                </div>
+
+                <!-- Degree -->
+                <div>
+                    <label for="degree" class="block text-sm font-medium text-gray-700 mb-1">
+                        Degree *
+                    </label>
+                    <input type="text" id="degree" name="degree" placeholder="e.g., Bachelor of Science" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Field of Study -->
+                <div>
+                    <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-1">
+                        Field of Study
+                    </label>
+                    <input type="text" id="field_of_study" name="field_of_study" placeholder="e.g., Computer Science"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_year" class="block text-sm font-medium text-gray-700 mb-1">
+                            Start Year *
+                        </label>
+                        <select id="start_year" name="start_year" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            <option value="">Select Year</option>
+                            @for ($year = date('Y'); $year >= 1980; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="end_year" class="block text-sm font-medium text-gray-700 mb-1">
+                            End Year
+                        </label>
+                        <select id="end_year" name="end_year"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            <option value="">Select Year</option>
+                            <option value="present">Present</option>
+                            @for ($year = date('Y'); $year >= 1980; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select>
+                        <div class="flex items-center mt-2">
+                            <input type="checkbox" id="is_current" name="is_current" class="mr-2" value="1">
+                            <label for="is_current" class="text-sm text-gray-600">Currently studying</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade -->
+                <div>
+                    <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">
+                        Grade/GPA
+                    </label>
+                    <input type="text" id="grade" name="grade" placeholder="e.g., 3.8/4.0, First Class"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                    </label>
+                    <textarea id="description" name="description" rows="3"
+                        placeholder="Describe your achievements, courses, or projects..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="hideAddEducationModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
+                        Save Education
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal -->
+    <div id="editEducationModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+        style="display: none;">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900">Edit Education</h3>
+            </div>
+
+            <form id="editEducationForm" method="POST" class="p-6 space-y-4">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_education_id" name="id">
+
+                <!-- University -->
+                <div>
+                    <label for="edit_university_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        University *
+                    </label>
+                    <select name="university_id" id="edit_university_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        <option value="">Select University</option>
+                        @foreach ($universities as $university)
+                            <option value="{{ $university->id }}">{{ $university->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Major -->
+                <div>
+                    <label for="edit_major_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        Major/Field of Study *
+                    </label>
+                    <select name="major_id" id="edit_major_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                        <option value="">Select Major</option>
+                        @foreach ($majors as $major)
+                            <option value="{{ $major->id }}">{{ $major->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Degree -->
+                <div>
+                    <label for="edit_degree" class="block text-sm font-medium text-gray-700 mb-1">
+                        Degree *
+                    </label>
+                    <input type="text" id="edit_degree" name="degree" placeholder="e.g., Bachelor of Science"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Field of Study -->
+                <div>
+                    <label for="edit_field_of_study" class="block text-sm font-medium text-gray-700 mb-1">
+                        Field of Study
+                    </label>
+                    <input type="text" id="edit_field_of_study" name="field_of_study"
+                        placeholder="e.g., Computer Science"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_start_year" class="block text-sm font-medium text-gray-700 mb-1">
+                            Start Year *
+                        </label>
+                        <select id="edit_start_year" name="start_year" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            <option value="">Select Year</option>
+                            @for ($year = date('Y'); $year >= 1980; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="edit_end_year" class="block text-sm font-medium text-gray-700 mb-1">
+                            End Year
+                        </label>
+                        <select id="edit_end_year" name="end_year"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                            <option value="">Select Year</option>
+                            <option value="present">Present</option>
+                            @for ($year = date('Y'); $year >= 1980; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select>
+                        <div class="flex items-center mt-2">
+                            <input type="checkbox" id="edit_is_current" name="is_current" class="mr-2">
+                            <label for="edit_is_current" class="text-sm text-gray-600">Currently studying</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade -->
+                <div>
+                    <label for="edit_grade" class="block text-sm font-medium text-gray-700 mb-1">
+                        Grade/GPA
+                    </label>
+                    <input type="text" id="edit_grade" name="grade" placeholder="e.g., 3.8/4.0, First Class"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                    </label>
+                    <textarea id="edit_description" name="description" rows="3"
+                        placeholder="Describe your achievements, courses, or projects..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="hideEditEducationModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
+                        Update Education
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Add Certification Modal -->
     <div id="addCertificationModal"
         class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50" style="display: none;">
@@ -206,7 +464,7 @@
                 class="p-6 space-y-4">
                 @csrf
                 @method('POST')
-                <input type="hidden" name="freelancer_id" value="{{ $freelancer->id }}">
+                <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
                 <div>
                     <label for="certification_name" class="block text-sm font-medium text-gray-700 mb-1">
@@ -1117,8 +1375,6 @@
                                         return response.json();
                                     })
                                     .then(data => {
-                                        console.log('Experience data loaded:', data);
-
                                         // Populate form fields
                                         document.getElementById('edit_experience_id').value = data.id;
                                         document.getElementById('edit_job_role_id').value = data.job_role_id || '';
@@ -1158,7 +1414,6 @@
                                             `/freelancer-profile/experience/${experienceId}`;
                                     })
                                     .catch(error => {
-                                        console.error('Error fetching experience:', error);
                                         alert('Failed to load experience data. Please try again.');
                                         hideEditExperienceModal();
                                     });
@@ -1250,7 +1505,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Error adding experience:', error);
                                         alert('Failed to add experience: ' + error.message);
                                     })
                                     .finally(() => {
@@ -1316,7 +1570,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Error updating experience:', error);
                                         alert('Failed to update experience: ' + error.message);
                                     })
                                     .finally(() => {
@@ -1648,7 +1901,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Delete error:', error);
                                         alert('Failed to remove experience: ' + error.message);
                                     })
                                     .finally(() => {
@@ -1681,7 +1933,7 @@
                                     <h3 class="text-lg font-bold text-gray-900">Education</h3>
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                            <button type="button" onclick="addEducation()"
+                                            <button type="button" onclick="showAddEducationModal()"
                                                 class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -1693,34 +1945,636 @@
                                     @endauth
                                 </div>
                                 <div class="space-y-4" id="education-list">
-                                    <!-- Education items will be loaded here -->
-                                    <div class="border-l-4 border-indigo-500 pl-4 py-2">
-                                        <div class="flex justify-between items-start">
-                                            <div>
-                                                <h4 class="font-bold text-gray-900 text-base">Master of
-                                                    Computer Science</h4>
-                                                <p class="text-gray-600 text-sm">Stanford University</p>
+                                    @forelse ($educations as $education)
+                                        <div class="border-l-4 border-indigo-500 pl-4 py-2 relative group"
+                                            data-education-id="{{ $education->id }}">
+                                            <div
+                                                class="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <!-- Edit Button -->
+                                                <button type="button"
+                                                    onclick="showEditEducationModal({{ $education->id }})"
+                                                    class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                                                    title="Edit education">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                                <!-- Remove Button -->
+                                                <button type="button"
+                                                    onclick="confirmRemoveEducation({{ $education->id }})"
+                                                    class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                                                    title="Remove education">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
                                             </div>
-                                            <span class="text-sm text-gray-500">2014 - 2016</span>
-                                        </div>
-                                        <p class="text-gray-600 text-sm mt-2">Specialized in Software
-                                            Engineering and Machine Learning</p>
-                                    </div>
-                                    <div class="border-l-4 border-purple-500 pl-4 py-2">
-                                        <div class="flex justify-between items-start">
-                                            <div>
-                                                <h4 class="font-bold text-gray-900 text-base">Bachelor of
-                                                    Information Technology</h4>
-                                                <p class="text-gray-600 text-sm">MIT</p>
+                                            <div class="flex justify-between items-start pr-10">
+                                                <div>
+                                                    <h4 class="font-bold text-gray-900 text-base">{{ $education->degree }}
+                                                    </h4>
+                                                    <p class="text-gray-600 text-sm">
+                                                        {{ $education->university->name ?? 'University' }}</p>
+                                                    @if ($education->major)
+                                                        <p class="text-gray-500 text-xs mt-1">
+                                                            {{ $education->major->name }}</p>
+                                                    @endif
+                                                    @if ($education->field_of_study)
+                                                        <p class="text-gray-500 text-xs mt-1">
+                                                            {{ $education->field_of_study }}</p>
+                                                    @endif
+                                                </div>
+                                                <span class="text-sm text-gray-500">
+                                                    {{ $education->start_year }} -
+                                                    @if ($education->is_current)
+                                                        Present
+                                                    @elseif($education->end_year)
+                                                        {{ $education->end_year }}
+                                                    @else
+                                                        Present
+                                                    @endif
+                                                </span>
                                             </div>
-                                            <span class="text-sm text-gray-500">2010 - 2014</span>
+                                            @if ($education->grade)
+                                                <p class="text-gray-600 text-sm mt-1 pr-10">Grade: {{ $education->grade }}
+                                                </p>
+                                            @endif
+                                            @if ($education->description)
+                                                <p class="text-gray-600 text-sm mt-2 pr-10">{{ $education->description }}
+                                                </p>
+                                            @endif
                                         </div>
-                                        <p class="text-gray-600 text-sm mt-2">Graduated with Honors, GPA:
-                                            3.8/4.0</p>
-                                    </div>
+                                    @empty
+                                        <div class="text-center py-8">
+                                            <p class="text-gray-500 text-sm">No education added yet</p>
+                                        </div>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
+
+                        <script>
+                            // Education Modal Functions
+                            function showAddEducationModal() {
+                                document.getElementById('addEducationModal').style.display = 'flex';
+                                document.body.style.overflow = 'hidden';
+                            }
+
+                            function hideAddEducationModal() {
+                                document.getElementById('addEducationModal').style.display = 'none';
+                                document.body.style.overflow = 'auto';
+                                document.getElementById('educationForm').reset();
+                            }
+
+                            function showEditEducationModal(educationId) {
+                                const modal = document.getElementById('editEducationModal');
+                                modal.style.display = 'flex';
+                                document.body.style.overflow = 'hidden';
+
+                                // Clear previous data
+                                document.getElementById('edit_education_id').value = '';
+                                document.getElementById('edit_university_id').value = '';
+                                document.getElementById('edit_major_id').value = '';
+                                document.getElementById('edit_degree').value = '';
+                                document.getElementById('edit_field_of_study').value = '';
+                                document.getElementById('edit_start_year').value = '';
+                                document.getElementById('edit_end_year').value = '';
+                                document.getElementById('edit_grade').value = '';
+                                document.getElementById('edit_description').value = '';
+                                document.getElementById('edit_is_current').checked = false;
+
+                                // Fetch education data
+                                fetch(`/freelancer-profile/education/${educationId}/edit`)
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Failed to fetch education data');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        // Populate form fields
+                                        document.getElementById('edit_education_id').value = data.id;
+                                        document.getElementById('edit_university_id').value = data.university_id || '';
+                                        document.getElementById('edit_major_id').value = data.major_id || '';
+                                        document.getElementById('edit_degree').value = data.degree || '';
+                                        document.getElementById('edit_field_of_study').value = data.field_of_study || '';
+                                        document.getElementById('edit_grade').value = data.grade || '';
+                                        document.getElementById('edit_description').value = data.description || '';
+
+                                        // Handle years
+                                        if (data.start_year) {
+                                            document.getElementById('edit_start_year').value = data.start_year;
+                                        }
+
+                                        if (data.end_year) {
+                                            if (data.is_current || data.end_year === 'present') {
+                                                document.getElementById('edit_end_year').value = 'present';
+                                            } else {
+                                                document.getElementById('edit_end_year').value = data.end_year;
+                                            }
+                                        }
+
+                                        // Handle current studying checkbox
+                                        const isCurrent = data.is_current || false;
+                                        document.getElementById('edit_is_current').checked = isCurrent;
+
+                                        // Disable end year if currently studying
+                                        const endYearSelect = document.getElementById('edit_end_year');
+                                        if (isCurrent) {
+                                            endYearSelect.value = 'present';
+                                            endYearSelect.disabled = true;
+                                        } else {
+                                            endYearSelect.disabled = false;
+                                        }
+
+                                        // Set form action
+                                        document.getElementById('editEducationForm').action =
+                                            `/freelancer-profile/education/${educationId}`;
+                                    })
+                                    .catch(error => {
+                                        alert('Failed to load education data. Please try again.');
+                                        hideEditEducationModal();
+                                    });
+                            }
+
+                            function hideEditEducationModal() {
+                                document.getElementById('editEducationModal').style.display = 'none';
+                                document.body.style.overflow = 'auto';
+                                document.getElementById('editEducationForm').reset();
+                            }
+
+                            // Close education modals when clicking outside
+                            document.getElementById('addEducationModal')?.addEventListener('click', function(e) {
+                                if (e.target === this) {
+                                    hideAddEducationModal();
+                                }
+                            });
+
+                            document.getElementById('editEducationModal')?.addEventListener('click', function(e) {
+                                if (e.target === this) {
+                                    hideEditEducationModal();
+                                }
+                            });
+
+                            // Handle current studying checkbox in edit modal
+                            document.getElementById('edit_is_current')?.addEventListener('change', function(e) {
+                                const endYearSelect = document.getElementById('edit_end_year');
+                                if (e.target.checked) {
+                                    endYearSelect.value = 'present';
+                                    endYearSelect.disabled = true;
+                                } else {
+                                    endYearSelect.disabled = false;
+                                    endYearSelect.value = '';
+                                }
+                            });
+
+                            // Handle current studying checkbox in add modal
+                            document.getElementById('is_current')?.addEventListener('change', function(e) {
+                                const endYearSelect = document.getElementById('end_year');
+                                if (e.target.checked) {
+                                    endYearSelect.value = 'present';
+                                    endYearSelect.disabled = true;
+                                } else {
+                                    endYearSelect.disabled = false;
+                                    endYearSelect.value = '';
+                                }
+                            });
+
+                            // Handle add education form submission
+                            document.getElementById('educationForm')?.addEventListener('submit', function(e) {
+                                e.preventDefault();
+
+                                const formData = new FormData(this);
+
+                                // Get CSRF token
+                                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                if (!csrfToken) {
+                                    alert('Security token not found. Please refresh the page.');
+                                    return;
+                                }
+
+                                // Show loading state
+                                const submitBtn = this.querySelector('button[type="submit"]');
+                                const originalText = submitBtn.textContent;
+                                submitBtn.textContent = 'Saving...';
+                                submitBtn.disabled = true;
+
+                                // Make request
+                                fetch(this.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: formData
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success || data.education) {
+                                            addEducationToDOM(data.education || data);
+                                            hideAddEducationModal();
+                                            showSuccessToast('Education added successfully!');
+
+                                            // Sort the list after adding
+                                            sortEducationList();
+                                        } else {
+                                            throw new Error(data.message || 'Failed to add education');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        alert('Failed to add education: ' + error.message);
+                                    })
+                                    .finally(() => {
+                                        submitBtn.textContent = originalText;
+                                        submitBtn.disabled = false;
+                                    });
+                            });
+
+                            // Handle edit education form submission
+                            document.getElementById('editEducationForm')?.addEventListener('submit', function(e) {
+                                e.preventDefault();
+
+                                const formData = new FormData(this);
+                                const educationId = formData.get('id');
+
+                                // Convert is_current checkbox to boolean
+                                const isCurrentCheckbox = document.getElementById('edit_is_current');
+                                formData.set('is_current', isCurrentCheckbox ? isCurrentCheckbox.checked : false);
+
+                                // Get CSRF token
+                                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                if (!csrfToken) {
+                                    alert('Security token not found. Please refresh the page.');
+                                    return;
+                                }
+
+                                // Show loading state
+                                const submitBtn = this.querySelector('button[type="submit"]');
+                                const originalText = submitBtn.textContent;
+                                submitBtn.textContent = 'Updating...';
+                                submitBtn.disabled = true;
+
+                                // Make update request
+                                fetch(this.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        },
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(errData => {
+                                                throw new Error(errData.message || `Server error: ${response.status}`);
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Update the item in DOM
+                                            updateEducationItem(educationId, data.education);
+                                            hideEditEducationModal();
+                                            showSuccessToast('Education updated successfully!');
+
+                                            // Sort the list after updating
+                                            sortEducationList();
+                                        } else {
+                                            throw new Error(data.message || 'Failed to update education');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        alert('Failed to update education: ' + error.message);
+                                    })
+                                    .finally(() => {
+                                        submitBtn.textContent = originalText;
+                                        submitBtn.disabled = false;
+                                    });
+                            });
+
+                            // Add education to DOM
+                            function addEducationToDOM(education) {
+                                const educationList = document.getElementById('education-list');
+
+                                // Remove empty state if it exists
+                                const emptyState = educationList.querySelector('.text-center');
+                                if (emptyState) {
+                                    emptyState.remove();
+                                }
+
+                                const educationHTML = `
+            <div class="border-l-4 border-indigo-500 pl-4 py-2 relative group" data-education-id="${education.id}">
+                <div class="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <!-- Edit Button -->
+                    <button type="button" onclick="showEditEducationModal(${education.id})"
+                        class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
+                        title="Edit education">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <!-- Remove Button -->
+                    <button type="button" onclick="confirmRemoveEducation(${education.id})"
+                        class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                        title="Remove education">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start pr-10">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-base">${education.degree}</h4>
+                        <p class="text-gray-600 text-sm">${education.university_name || education.university?.name || 'University'}</p>
+                        ${education.major_name ? `<p class="text-gray-500 text-xs mt-1">${education.major_name}</p>` : ''}
+                        ${education.field_of_study ? `<p class="text-gray-500 text-xs mt-1">${education.field_of_study}</p>` : ''}
+                    </div>
+                    <span class="text-sm text-gray-500">
+                        ${education.start_year} -
+                        ${education.is_current ? 'Present' : (education.end_year ? education.end_year : 'Present')}
+                    </span>
+                </div>
+                ${education.grade ? `<p class="text-gray-600 text-sm mt-1 pr-10">Grade: ${education.grade}</p>` : ''}
+                ${education.description ? `<p class="text-gray-600 text-sm mt-2 pr-10">${education.description}</p>` : ''}
+            </div>
+        `;
+
+                                // Add the new education
+                                educationList.insertAdjacentHTML('beforeend', educationHTML);
+                            }
+
+                            // Function to sort educations by year
+                            function sortEducationList() {
+                                const educationList = document.getElementById('education-list');
+                                const educations = Array.from(educationList.querySelectorAll('[data-education-id]'));
+
+                                if (educations.length <= 1) return;
+
+                                educations.sort((a, b) => {
+                                    const aDateSpan = a.querySelector('span.text-sm.text-gray-500');
+                                    const bDateSpan = b.querySelector('span.text-sm.text-gray-500');
+
+                                    // Extract years
+                                    const aDateInfo = extractYearInfo(aDateSpan ? aDateSpan.textContent : '');
+                                    const bDateInfo = extractYearInfo(bDateSpan ? bDateSpan.textContent : '');
+
+                                    // Sort logic:
+                                    // 1. "Present" educations come first
+                                    if (aDateInfo.isPresent && !bDateInfo.isPresent) return -1;
+                                    if (!aDateInfo.isPresent && bDateInfo.isPresent) return 1;
+
+                                    // 2. Both present or both not present - sort by end year (most recent first)
+                                    if (aDateInfo.endYear && bDateInfo.endYear) {
+                                        return bDateInfo.endYear - aDateInfo.endYear;
+                                    }
+
+                                    // 3. If one has an end year and the other doesn't, put the one with end year first
+                                    if (aDateInfo.endYear && !bDateInfo.endYear) return -1;
+                                    if (!aDateInfo.endYear && bDateInfo.endYear) return 1;
+
+                                    return 0;
+                                });
+
+                                // Clear the list and re-add in sorted order
+                                const fragment = document.createDocumentFragment();
+                                educations.forEach(edu => {
+                                    fragment.appendChild(edu);
+                                });
+
+                                educationList.innerHTML = '';
+                                educationList.appendChild(fragment);
+                            }
+
+                            // Helper function to extract year information
+                            function extractYearInfo(dateText) {
+                                const result = {
+                                    isPresent: false,
+                                    startYear: null,
+                                    endYear: null
+                                };
+
+                                if (!dateText) return result;
+
+                                // Check if it contains "Present"
+                                result.isPresent = dateText.includes('Present');
+
+                                // Extract years from format like "2014 - 2016" or "2018 - Present"
+                                const parts = dateText.split(' - ');
+                                if (parts.length >= 2) {
+                                    const startYear = parseInt(parts[0].trim());
+                                    const endYearStr = parts[1].trim();
+
+                                    if (!isNaN(startYear)) {
+                                        result.startYear = startYear;
+                                    }
+
+                                    if (endYearStr !== 'Present') {
+                                        const endYear = parseInt(endYearStr);
+                                        if (!isNaN(endYear)) {
+                                            result.endYear = endYear;
+                                        }
+                                    }
+                                }
+
+                                return result;
+                            }
+
+                            // Update education item in DOM
+                            function updateEducationItem(educationId, educationData) {
+                                const item = document.querySelector(`[data-education-id="${educationId}"]`);
+                                if (item) {
+                                    // Update item content
+                                    const title = item.querySelector('h4');
+                                    const university = item.querySelector('.text-gray-600.text-sm');
+                                    const dateSpan = item.querySelector('.text-sm.text-gray-500');
+
+                                    const universityName = educationData.university_name ||
+                                        (educationData.university ? educationData.university.name : 'University');
+                                    const majorName = educationData.major_name ||
+                                        (educationData.major ? educationData.major.name : null);
+
+                                    if (title) title.textContent = educationData.degree || '';
+                                    if (university) university.textContent = universityName;
+
+                                    // Update date
+                                    if (dateSpan) {
+                                        const endYear = educationData.is_current ? 'Present' :
+                                            (educationData.end_year ? educationData.end_year : 'Present');
+                                        dateSpan.textContent = `${educationData.start_year || ''} - ${endYear}`;
+                                    }
+
+                                    // Update major field
+                                    const majorField = item.querySelector('.text-gray-500.text-xs.mt-1');
+                                    if (majorName) {
+                                        if (majorField) {
+                                            majorField.textContent = majorName;
+                                        } else {
+                                            const majorHTML = `<p class="text-gray-500 text-xs mt-1">${majorName}</p>`;
+                                            university.insertAdjacentHTML('afterend', majorHTML);
+                                        }
+                                    } else if (majorField) {
+                                        majorField.remove();
+                                    }
+
+                                    // Update field of study
+                                    const fieldOfStudy = educationData.field_of_study;
+                                    let fieldElement = item.querySelectorAll('.text-gray-500.text-xs.mt-1')[1];
+                                    if (fieldOfStudy) {
+                                        if (fieldElement) {
+                                            fieldElement.textContent = fieldOfStudy;
+                                        } else {
+                                            const fieldHTML = `<p class="text-gray-500 text-xs mt-1">${fieldOfStudy}</p>`;
+                                            const lastElement = item.querySelector('.text-gray-500.text-xs.mt-1:last-child') || university;
+                                            lastElement.insertAdjacentHTML('afterend', fieldHTML);
+                                        }
+                                    } else if (fieldElement && !majorName) {
+                                        fieldElement.remove();
+                                    }
+
+                                    // Update grade
+                                    const gradeElement = item.querySelector('.text-gray-600.text-sm.mt-1');
+                                    if (educationData.grade) {
+                                        if (gradeElement) {
+                                            gradeElement.textContent = `Grade: ${educationData.grade}`;
+                                        } else {
+                                            const container = item.querySelector('.flex.justify-between.items-start').parentElement;
+                                            const gradeHTML = `<p class="text-gray-600 text-sm mt-1 pr-10">Grade: ${educationData.grade}</p>`;
+                                            container.insertAdjacentHTML('beforeend', gradeHTML);
+                                        }
+                                    } else if (gradeElement) {
+                                        gradeElement.remove();
+                                    }
+
+                                    // Update description
+                                    const descElement = item.querySelector('.text-gray-600.text-sm.mt-2');
+                                    if (educationData.description) {
+                                        if (descElement) {
+                                            descElement.textContent = educationData.description;
+                                        } else {
+                                            const container = item.querySelector('.flex.justify-between.items-start').parentElement;
+                                            const descHTML = `<p class="text-gray-600 text-sm mt-2 pr-10">${educationData.description}</p>`;
+                                            container.insertAdjacentHTML('beforeend', descHTML);
+                                        }
+                                    } else if (descElement) {
+                                        descElement.remove();
+                                    }
+                                }
+                            }
+
+                            // Enhanced confirm and remove education function
+                            function confirmRemoveEducation(educationId) {
+                                if (!confirm('Are you sure you want to remove this education?')) {
+                                    return;
+                                }
+
+                                // Get the CSRF token
+                                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                                if (!csrfToken) {
+                                    alert('Security token not found. Please refresh the page.');
+                                    return;
+                                }
+
+                                // Show loading state on the button
+                                const item = document.querySelector(`[data-education-id="${educationId}"]`);
+                                const removeBtn = item?.querySelector('button[onclick*="confirmRemoveEducation"]');
+                                if (removeBtn) {
+                                    const originalHTML = removeBtn.innerHTML;
+                                    removeBtn.innerHTML =
+                                        '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+                                    removeBtn.disabled = true;
+                                }
+
+                                // Make the AJAX request
+                                fetch(`/freelancer-profile/education/${educationId}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        },
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(response => {
+                                        // Check if response is JSON
+                                        const contentType = response.headers.get('content-type');
+                                        if (contentType && contentType.includes('application/json')) {
+                                            return response.json();
+                                        }
+                                        return response.text().then(text => {
+                                            try {
+                                                return JSON.parse(text);
+                                            } catch {
+                                                throw new Error(`Server returned: ${text.substring(0, 200)}`);
+                                            }
+                                        });
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Remove the item with animation
+                                            const item = document.querySelector(`[data-education-id="${educationId}"]`);
+                                            if (item) {
+                                                item.style.opacity = '0';
+                                                item.style.transition = 'all 0.3s ease';
+
+                                                setTimeout(() => {
+                                                    item.remove();
+                                                    showSuccessToast('Education removed successfully!');
+
+                                                    // If no educations left, show empty state
+                                                    const educationList = document.getElementById('education-list');
+                                                    if (educationList && educationList.children.length === 0) {
+                                                        educationList.innerHTML = `
+                                    <div class="text-center py-8">
+                                        <p class="text-gray-500 text-sm">No education added yet</p>
+                                    </div>
+                                `;
+                                                    }
+                                                }, 300);
+                                            }
+                                        } else {
+                                            throw new Error(data.message || 'Failed to remove education');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        alert('Failed to remove education: ' + error.message);
+                                    })
+                                    .finally(() => {
+                                        // Restore button state
+                                        if (removeBtn) {
+                                            removeBtn.innerHTML = originalHTML;
+                                            removeBtn.disabled = false;
+                                        }
+                                    });
+                            }
+
+                            // Initialize and sort educations on page load
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Sort educations when page loads
+                                sortEducationList();
+
+                                // Set up edit education form action
+                                const editEducationForm = document.getElementById('editEducationForm');
+                                if (editEducationForm) {
+                                    editEducationForm.action = '/freelancer-profile/education/' + (document.getElementById(
+                                        'edit_education_id')?.value || '');
+                                }
+                            });
+                        </script>
 
                         <!-- Certifications Tab -->
                         <div x-show="activeTab === 'certifications'" x-transition>
@@ -1853,7 +2707,6 @@
                                         document.getElementById('edit_certificate_url').value = data.certificate_url || '';
                                     })
                                     .catch(error => {
-                                        console.error('Error fetching certificate:', error);
                                         alert('Failed to load certification data. Please try again.');
                                         hideEditCertificationModal();
                                     });
@@ -1932,7 +2785,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Error updating certification:', error);
                                         alert('Failed to update certification: ' + error.message);
                                     })
                                     .finally(() => {
@@ -2054,7 +2906,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Delete error:', error);
                                         alert('Failed to remove certification: ' + error.message);
                                     })
                                     .finally(() => {
@@ -2107,7 +2958,6 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error('Error adding certification:', error);
                                         alert('Failed to add certification: ' + error.message);
                                     })
                                     .finally(() => {
@@ -2497,7 +3347,6 @@
                                 }
                             })
                             .catch(error => {
-                                console.error('Error:', error);
                                 alert('Error updating hourly rate. Please try again.');
                             });
                     }
@@ -2548,7 +3397,7 @@
                         @auth
                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                 <div class="flex gap-3">
-                                    <button type="button" onclick="addEducation()"
+                                    <button type="button" onclick="showAddLanguageForm()"
                                         class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -2566,60 +3415,31 @@
                             @endif
                         @endauth
                     </div>
+
+                    <!-- Languages View Mode - Will be populated via AJAX -->
                     <div class="space-y-3 text-sm" id="languages-view">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Myanmar</span>
-                            <span class="text-gray-900 font-medium">Fluent</span>
+                        <!-- Loading indicator -->
+                        <div class="flex justify-center items-center py-4" id="languages-loading">
+                            <div class="w-5 h-5 border-t-2 border-gray-900 border-solid rounded-full animate-spin mr-2">
+                            </div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">English</span>
-                            <span class="text-gray-900 font-medium">Professional</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">French</span>
-                            <span class="text-gray-900 font-medium">Intermediate</span>
-                        </div>
+                        <!-- Languages will be inserted here -->
                     </div>
 
                     @auth
                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                            <!-- Languages Edit Mode -->
                             <div id="languages-edit" class="hidden space-y-3">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" value="Myanmar"
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        placeholder="Language">
-                                    <select
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
-                                        <option value="fluent" selected>Fluent</option>
-                                        <option value="professional">Professional</option>
-                                        <option value="intermediate">Intermediate</option>
-                                        <option value="basic">Basic</option>
-                                    </select>
+                                <div id="existing-languages-list">
+                                    <!-- Languages will be loaded here when edit mode is activated -->
                                 </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" value="English"
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        placeholder="Language">
-                                    <select
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
-                                        <option value="fluent">Fluent</option>
-                                        <option value="professional" selected>Professional</option>
-                                        <option value="intermediate">Intermediate</option>
-                                        <option value="basic">Basic</option>
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" value="French"
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        placeholder="Language">
-                                    <select
-                                        class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
-                                        <option value="fluent">Fluent</option>
-                                        <option value="professional">Professional</option>
-                                        <option value="intermediate" selected>Intermediate</option>
-                                        <option value="basic">Basic</option>
-                                    </select>
-                                </div>
+
+                                <!-- Add New Language Button in Edit Mode -->
+                                <button type="button" onclick="addNewLanguageField()"
+                                    class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium border border-dashed border-gray-300 rounded-lg py-2 hover:border-blue-300 transition duration-300">
+                                    + Add Another Language
+                                </button>
+
                                 <div class="flex justify-end gap-2 mt-3 select-none">
                                     <button type="button" onclick="cancelEditLanguages()"
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
@@ -2627,13 +3447,641 @@
                                     </button>
                                     <button type="button" onclick="saveLanguages()"
                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                        Save
+                                        Save Languages
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Add Language Form (Initially Hidden) -->
+                            <div id="languages-add" class="hidden space-y-3">
+                                <div id="new-languages-container">
+                                    <!-- New language fields will be added here -->
+                                </div>
+
+                                <!-- Add Another Language Button -->
+                                <button type="button" onclick="addAnotherLanguageField()"
+                                    class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium border border-dashed border-gray-300 rounded-lg py-2 hover:border-blue-300 transition duration-300">
+                                    + Add Another Language
+                                </button>
+
+                                <div class="flex justify-end gap-2 mt-3 select-none">
+                                    <button type="button" onclick="cancelAddLanguage()"
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
+                                        Cancel
+                                    </button>
+                                    <button type="button" onclick="saveNewLanguages()"
+                                        class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
+                                        Save New Languages
                                     </button>
                                 </div>
                             </div>
                         @endif
                     @endauth
                 </div>
+
+                <script>
+                    // Language Functions
+                    let originalLanguages = [];
+                    let currentUserId = {{ $freelancer->id }};
+
+                    // Load languages on page load
+                    document.addEventListener('DOMContentLoaded', function() {
+                        loadLanguages();
+                    });
+
+                    function loadLanguages() {
+                        const viewContainer = document.getElementById('languages-view');
+                        const loadingIndicator = document.getElementById('languages-loading');
+
+                        // Show loading indicator
+                        if (loadingIndicator) {
+                            loadingIndicator.style.display = 'flex';
+                        }
+
+                        // Clear existing content except loading indicator
+                        const existingLanguages = viewContainer.querySelectorAll('.language-item-view');
+                        existingLanguages.forEach(item => item.remove());
+
+                        // Remove any existing empty state
+                        const emptyState = viewContainer.querySelector('.text-gray-600.text-sm.text-center');
+                        if (emptyState) {
+                            emptyState.remove();
+                        }
+
+                        // Remove any existing error messages
+                        const errorDiv = viewContainer.querySelector('.text-center.py-4');
+                        if (errorDiv) {
+                            errorDiv.remove();
+                        }
+
+                        // Fetch languages from server using the correct route
+                        fetch(`{{ route('freelancer_profile.languages.index') }}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                credentials: 'same-origin'
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Failed to fetch languages: ${response.status} ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Hide loading indicator
+                                if (loadingIndicator) {
+                                    loadingIndicator.style.display = 'none';
+                                }
+
+                                if (data.success && data.languages && data.languages.length > 0) {
+                                    // Clear the view container
+                                    viewContainer.innerHTML = '';
+
+                                    // Add each language to the view
+                                    data.languages.forEach(lang => {
+                                        const languageDiv = document.createElement('div');
+                                        languageDiv.className = 'flex items-center justify-between language-item-view';
+                                        languageDiv.innerHTML = `
+                            <span class="text-gray-600">${lang.language}</span>
+                            <span class="text-gray-900 font-medium">${formatProficiency(lang.proficiency)}</span>
+                        `;
+                                        viewContainer.appendChild(languageDiv);
+                                    });
+                                } else {
+                                    // Show empty state
+                                    viewContainer.innerHTML = '';
+                                    const emptyState = document.createElement('p');
+                                    emptyState.className = 'text-gray-600 text-sm text-center';
+                                    emptyState.textContent = 'No languages added yet.';
+                                    viewContainer.appendChild(emptyState);
+                                }
+                            })
+                            .catch(error => {
+                                // Hide loading indicator
+                                if (loadingIndicator) {
+                                    loadingIndicator.style.display = 'none';
+                                }
+
+                                // Clear the view container
+                                viewContainer.innerHTML = '';
+
+                                // Show error message
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'text-center py-4';
+                                errorDiv.innerHTML = `
+                    <svg class="w-8 h-8 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p class="text-red-600 text-sm mb-2">Error loading languages</p>
+                    <button onclick="loadLanguages()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Try Again
+                    </button>
+                `;
+                                viewContainer.appendChild(errorDiv);
+                            });
+                    }
+
+                    function showAddLanguageForm() {
+                        document.getElementById('languages-view').classList.add('hidden');
+                        document.getElementById('languages-edit').classList.add('hidden');
+                        document.getElementById('languages-add').classList.remove('hidden');
+
+                        // Clear existing new language fields
+                        document.getElementById('new-languages-container').innerHTML = '';
+
+                        // Add initial language field
+                        addAnotherLanguageField();
+                    }
+
+                    function cancelAddLanguage() {
+                        // Hide add language form
+                        document.getElementById('languages-add').classList.add('hidden');
+
+                        // Restore original view
+                        document.getElementById('languages-view').classList.remove('hidden');
+                    }
+
+                    function addAnotherLanguageField() {
+                        const container = document.getElementById('new-languages-container');
+                        const index = container.children.length;
+
+                        const languageField = document.createElement('div');
+                        languageField.className = 'grid grid-cols-2 gap-2 mb-3 new-language-item';
+                        languageField.innerHTML = `
+            <input type="text"
+                class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+                placeholder="Language (e.g., Spanish)" name="language[]">
+            <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
+                <option value="">Select Proficiency</option>
+                <option value="native">Native</option>
+                <option value="fluent">Fluent</option>
+                <option value="professional">Professional</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="basic">Basic</option>
+            </select>
+        `;
+
+                        container.appendChild(languageField);
+                    }
+
+                    function editLanguages() {
+                        // Load languages
+                        loadLanguagesForEdit();
+
+                        document.getElementById('languages-view').classList.add('hidden');
+                        document.getElementById('languages-add').classList.add('hidden');
+                        document.getElementById('languages-edit').classList.remove('hidden');
+                    }
+
+                    function loadLanguagesForEdit() {
+                        const editContainer = document.getElementById('existing-languages-list');
+
+                        // Show loading state
+                        editContainer.innerHTML = `
+            <div class="flex justify-center items-center py-4">
+                <div class="w-5 h-5 border-t-2 border-gray-900 border-solid rounded-full animate-spin mr-2"></div>
+            </div>
+        `;
+
+                        // Fetch languages from server
+                        fetch(`{{ route('freelancer_profile.languages.index') }}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                credentials: 'same-origin'
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Failed to fetch languages: ${response.status} ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Clear container
+                                editContainer.innerHTML = '';
+
+                                if (data.success && data.languages && data.languages.length > 0) {
+                                    // Store original languages for cancel functionality
+                                    originalLanguages = data.languages.map(lang => ({
+                                        id: lang.id,
+                                        language: lang.language,
+                                        proficiency: lang.proficiency
+                                    }));
+
+                                    // Add each language to edit mode
+                                    data.languages.forEach(lang => {
+                                        const languageField = document.createElement('div');
+                                        languageField.className = 'flex items-center gap-2 mb-3 language-item';
+                                        languageField.dataset.id = lang.id;
+                                        languageField.innerHTML = `
+                            <input type="text" value="${lang.language}"
+                                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+                                placeholder="Language" name="language[]">
+                            <select class="w-40 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
+                                <option value="native" ${lang.proficiency === 'native' ? 'selected' : ''}>Native</option>
+                                <option value="fluent" ${lang.proficiency === 'fluent' ? 'selected' : ''}>Fluent</option>
+                                <option value="professional" ${lang.proficiency === 'professional' ? 'selected' : ''}>Professional</option>
+                                <option value="intermediate" ${lang.proficiency === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                                <option value="basic" ${lang.proficiency === 'basic' ? 'selected' : ''}>Basic</option>
+                            </select>
+                            <button type="button" onclick="removeLanguage(this)"
+                                class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        `;
+                                        editContainer.appendChild(languageField);
+                                    });
+                                } else {
+                                    editContainer.innerHTML =
+                                        '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                                }
+                            })
+                            .catch(error => {
+                                editContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <svg class="w-8 h-8 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p class="text-red-600 text-sm mb-2">Error loading languages</p>
+                        <button onclick="loadLanguagesForEdit()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+                            });
+                    }
+
+                    function cancelEditLanguages() {
+                        document.getElementById('languages-edit').classList.add('hidden');
+                        document.getElementById('languages-view').classList.remove('hidden');
+                    }
+
+                    function addNewLanguageField() {
+                        const container = document.getElementById('existing-languages-list');
+
+                        // Remove empty state message if it exists
+                        const emptyState = container.querySelector('p.text-center');
+                        if (emptyState) {
+                            emptyState.remove();
+                        }
+
+                        const languageField = document.createElement('div');
+                        languageField.className = 'flex items-center gap-2 mb-3 language-item';
+                        languageField.innerHTML = `
+            <input type="text"
+                class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+                placeholder="New Language" name="language[]">
+            <select class="w-40 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
+                <option value="">Select Proficiency</option>
+                <option value="native">Native</option>
+                <option value="fluent">Fluent</option>
+                <option value="professional">Professional</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="basic">Basic</option>
+            </select>
+            <button type="button" onclick="removeLanguage(this)"
+                class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
+        `;
+
+                        container.appendChild(languageField);
+                    }
+
+                    function removeLanguage(button) {
+                        const languageItem = button.closest('.language-item');
+                        const languageId = languageItem ? languageItem.dataset.id : null;
+
+                        if (languageId) {
+                            // This is an existing language, need to delete from server
+                            if (confirm('Are you sure you want to delete this language?')) {
+                                deleteLanguageFromServer(languageId, languageItem);
+                            }
+                        } else {
+                            // This is a new language field, just remove from DOM
+                            languageItem.remove();
+
+                            // If no languages left, show empty state
+                            const container = languageItem.closest('#existing-languages-list');
+                            if (container && container.children.length === 0) {
+                                container.innerHTML = '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                            }
+                        }
+                    }
+
+                    function deleteLanguageFromServer(languageId, element) {
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                        // Show loading on button
+                        const button = element.querySelector('button');
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML =
+                            '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+                        button.disabled = true;
+
+                        // Make the delete request
+                        fetch(`/freelancer-profile/languages/${languageId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                credentials: 'same-origin'
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    // Remove the element with animation
+                                    element.style.opacity = '0';
+                                    element.style.transition = 'all 0.3s ease';
+
+                                    setTimeout(() => {
+                                        element.remove();
+                                        showSuccessToast('Language deleted successfully!');
+
+                                        // If no languages left in edit mode, show empty state
+                                        const container = document.getElementById('existing-languages-list');
+                                        if (container && container.children.length === 0) {
+                                            container.innerHTML =
+                                                '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                                        }
+
+                                        // Update the view mode with fresh data
+                                        loadLanguages();
+                                    }, 300);
+                                } else {
+                                    throw new Error(data.message || 'Failed to delete language');
+                                }
+                            })
+                            .catch(error => {
+                                alert('Failed to delete language: ' + error.message);
+                                button.innerHTML = originalHTML;
+                                button.disabled = false;
+                            });
+                    }
+
+                    function saveNewLanguages() {
+                        const languageItems = document.querySelectorAll('#new-languages-container .new-language-item');
+                        const languages = [];
+
+                        // Validate all fields
+                        let isValid = true;
+                        languageItems.forEach(item => {
+                            const languageInput = item.querySelector('input[name="language[]"]');
+                            const proficiencySelect = item.querySelector('select[name="proficiency[]"]');
+
+                            if (languageInput.value.trim() && !proficiencySelect.value) {
+                                proficiencySelect.focus();
+                                alert('Please select proficiency level for all languages');
+                                isValid = false;
+                                return;
+                            }
+
+                            if (!languageInput.value.trim() && proficiencySelect.value) {
+                                languageInput.focus();
+                                alert('Please enter language name for all languages');
+                                isValid = false;
+                                return;
+                            }
+
+                            if (languageInput.value.trim() && proficiencySelect.value) {
+                                languages.push({
+                                    language: languageInput.value.trim(),
+                                    proficiency: proficiencySelect.value
+                                });
+                            }
+                        });
+
+                        if (!isValid) return;
+
+                        if (languages.length === 0) {
+                            alert('Please add at least one language with proficiency level.');
+                            return;
+                        }
+
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                        // Show loading state
+                        const saveBtn = document.querySelector('#languages-add button[onclick="saveNewLanguages()"]');
+                        const originalText = saveBtn.textContent;
+                        saveBtn.textContent = 'Saving...';
+                        saveBtn.disabled = true;
+
+                        // Prepare request data
+                        const requestData = {
+                            languages: languages,
+                        };
+
+                        // Make the API call to store new languages
+                        fetch(`{{ route('freelancer_profile.languages.store') }}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify(requestData)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(errData => {
+                                        throw new Error(errData.message ||
+                                            `Server error: ${response.status} ${response.statusText}`);
+                                    });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    // Hide add form and show view
+                                    cancelAddLanguage();
+
+                                    // Refresh the view mode with updated data
+                                    loadLanguages();
+
+                                    showSuccessToast('Languages added successfully!');
+                                } else {
+                                    throw new Error(data.message || 'Failed to save languages');
+                                }
+                            })
+                            .catch(error => {
+                                alert('Error saving languages: ' + error.message);
+                            })
+                            .finally(() => {
+                                saveBtn.textContent = originalText;
+                                saveBtn.disabled = false;
+                            });
+                    }
+
+                    function saveLanguages() {
+                        const languageItems = document.querySelectorAll('#existing-languages-list .language-item');
+                        const languagesToUpdate = [];
+                        const newLanguages = [];
+
+                        // Validate all fields
+                        let isValid = true;
+                        languageItems.forEach(item => {
+                            const languageInput = item.querySelector('input[name="language[]"]');
+                            const proficiencySelect = item.querySelector('select[name="proficiency[]"]');
+                            const languageId = item.dataset.id;
+
+                            if (languageInput.value.trim() && !proficiencySelect.value) {
+                                proficiencySelect.focus();
+                                alert('Please select proficiency level for all languages');
+                                isValid = false;
+                                return;
+                            }
+
+                            if (!languageInput.value.trim() && proficiencySelect.value) {
+                                languageInput.focus();
+                                alert('Please enter language name for all languages');
+                                isValid = false;
+                                return;
+                            }
+
+                            if (languageInput.value.trim() && proficiencySelect.value) {
+                                if (languageId) {
+                                    // This is an existing language to update
+                                    languagesToUpdate.push({
+                                        id: languageId,
+                                        language: languageInput.value.trim(),
+                                        proficiency: proficiencySelect.value
+                                    });
+                                } else {
+                                    // This is a new language to create
+                                    newLanguages.push({
+                                        language: languageInput.value.trim(),
+                                        proficiency: proficiencySelect.value
+                                    });
+                                }
+                            }
+                        });
+
+                        if (!isValid) return;
+
+                        if (languagesToUpdate.length === 0 && newLanguages.length === 0) {
+                            alert('Please add or modify at least one language.');
+                            return;
+                        }
+
+                        // Show loading state
+                        const saveBtn = document.querySelector('#languages-edit button[onclick="saveLanguages()"]');
+                        const originalText = saveBtn.textContent;
+                        saveBtn.textContent = 'Saving...';
+                        saveBtn.disabled = true;
+
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                        // Process updates sequentially
+                        const processUpdates = async () => {
+                            try {
+                                // Update existing languages
+                                for (const lang of languagesToUpdate) {
+                                    await fetch(`/freelancer-profile/languages/${lang.id}`, {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        },
+                                        body: JSON.stringify({
+                                            language: lang.language,
+                                            proficiency: lang.proficiency
+                                        })
+                                    }).then(response => response.json());
+                                }
+
+                                // Create new languages if any
+                                if (newLanguages.length > 0) {
+                                    await fetch(`{{ route('freelancer_profile.languages.store') }}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': csrfToken,
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        },
+                                        body: JSON.stringify({
+                                            languages: newLanguages
+                                        })
+                                    }).then(response => response.json());
+                                }
+
+                                // Hide edit form and show view
+                                cancelEditLanguages();
+
+                                // Refresh the view mode with updated data
+                                loadLanguages();
+
+                                showSuccessToast('Languages updated successfully!');
+                            } catch (error) {
+                                alert('Error saving languages: ' + error.message);
+                            } finally {
+                                saveBtn.textContent = originalText;
+                                saveBtn.disabled = false;
+                            }
+                        };
+
+                        processUpdates();
+                    }
+
+                    // Helper function to format proficiency for display
+                    function formatProficiency(proficiency) {
+                        const proficiencyMap = {
+                            'native': 'Native',
+                            'fluent': 'Fluent',
+                            'professional': 'Professional',
+                            'intermediate': 'Intermediate',
+                            'basic': 'Basic'
+                        };
+                        return proficiencyMap[proficiency] || proficiency;
+                    }
+
+                    function showSuccessToast(message) {
+                        // Create or reuse toast element
+                        let toast = document.getElementById('languageSuccessToast');
+                        if (!toast) {
+                            toast = document.createElement('div');
+                            toast.id = 'languageSuccessToast';
+                            toast.className =
+                                'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50';
+                            document.body.appendChild(toast);
+                        }
+
+                        toast.textContent = message;
+                        toast.classList.remove('translate-y-full', 'opacity-0');
+                        toast.classList.add('translate-y-0', 'opacity-100');
+
+                        setTimeout(() => {
+                            toast.classList.remove('translate-y-0', 'opacity-100');
+                            toast.classList.add('translate-y-full', 'opacity-0');
+                        }, 3000);
+                    }
+                </script>
             </div>
         </div>
     </form>
@@ -2641,14 +4089,6 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('alpine:init', () => {});
-
-        console.log('Freelancer profile loaded:', {
-            name: '{{ $freelancer->name }}',
-            availability: '{{ $freelancer->freelancer->availability }}',
-            isOwner: {{ auth()->check() && auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer' ? 'true' : 'false' }}
-        });
-
         // Edit functions for freelancer
         function editBio() {
             const bio = document.getElementById('bio');
@@ -2686,7 +4126,6 @@
             const skill = input.value.trim();
             if (skill) {
                 // Here you would add the skill to the list and make an API call
-                console.log('Adding skill:', skill);
                 input.value = '';
             }
         }
@@ -2694,11 +4133,9 @@
         function removeSkill(button) {
             const skillElement = button.parentElement;
             skillElement.remove();
-            console.log('Removing skill');
         }
 
         function saveSkills() {
-            console.log('Saving skills');
             // Here you would make an API call to save all skills
             alert('Skills saved successfully!');
             cancelEditSkills();
@@ -2714,49 +4151,25 @@
             document.getElementById('contact-info-view').classList.remove('hidden');
         }
 
-        function editLanguages() {
-            document.getElementById('languages-view').classList.add('hidden');
-            document.getElementById('languages-edit').classList.remove('hidden');
-        }
-
-        function cancelEditLanguages() {
-            document.getElementById('languages-edit').classList.add('hidden');
-            document.getElementById('languages-view').classList.remove('hidden');
-        }
-
-        function saveLanguages() {
-            console.log('Saving languages');
-            // Here you would make an API call to save languages
-            alert('Languages saved successfully!');
-            cancelEditLanguages();
-        }
-
         function saveSocialLinks() {
             const linkedinUrl = document.getElementById('linkedin-url').value;
             const githubUrl = document.getElementById('github-url').value;
 
-            console.log('Saving social links:', {
-                linkedinUrl,
-                githubUrl
-            });
             // Here you would make an API call to save social links
             alert('Social links saved successfully!');
         }
 
         function addExperience() {
-            console.log('Adding new experience');
             // Here you would show a modal or form to add new experience
             alert('Feature: Add new work experience');
         }
 
         function addEducation() {
-            console.log('Adding new education');
             // Here you would show a modal or form to add new education
             alert('Feature: Add new education');
         }
 
         function addCertification() {
-            console.log('Adding new certification');
             // Here you would show a modal or form to add new certification
             alert('Feature: Add new certification');
         }
@@ -2765,7 +4178,6 @@
         document.getElementById('profile-photo-upload')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                console.log('Uploading profile photo:', file.name);
                 // Here you would upload the file to your server
                 alert('Profile photo uploaded successfully!');
             }
