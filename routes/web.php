@@ -30,6 +30,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
 
+    // User Languages Routes
+    Route::get('/freelancer-profile/languages', [FreelancerProfileController::class, 'getLanguages'])
+        ->name('freelancer_profile.languages.index');
+    Route::post('/freelancer-profile/languages', [FreelancerProfileController::class, 'storeLanguage'])
+        ->name('freelancer_profile.languages.store');
+    Route::put('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'updateLanguage'])
+        ->name('freelancer_profile.languages.update');
+    Route::delete('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'deleteLanguage'])
+        ->name('freelancer_profile.languages.delete');
+
     // Admin-Only Routes
     Route::middleware(['auth', 'verified', 'role:admin|super_admin'])
         ->prefix('admin')
