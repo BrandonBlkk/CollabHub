@@ -8,6 +8,7 @@ use App\Models\FreelancerEducation;
 use App\Models\FreelancerExperience;
 use App\Models\JobRole;
 use App\Models\Major;
+use App\Models\Skill;
 use App\Models\University;
 use App\Models\User;
 use App\Models\UserLanguage;
@@ -87,6 +88,7 @@ class ProfileController extends Controller
 
         $universities = University::all();
         $majors = Major::all();
+        $skills = Skill::all();
 
         $languages = UserLanguage::where('user_id', $user->id)->get();
 
@@ -103,6 +105,7 @@ class ProfileController extends Controller
                 "educations",
                 "universities",
                 "majors",
+                "skills",
                 "languages",
                 "certificates"
             )

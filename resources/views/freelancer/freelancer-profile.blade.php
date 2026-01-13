@@ -998,7 +998,7 @@
                                     @endauth
                                 </div>
 
-                                <!-- Skills -->
+                                <!-- Skills Section -->
                                 <div>
                                     <div class="flex items-center justify-between mb-3">
                                         <h3 class="text-lg font-bold text-gray-900">Skills & Expertise</h3>
@@ -1009,19 +1009,35 @@
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            d="M12 4v16m8-8H4" />
                                                     </svg>
                                                 </button>
                                             @endif
                                         @endauth
                                     </div>
+
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
+                                            <!-- Edit Mode -->
                                             <div id="skills-edit-mode" class="hidden">
-                                                <div class="flex flex-wrap gap-2 mb-3">
+                                                <div class="relative mb-3">
+                                                    <input type="text" id="skill-search-input"
+                                                        placeholder="Search skills..."
+                                                        class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
+                                                        onkeyup="searchSkills(this.value)" autocomplete="off">
+                                                    <div id="skills-suggestions"
+                                                        class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                                        <!-- Suggestions will be populated here -->
+                                                    </div>
+                                                </div>
+
+                                                <!-- Selected Skills Display -->
+                                                <div class="flex flex-wrap gap-2 mb-3 select-none"
+                                                    id="selected-skills-container">
                                                     @forelse($freelancer->skills as $skill)
                                                         <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full flex items-center">
+                                                            class="skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
+                                                            data-skill-id="{{ $skill->id }}">
                                                             {{ $skill->name }}
                                                             <button type="button" onclick="removeSkill(this)"
                                                                 class="ml-2 text-blue-600 hover:text-blue-800">
@@ -1033,105 +1049,682 @@
                                                             </button>
                                                         </span>
                                                     @empty
-                                                        <p class="text-gray-500 text-sm">No skills added yet.</p>
+                                                        <p class="text-gray-500 text-sm" id="no-skills-message">No skills
+                                                            added yet.</p>
                                                     @endforelse
                                                 </div>
-                                                <div class="flex gap-2">
-                                                    <input type="text" id="new-skill-input"
-                                                        placeholder="Add a new skill..."
-                                                        class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
-                                                    <button type="button" onclick="addSkill()"
-                                                        class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                                        Add
-                                                    </button>
+
+                                                <!-- Searched Skills Section -->
+                                                <div id="searched-skills-section" class="mb-3 hidden">
+                                                    <p class="text-sm font-medium text-gray-700 mb-2">Search Results</p>
+                                                    <div id="searched-skills-message" class="hidden mb-2">
+                                                        <p class="text-gray-500 text-sm">No skills found. Try a different
+                                                            search term.</p>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2 select-none"
+                                                        id="searched-skills-container">
+                                                        <!-- Searched skills will be populated here -->
+                                                    </div>
                                                 </div>
-                                                <div class="flex justify-end gap-2 mt-3">
+
+                                                <!-- Related Skills Section -->
+                                                <div id="related-skills-section" class="mb-3 hidden">
+                                                    <p class="text-sm font-medium text-gray-700 mb-2">Related Skills</p>
+                                                    <div class="flex flex-wrap gap-2 select-none"
+                                                        id="related-skills-container">
+                                                        <!-- Related skills will be populated here -->
+                                                    </div>
+                                                </div>
+
+                                                <input type="hidden" id="selected-skills"
+                                                    value="{{ $freelancer->skills->pluck('id')->implode(',') }}">
+                                                <div class="flex justify-end gap-2 mt-3 select-none">
                                                     <button type="button" onclick="cancelEditSkills()"
                                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
                                                         Cancel
                                                     </button>
-                                                    <button type="button" onclick="saveSkills()"
+                                                    <button id="skillSaveBtn" type="button" onclick="saveSkills()"
                                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
                                                         Save Skills
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            <!-- View Mode -->
                                             <div id="skills-view-mode">
-                                                <div class="flex flex-wrap gap-2">
+                                                <div class="flex flex-wrap w-full gap-2 select-none">
                                                     @forelse($freelancer->skills as $skill)
                                                         <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
+                                                            class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
                                                             {{ $skill->name }}
                                                         </span>
                                                     @empty
-                                                        <!-- Fallback skills when none are added -->
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
-                                                        <span
-                                                            class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
-                                                        <span
-                                                            class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
-                                                            CSS</span>
+                                                        <p class="text-gray-500 text-sm w-full text-center py-7">No skills
+                                                            added yet.</p>
                                                     @endforelse
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="flex flex-wrap gap-2">
+                                            <!-- Other Users View -->
+                                            <div class="flex flex-wrap w-full gap-2">
                                                 @forelse($freelancer->skills as $skill)
                                                     <span
                                                         class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
                                                         {{ $skill->name }}
                                                     </span>
                                                 @empty
-                                                    <!-- Fallback skills when none are added -->
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
-                                                    <span
-                                                        class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
-                                                    <span
-                                                        class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
-                                                    <span
-                                                        class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
-                                                        CSS</span>
+                                                    <p class="text-gray-500 text-sm w-full text-center py-7">No skills added
+                                                        yet.</p>
                                                 @endforelse
                                             </div>
                                         @endif
-                                    @else
-                                        <div class="flex flex-wrap gap-2">
-                                            @forelse($freelancer->skills as $skill)
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200">
-                                                    {{ $skill->name }}
-                                                </span>
-                                            @empty
-                                                <!-- Fallback skills when none are added -->
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">React.js</span>
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">TypeScript</span>
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Next.js</span>
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Node.js</span>
-                                                <span
-                                                    class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">MongoDB</span>
-                                                <span
-                                                    class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1.5 rounded-full opacity-60 select-none">Tailwind
-                                                    CSS</span>
-                                            @endforelse
-                                        </div>
                                     @endauth
                                 </div>
+
+                                <script>
+                                    let searchTimeout;
+                                    let selectedSkillIds = [];
+                                    let currentSearchQuery = '';
+                                    let allSkillsCache = [];
+
+                                    function editSkills() {
+                                        document.getElementById('skills-view-mode').classList.add('hidden');
+                                        document.getElementById('skills-edit-mode').classList.remove('hidden');
+
+                                        // Initialize selected skill IDs from the existing skills
+                                        const skillTags = document.querySelectorAll('#selected-skills-container .skill-tag');
+                                        selectedSkillIds = Array.from(skillTags).map(tag => parseInt(tag.getAttribute('data-skill-id')));
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+                                    }
+
+                                    function cancelEditSkills() {
+                                        document.getElementById('skills-edit-mode').classList.add('hidden');
+                                        document.getElementById('skills-view-mode').classList.remove('hidden');
+                                        hideSuggestions();
+                                        hideSearchedSkills();
+                                        hideRelatedSkills();
+                                        // Clear search input
+                                        document.getElementById('skill-search-input').value = '';
+                                    }
+
+                                    function searchSkills(query) {
+                                        currentSearchQuery = query;
+
+                                        // Clear previous timeout
+                                        if (searchTimeout) {
+                                            clearTimeout(searchTimeout);
+                                        }
+
+                                        if (query.length < 2) {
+                                            hideSuggestions();
+                                            hideSearchedSkills();
+                                            hideRelatedSkills();
+                                            return;
+                                        }
+
+                                        // Debounce search
+                                        searchTimeout = setTimeout(() => {
+                                            fetch(`/skills/search?q=${encodeURIComponent(query)}`)
+                                                .then(response => {
+                                                    if (!response.ok) {
+                                                        throw new Error('Network response was not ok');
+                                                    }
+                                                    return response.json();
+                                                })
+                                                .then(data => {
+                                                    allSkillsCache = data;
+                                                    displaySearchedSkills(data);
+                                                    // Don't show suggestions dropdown anymore
+                                                    hideSuggestions();
+
+                                                    // Fetch related skills for the first suggestion if exists
+                                                    if (data.length > 0) {
+                                                        fetchRelatedSkills(data[0].id);
+                                                    } else {
+                                                        hideRelatedSkills();
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error fetching skills:', error);
+                                                    hideSearchedSkills();
+                                                    hideRelatedSkills();
+                                                });
+                                        }, 300);
+                                    }
+
+                                    function displaySearchedSkills(skills) {
+                                        const searchedSkillsContainer = document.getElementById('searched-skills-container');
+                                        const searchedSkillsSection = document.getElementById('searched-skills-section');
+                                        const searchedSkillsMessage = document.getElementById('searched-skills-message');
+
+                                        // Always show the section when there's a search query
+                                        searchedSkillsSection.classList.remove('hidden');
+
+                                        // Reset containers and messages
+                                        searchedSkillsContainer.innerHTML = '';
+                                        searchedSkillsMessage.classList.add('hidden');
+
+                                        // Show empty message if no skills were returned from server
+                                        if (!skills || skills.length === 0) {
+                                            searchedSkillsMessage.classList.remove('hidden');
+                                            searchedSkillsMessage.innerHTML =
+                                                '<p class="text-gray-500 text-sm">No skills found. Try a different search term.</p>';
+                                            hideRelatedSkills();
+                                            return;
+                                        }
+
+                                        // Filter out already selected skills
+                                        const filteredSearchedSkills = skills.filter(skill => !selectedSkillIds.includes(skill.id));
+
+                                        // Show empty message if all searched skills are already selected
+                                        if (filteredSearchedSkills.length === 0) {
+                                            searchedSkillsMessage.classList.remove('hidden');
+                                            searchedSkillsMessage.innerHTML =
+                                                '<p class="text-gray-500 text-sm">All matching skills are already selected.</p>';
+                                            hideRelatedSkills();
+                                            return;
+                                        }
+
+                                        // Build HTML for filtered skills
+                                        let searchedSkillsHTML = '';
+
+                                        filteredSearchedSkills.forEach(skill => {
+                                            searchedSkillsHTML += `
+        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
+              data-skill-id="${skill.id}"
+              data-skill-name="${skill.name}">
+            ${skill.name}
+            <button type="button" onclick="addSearchedSkill(this)"
+                class="ml-2 text-gray-500 hover:text-blue-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </span>
+    `;
+                                        });
+
+                                        searchedSkillsContainer.innerHTML = searchedSkillsHTML;
+
+                                        // Also update related skills if needed
+                                        if (filteredSearchedSkills.length > 0) {
+                                            fetchRelatedSkills(filteredSearchedSkills[0].id);
+                                        } else {
+                                            hideRelatedSkills();
+                                        }
+                                    }
+
+                                    function hideSearchedSkills() {
+                                        const searchedSkillsSection = document.getElementById('searched-skills-section');
+                                        const searchedSkillsMessage = document.getElementById('searched-skills-message');
+                                        searchedSkillsSection.classList.add('hidden');
+                                        searchedSkillsMessage.classList.add('hidden');
+                                    }
+
+                                    function displaySuggestions(skills) {
+                                        const suggestionsContainer = document.getElementById('skills-suggestions');
+
+                                        if (skills.length === 0) {
+                                            suggestionsContainer.innerHTML = '<div class="p-3 text-gray-500 text-sm">No skills found</div>';
+                                            suggestionsContainer.classList.remove('hidden');
+                                            return;
+                                        }
+
+                                        let suggestionsHTML = '';
+
+                                        skills.forEach(skill => {
+                                            const isSelected = selectedSkillIds.includes(skill.id);
+                                            const disabledClass = isSelected ? 'opacity-50 cursor-not-allowed' :
+                                                'cursor-pointer hover:bg-gray-50';
+
+                                            suggestionsHTML += `
+        <div class="skill-suggestion-item p-3 ${disabledClass} border-b border-gray-100 last:border-b-0"
+             data-skill-id="${skill.id}"
+             data-skill-name="${skill.name}"
+             onclick="${!isSelected ? 'addSkillFromSuggestion(this)' : 'void(0)'}">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-800">${skill.name}</span>
+                ${isSelected ?
+                    '<span class="text-green-600 text-xs font-medium">✓ Added</span>' :
+                    '<span class="text-blue-600 text-xs font-medium">Click to add</span>'
+                }
+            </div>
+        </div>
+    `;
+                                        });
+
+                                        suggestionsContainer.innerHTML = suggestionsHTML;
+                                        suggestionsContainer.classList.remove('hidden');
+                                    }
+
+                                    function fetchRelatedSkills(skillId) {
+                                        fetch(`/skills/${skillId}/related`)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                displayRelatedSkills(data);
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching related skills:', error);
+                                                hideRelatedSkills();
+                                            });
+                                    }
+
+                                    function displayRelatedSkills(relatedSkills) {
+                                        const relatedSkillsContainer = document.getElementById('related-skills-container');
+                                        const relatedSkillsSection = document.getElementById('related-skills-section');
+
+                                        if (!relatedSkills || relatedSkills.length === 0) {
+                                            hideRelatedSkills();
+                                            return;
+                                        }
+
+                                        // Filter out already selected skills
+                                        const filteredRelatedSkills = relatedSkills.filter(skill => !selectedSkillIds.includes(skill.id));
+
+                                        if (filteredRelatedSkills.length === 0) {
+                                            hideRelatedSkills();
+                                            return;
+                                        }
+
+                                        let relatedSkillsHTML = '';
+
+                                        filteredRelatedSkills.forEach(skill => {
+                                            relatedSkillsHTML += `
+        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
+              data-skill-id="${skill.id}"
+              data-skill-name="${skill.name}">
+            ${skill.name}
+            <button type="button" onclick="addRelatedSkill(this)"
+                class="ml-2 text-gray-500 hover:text-blue-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </span>
+    `;
+                                        });
+
+                                        relatedSkillsContainer.innerHTML = relatedSkillsHTML;
+                                        relatedSkillsSection.classList.remove('hidden');
+                                    }
+
+                                    function hideRelatedSkills() {
+                                        const relatedSkillsSection = document.getElementById('related-skills-section');
+                                        relatedSkillsSection.classList.add('hidden');
+                                    }
+
+                                    function hideSuggestions() {
+                                        document.getElementById('skills-suggestions').classList.add('hidden');
+                                    }
+
+                                    function addSkillFromSuggestion(element) {
+                                        const skillId = parseInt(element.getAttribute('data-skill-id'));
+                                        const skillName = element.getAttribute('data-skill-name');
+
+                                        if (selectedSkillIds.includes(skillId)) {
+                                            return;
+                                        }
+
+                                        selectedSkillIds.push(skillId);
+
+                                        // Add to selected skills container
+                                        const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                        const noSkillsMessage = document.getElementById('no-skills-message');
+
+                                        if (noSkillsMessage) {
+                                            noSkillsMessage.remove();
+                                        }
+
+                                        const skillElement = document.createElement('span');
+                                        skillElement.className =
+                                            'skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center';
+                                        skillElement.setAttribute('data-skill-id', skillId);
+                                        skillElement.setAttribute('data-skill-name', skillName);
+                                        skillElement.innerHTML = `
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
+
+                                        selectedSkillsContainer.appendChild(skillElement);
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                        // Refresh searched skills and related skills
+                                        refreshSkillsDisplay();
+                                    }
+
+                                    function addSearchedSkill(button) {
+                                        const skillElement = button.closest('[data-skill-id]');
+                                        const skillId = parseInt(skillElement.getAttribute('data-skill-id'));
+                                        const skillName = skillElement.getAttribute('data-skill-name');
+
+                                        if (selectedSkillIds.includes(skillId)) {
+                                            return;
+                                        }
+
+                                        selectedSkillIds.push(skillId);
+
+                                        // Add to selected skills container
+                                        const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                        const noSkillsMessage = document.getElementById('no-skills-message');
+
+                                        if (noSkillsMessage) {
+                                            noSkillsMessage.remove();
+                                        }
+
+                                        const newSkillElement = document.createElement('span');
+                                        newSkillElement.className =
+                                            'skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center';
+                                        newSkillElement.setAttribute('data-skill-id', skillId);
+                                        newSkillElement.setAttribute('data-skill-name', skillName);
+                                        newSkillElement.innerHTML = `
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
+
+                                        selectedSkillsContainer.appendChild(newSkillElement);
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                        // Remove from searched skills
+                                        skillElement.remove();
+
+                                        // Refresh searched skills and related skills
+                                        refreshSkillsDisplay();
+                                    }
+
+                                    function addRelatedSkill(button) {
+                                        const skillElement = button.closest('[data-skill-id]');
+                                        const skillId = parseInt(skillElement.getAttribute('data-skill-id'));
+                                        const skillName = skillElement.getAttribute('data-skill-name');
+
+                                        if (selectedSkillIds.includes(skillId)) {
+                                            return;
+                                        }
+
+                                        selectedSkillIds.push(skillId);
+
+                                        // Add to selected skills container
+                                        const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                        const noSkillsMessage = document.getElementById('no-skills-message');
+
+                                        if (noSkillsMessage) {
+                                            noSkillsMessage.remove();
+                                        }
+
+                                        const newSkillElement = document.createElement('span');
+                                        newSkillElement.className =
+                                            'skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center';
+                                        newSkillElement.setAttribute('data-skill-id', skillId);
+                                        newSkillElement.setAttribute('data-skill-name', skillName);
+                                        newSkillElement.innerHTML = `
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
+
+                                        selectedSkillsContainer.appendChild(newSkillElement);
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                        // Remove from related skills
+                                        skillElement.remove();
+
+                                        // Refresh searched skills and related skills
+                                        refreshSkillsDisplay();
+                                    }
+
+                                    function removeSkill(button) {
+                                        const skillElement = button.closest('.skill-tag');
+                                        const skillId = parseInt(skillElement.getAttribute('data-skill-id'));
+                                        const skillName = skillElement.getAttribute('data-skill-name');
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                                        // Remove from selected skill IDs
+                                        selectedSkillIds = selectedSkillIds.filter(id => id !== skillId);
+
+                                        // Remove element from DOM
+                                        skillElement.remove();
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                        // Show no skills message if empty
+                                        const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                        if (selectedSkillsContainer.children.length === 0) {
+                                            selectedSkillsContainer.innerHTML =
+                                                '<p class="text-gray-500 text-sm" id="no-skills-message">No skills added yet.</p>';
+                                        }
+
+                                        // Send DELETE request
+                                        fetch(`/skills/${skillId}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                }
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    return response.json().then(errData => {
+                                                        throw new Error(errData.message || 'Failed to remove skill');
+                                                    });
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    showSuccessToast('Skill removed successfully!');
+                                                    updateSkillsView(data.remaining_skills || {});
+
+                                                    // Refresh searched skills and related skills
+                                                    refreshSkillsDisplay();
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to remove skill');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                // Re-add the skill to UI since removal failed
+                                                selectedSkillIds.push(skillId);
+
+                                                // Re-add the element to DOM
+                                                const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                                const noSkillsMessage = document.getElementById('no-skills-message');
+
+                                                if (noSkillsMessage) {
+                                                    noSkillsMessage.remove();
+                                                }
+
+                                                const newSkillElement = document.createElement('span');
+                                                newSkillElement.className =
+                                                    'skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center';
+                                                newSkillElement.setAttribute('data-skill-id', skillId);
+                                                newSkillElement.setAttribute('data-skill-name', skillName);
+                                                newSkillElement.innerHTML = `
+            ${skillName}
+            <button type="button" onclick="removeSkill(this)"
+                class="ml-2 text-blue-600 hover:text-blue-800">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+
+                                                selectedSkillsContainer.appendChild(newSkillElement);
+
+                                                // Update hidden input
+                                                document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                                // Show error message
+                                                alert('Error: ' + error.message + '\nSkill was restored in the list.');
+                                            });
+                                    }
+
+                                    function refreshSkillsDisplay() {
+                                        if (currentSearchQuery && currentSearchQuery.length >= 2) {
+                                            // Show the searched skills section even if we're refreshing
+                                            const searchedSkillsSection = document.getElementById('searched-skills-section');
+                                            searchedSkillsSection.classList.remove('hidden');
+
+                                            // If there's cached data, update the searched skills display
+                                            if (allSkillsCache.length > 0) {
+                                                displaySearchedSkills(allSkillsCache);
+
+                                                // Also fetch fresh related skills based on the first skill in cache
+                                                if (allSkillsCache.length > 0) {
+                                                    fetchRelatedSkills(allSkillsCache[0].id);
+                                                } else {
+                                                    hideRelatedSkills();
+                                                }
+                                            } else {
+                                                // Otherwise, fetch fresh data
+                                                searchSkills(currentSearchQuery);
+                                            }
+                                        } else {
+                                            hideSearchedSkills();
+                                            hideRelatedSkills();
+                                        }
+                                    }
+
+                                    function saveSkills() {
+                                        const skillIds = selectedSkillIds;
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                                        // Show loading state
+                                        const saveBtn = document.getElementById('skillSaveBtn');
+                                        const originalText = saveBtn.textContent;
+                                        saveBtn.textContent = 'Saving...';
+                                        saveBtn.disabled = true;
+
+                                        fetch('/skills/store', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                },
+                                                body: JSON.stringify({
+                                                    skill_ids: skillIds
+                                                })
+                                            })
+                                            .then(response => {
+                                                // Check if the response is OK (status in the range 200-299)
+                                                if (!response.ok) {
+                                                    return response.json().then(errData => {
+                                                        throw new Error(errData.message ||
+                                                            `Server error: ${response.status} ${response.statusText}`);
+                                                    });
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Update the view mode with new skills
+                                                    updateSkillsView(data.skills || []);
+
+                                                    // Hide edit mode
+                                                    cancelEditSkills();
+
+                                                    // Show success message
+                                                    showSuccessToast('Skills updated successfully!');
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to save skills');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error saving skills:', error);
+                                                // Show a more user-friendly error message
+                                                if (error.message.includes('Network')) {
+                                                    alert('Network error: Please check your internet connection and try again.');
+                                                } else {
+                                                    alert('Error: ' + error.message);
+                                                }
+                                            })
+                                            .finally(() => {
+                                                saveBtn.textContent = originalText;
+                                                saveBtn.disabled = false;
+                                            });
+                                    }
+
+                                    // Update the view mode with new skills
+                                    function updateSkillsView(skills) {
+                                        const skillsViewMode = document.getElementById('skills-view-mode');
+                                        const skillsContainer = skillsViewMode.querySelector('.flex-wrap');
+
+                                        if (skillsContainer) {
+                                            skillsContainer.innerHTML = '';
+
+                                            if (Object.keys(skills).length === 0) {
+                                                skillsContainer.innerHTML =
+                                                    '<p class="text-gray-500 text-sm w-full text-center py-7">No skills added yet.</p>';
+                                            } else {
+                                                Object.entries(skills).forEach(([id, name]) => {
+                                                    const skillSpan = document.createElement('span');
+                                                    skillSpan.className =
+                                                        'bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full transition-all duration-200 ease-in-out cursor-pointer hover:bg-blue-200';
+                                                    skillSpan.textContent = name;
+                                                    skillsContainer.appendChild(skillSpan);
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    // Update the showSuccessToast function to be more robust
+                                    function showSuccessToast(message) {
+                                        let toast = document.getElementById('successToast');
+                                        if (!toast) {
+                                            toast = document.createElement('div');
+                                            toast.id = 'successToast';
+                                            toast.className =
+                                                'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50';
+                                            document.body.appendChild(toast);
+                                        }
+
+                                        toast.textContent = message;
+                                        toast.classList.remove('translate-y-full', 'opacity-0');
+                                        toast.classList.add('translate-y-0', 'opacity-100');
+
+                                        setTimeout(() => {
+                                            toast.classList.remove('translate-y-0', 'opacity-100');
+                                            toast.classList.add('translate-y-full', 'opacity-0');
+                                        }, 3000);
+                                    }
+                                </script>
 
                                 <!-- Stats -->
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -4111,36 +4704,6 @@
             }
         }
 
-        function editSkills() {
-            document.getElementById('skills-view-mode').classList.add('hidden');
-            document.getElementById('skills-edit-mode').classList.remove('hidden');
-        }
-
-        function cancelEditSkills() {
-            document.getElementById('skills-edit-mode').classList.add('hidden');
-            document.getElementById('skills-view-mode').classList.remove('hidden');
-        }
-
-        function addSkill() {
-            const input = document.getElementById('new-skill-input');
-            const skill = input.value.trim();
-            if (skill) {
-                // Here you would add the skill to the list and make an API call
-                input.value = '';
-            }
-        }
-
-        function removeSkill(button) {
-            const skillElement = button.parentElement;
-            skillElement.remove();
-        }
-
-        function saveSkills() {
-            // Here you would make an API call to save all skills
-            alert('Skills saved successfully!');
-            cancelEditSkills();
-        }
-
         function editContactInfo() {
             document.getElementById('contact-info-view').classList.add('hidden');
             document.getElementById('contact-info-edit').classList.remove('hidden');
@@ -4157,21 +4720,6 @@
 
             // Here you would make an API call to save social links
             alert('Social links saved successfully!');
-        }
-
-        function addExperience() {
-            // Here you would show a modal or form to add new experience
-            alert('Feature: Add new work experience');
-        }
-
-        function addEducation() {
-            // Here you would show a modal or form to add new education
-            alert('Feature: Add new education');
-        }
-
-        function addCertification() {
-            // Here you would show a modal or form to add new certification
-            alert('Feature: Add new certification');
         }
 
         // Profile photo upload

@@ -7,6 +7,7 @@ use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
+use App\Http\Controllers\Freelancer\SkillController;
 use Illuminate\Support\Facades\Route;
 
 // Force the user to login
@@ -69,6 +70,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //  Freelancer-Only Routes
     Route::middleware('role:freelancer')->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
+
+        // Skill
+        Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
+        Route::get('/skills/{skill}/related', [SkillController::class, 'relatedSkills'])->name('skills.related');
+        Route::post('/skills/store', [SkillController::class, 'storeSkills'])->name('skills.store');
+        Route::delete('/skills/{skill}', [SkillController::class, 'removeSkill'])->name('skills.remove');
 
         // Experience
         Route::post('freelancer-profile/experience', [FreelancerProfileController::class, 'storeExperience'])

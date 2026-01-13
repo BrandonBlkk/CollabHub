@@ -45,6 +45,13 @@ class Freelancer extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id')
+            ->using(UserSkill::class)
+            ->withTimestamps();
+    }
+
     public function proposals()
     {
         return $this->hasMany(Proposal::class);
