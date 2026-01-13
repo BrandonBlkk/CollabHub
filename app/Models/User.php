@@ -43,7 +43,10 @@ class User extends Authenticatable
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'user_skills');
+        return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id')
+            ->using(UserSkill::class)
+            ->withTimestamps()
+            ->withPivot('id');
     }
 
     public function jobs()

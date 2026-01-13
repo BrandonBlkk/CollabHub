@@ -8,6 +8,7 @@ use App\Models\FreelancerEducation;
 use App\Models\FreelancerExperience;
 use App\Models\JobRole;
 use App\Models\Major;
+use App\Models\Skill;
 use App\Models\University;
 use App\Models\User;
 use App\Models\UserLanguage;
@@ -87,6 +88,7 @@ class ProfileController extends Controller
 
         $universities = University::all();
         $majors = Major::all();
+        $skills = Skill::all();
 
         $languages = UserLanguage::where('user_id', $user->id)->get();
 
@@ -103,6 +105,7 @@ class ProfileController extends Controller
                 "educations",
                 "universities",
                 "majors",
+                "skills",
                 "languages",
                 "certificates"
             )
@@ -617,6 +620,70 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting language: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Skill
+    public function searchSkill(Request $request)
+    {
+        $user = Auth::user();
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $skills = Skill::where('name', 'LIKE', '%' . $query . '%')
+            ->whereNotIn('id', $user->skills->pluck('id'))
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'name']);
+
+        return response()->json($skills);
+    }
+
+    public function relatedSkills($skillId)
+    {
+        $skill = Skill::find($skillId);
+
+        if (!$skill) {
+            return response()->json([]);
+        }
+
+        $relatedSkills = Skill::where('category_id', $skill->category_id)
+            ->where('id', '!=', $skillId)
+            ->limit(10)
+            ->get(['id', 'name']);
+
+        return response()->json($relatedSkills);
+    }
+
+    /**
+     * Update freelancer's skills
+     */
+    public function storeSkills(Request $request)
+    {
+        try {
+            $request->validate([
+                'skill_ids' => 'array',
+                'skill_ids.*' => 'exists:skills,id'
+            ]);
+
+            $user = Auth::user();
+
+            // Sync the skills through user relationship
+            $user->skills()->sync($request->skill_ids);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Skills updated successfully',
+                'skills' => $user->skills->pluck('name', 'id')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating skills: ' . $e->getMessage()
             ], 500);
         }
     }

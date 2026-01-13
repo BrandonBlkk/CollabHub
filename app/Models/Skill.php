@@ -18,6 +18,9 @@ class Skill extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_skills');
+        return $this->belongsToMany(User::class, 'user_skills', 'skill_id', 'user_id')
+            ->using(UserSkill::class)
+            ->withTimestamps()
+            ->withPivot('id');
     }
 }

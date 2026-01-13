@@ -70,6 +70,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:freelancer')->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
 
+        // Skill
+        Route::get('/skills/search', [FreelancerProfileController::class, 'searchSkill'])->name('skills.search');
+        Route::get('/skills/{skill}/related', [FreelancerProfileController::class, 'relatedSkills'])->name('skills.related');
+        Route::post('/skills/store', [FreelancerProfileController::class, 'storeSkills'])->name('skills.store');
+
         // Experience
         Route::post('freelancer-profile/experience', [FreelancerProfileController::class, 'storeExperience'])
             ->name('freelancer-profile.experience.store');
