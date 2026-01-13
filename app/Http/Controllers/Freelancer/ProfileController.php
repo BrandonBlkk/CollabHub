@@ -659,9 +659,6 @@ class ProfileController extends Controller
         return response()->json($relatedSkills);
     }
 
-    /**
-     * Update freelancer's skills
-     */
     public function storeSkills(Request $request)
     {
         try {
@@ -686,5 +683,40 @@ class ProfileController extends Controller
                 'message' => 'Error updating skills: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function removeSkill(Request $request, $skillId)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $deleted = $user->skills()
+            ->wherePivot('skill_id', $skillId)
+            ->detach($skillId);
+
+        if ($deleted === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Skill not found or already removed for this user',
+                'remaining_skills' => $user->skills->pluck('name', 'id')->toArray()
+            ], 404);
+        }
+
+        // Force reload fresh data from database
+        $user->load('skills');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Skill removed successfully',
+            'remaining_skills' => $user->skills
+                ->pluck('name', 'id')
+                ->toArray()
+        ]);
     }
 }

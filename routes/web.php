@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/skills/search', [FreelancerProfileController::class, 'searchSkill'])->name('skills.search');
         Route::get('/skills/{skill}/related', [FreelancerProfileController::class, 'relatedSkills'])->name('skills.related');
         Route::post('/skills/store', [FreelancerProfileController::class, 'storeSkills'])->name('skills.store');
+        Route::delete('/skills/{skill}', [FreelancerProfileController::class, 'removeSkill'])->name('skills.remove');
 
         // Experience
         Route::post('freelancer-profile/experience', [FreelancerProfileController::class, 'storeExperience'])

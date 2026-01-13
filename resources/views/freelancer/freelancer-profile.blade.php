@@ -1131,10 +1131,12 @@
                                         document.getElementById('skills-view-mode').classList.add('hidden');
                                         document.getElementById('skills-edit-mode').classList.remove('hidden');
 
-                                        // Initialize selected skill IDs from the hidden input
-                                        const selectedSkillsInput = document.getElementById('selected-skills');
-                                        selectedSkillIds = selectedSkillsInput.value ? selectedSkillsInput.value.split(',').map(id => parseInt(id
-                                            .trim())).filter(id => id) : [];
+                                        // Initialize selected skill IDs from the existing skills
+                                        const skillTags = document.querySelectorAll('#selected-skills-container .skill-tag');
+                                        selectedSkillIds = Array.from(skillTags).map(tag => parseInt(tag.getAttribute('data-skill-id')));
+
+                                        // Update hidden input
+                                        document.getElementById('selected-skills').value = selectedSkillIds.join(',');
                                     }
 
                                     function cancelEditSkills() {
@@ -1230,18 +1232,18 @@
 
                                         filteredSearchedSkills.forEach(skill => {
                                             searchedSkillsHTML += `
-            <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
-                  data-skill-id="${skill.id}"
-                  data-skill-name="${skill.name}">
-                ${skill.name}
-                <button type="button" onclick="addSearchedSkill(this)"
-                    class="ml-2 text-gray-500 hover:text-blue-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                </button>
-            </span>
-        `;
+        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
+              data-skill-id="${skill.id}"
+              data-skill-name="${skill.name}">
+            ${skill.name}
+            <button type="button" onclick="addSearchedSkill(this)"
+                class="ml-2 text-gray-500 hover:text-blue-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </span>
+    `;
                                         });
 
                                         searchedSkillsContainer.innerHTML = searchedSkillsHTML;
@@ -1278,19 +1280,19 @@
                                                 'cursor-pointer hover:bg-gray-50';
 
                                             suggestionsHTML += `
-                <div class="skill-suggestion-item p-3 ${disabledClass} border-b border-gray-100 last:border-b-0"
-                     data-skill-id="${skill.id}"
-                     data-skill-name="${skill.name}"
-                     onclick="${!isSelected ? 'addSkillFromSuggestion(this)' : 'void(0)'}">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-800">${skill.name}</span>
-                        ${isSelected ?
-                            '<span class="text-green-600 text-xs font-medium">✓ Added</span>' :
-                            '<span class="text-blue-600 text-xs font-medium">Click to add</span>'
-                        }
-                    </div>
-                </div>
-            `;
+        <div class="skill-suggestion-item p-3 ${disabledClass} border-b border-gray-100 last:border-b-0"
+             data-skill-id="${skill.id}"
+             data-skill-name="${skill.name}"
+             onclick="${!isSelected ? 'addSkillFromSuggestion(this)' : 'void(0)'}">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-800">${skill.name}</span>
+                ${isSelected ?
+                    '<span class="text-green-600 text-xs font-medium">✓ Added</span>' :
+                    '<span class="text-blue-600 text-xs font-medium">Click to add</span>'
+                }
+            </div>
+        </div>
+    `;
                                         });
 
                                         suggestionsContainer.innerHTML = suggestionsHTML;
@@ -1335,18 +1337,18 @@
 
                                         filteredRelatedSkills.forEach(skill => {
                                             relatedSkillsHTML += `
-                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
-                      data-skill-id="${skill.id}"
-                      data-skill-name="${skill.name}">
-                    ${skill.name}
-                    <button type="button" onclick="addRelatedSkill(this)"
-                        class="ml-2 text-gray-500 hover:text-blue-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                    </button>
-                </span>
-            `;
+        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center"
+              data-skill-id="${skill.id}"
+              data-skill-name="${skill.name}">
+            ${skill.name}
+            <button type="button" onclick="addRelatedSkill(this)"
+                class="ml-2 text-gray-500 hover:text-blue-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </span>
+    `;
                                         });
 
                                         relatedSkillsContainer.innerHTML = relatedSkillsHTML;
@@ -1386,16 +1388,16 @@
                                         skillElement.setAttribute('data-skill-id', skillId);
                                         skillElement.setAttribute('data-skill-name', skillName);
                                         skillElement.innerHTML = `
-            ${skillName}
-            <button type="button" onclick="removeSkill(this)"
-                class="ml-2 text-blue-600 hover:text-blue-800">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        `;
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
 
                                         selectedSkillsContainer.appendChild(skillElement);
 
@@ -1431,16 +1433,16 @@
                                         newSkillElement.setAttribute('data-skill-id', skillId);
                                         newSkillElement.setAttribute('data-skill-name', skillName);
                                         newSkillElement.innerHTML = `
-            ${skillName}
-            <button type="button" onclick="removeSkill(this)"
-                class="ml-2 text-blue-600 hover:text-blue-800">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        `;
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
 
                                         selectedSkillsContainer.appendChild(newSkillElement);
 
@@ -1479,16 +1481,16 @@
                                         newSkillElement.setAttribute('data-skill-id', skillId);
                                         newSkillElement.setAttribute('data-skill-name', skillName);
                                         newSkillElement.innerHTML = `
-            ${skillName}
-            <button type="button" onclick="removeSkill(this)"
-                class="ml-2 text-blue-600 hover:text-blue-800">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        `;
+    ${skillName}
+    <button type="button" onclick="removeSkill(this)"
+        class="ml-2 text-blue-600 hover:text-blue-800">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+`;
 
                                         selectedSkillsContainer.appendChild(newSkillElement);
 
@@ -1505,6 +1507,8 @@
                                     function removeSkill(button) {
                                         const skillElement = button.closest('.skill-tag');
                                         const skillId = parseInt(skillElement.getAttribute('data-skill-id'));
+                                        const skillName = skillElement.getAttribute('data-skill-name');
+                                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                                         // Remove from selected skill IDs
                                         selectedSkillIds = selectedSkillIds.filter(id => id !== skillId);
@@ -1522,15 +1526,72 @@
                                                 '<p class="text-gray-500 text-sm" id="no-skills-message">No skills added yet.</p>';
                                         }
 
-                                        // Check if there's an active search and refresh both searched and related skills
-                                        const searchInput = document.getElementById('skill-search-input');
-                                        if (searchInput && searchInput.value.length >= 2) {
-                                            // Force a fresh search to update both sections
-                                            searchSkills(searchInput.value);
-                                        } else {
-                                            hideSearchedSkills();
-                                            hideRelatedSkills();
-                                        }
+                                        // Send DELETE request
+                                        fetch(`/skills/${skillId}`, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                }
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    return response.json().then(errData => {
+                                                        throw new Error(errData.message || 'Failed to remove skill');
+                                                    });
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    showSuccessToast('Skill removed successfully!');
+                                                    updateSkillsView(data.remaining_skills || {});
+
+                                                    // Refresh searched skills and related skills
+                                                    refreshSkillsDisplay();
+                                                } else {
+                                                    throw new Error(data.message || 'Failed to remove skill');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                // Re-add the skill to UI since removal failed
+                                                selectedSkillIds.push(skillId);
+
+                                                // Re-add the element to DOM
+                                                const selectedSkillsContainer = document.getElementById('selected-skills-container');
+                                                const noSkillsMessage = document.getElementById('no-skills-message');
+
+                                                if (noSkillsMessage) {
+                                                    noSkillsMessage.remove();
+                                                }
+
+                                                const newSkillElement = document.createElement('span');
+                                                newSkillElement.className =
+                                                    'skill-tag bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1.5 rounded-full flex items-center';
+                                                newSkillElement.setAttribute('data-skill-id', skillId);
+                                                newSkillElement.setAttribute('data-skill-name', skillName);
+                                                newSkillElement.innerHTML = `
+            ${skillName}
+            <button type="button" onclick="removeSkill(this)"
+                class="ml-2 text-blue-600 hover:text-blue-800">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+
+                                                selectedSkillsContainer.appendChild(newSkillElement);
+
+                                                // Update hidden input
+                                                document.getElementById('selected-skills').value = selectedSkillIds.join(',');
+
+                                                // Show error message
+                                                alert('Error: ' + error.message + '\nSkill was restored in the list.');
+                                            });
                                     }
 
                                     function refreshSkillsDisplay() {
@@ -1620,7 +1681,7 @@
                                             });
                                     }
 
-                                    // Add this function to update the view
+                                    // Update the view mode with new skills
                                     function updateSkillsView(skills) {
                                         const skillsViewMode = document.getElementById('skills-view-mode');
                                         const skillsContainer = skillsViewMode.querySelector('.flex-wrap');
