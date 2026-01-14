@@ -84,11 +84,10 @@ class SkillController extends Controller
             ->wherePivot('skill_id', $skillId)
             ->detach($skillId);
 
-        if ($deleted === 0) {
+        if (!$deleted) {
             return response()->json([
                 'success' => false,
-                'message' => 'Skill not found or already removed for this user',
-                'remaining_skills' => $user->skills->pluck('name', 'id')->toArray()
+                'message' => 'Skill not found'
             ], 404);
         }
 
