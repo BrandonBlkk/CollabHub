@@ -4191,7 +4191,7 @@
                         async function fetchLanguages() {
                             try {
                                 // Fetch languages from server using the correct route
-                                const response = await fetch(`{{ route('freelancer_profile.languages.index') }}`, {
+                                const response = await fetch(`{{ route('languages.index') }}`, {
                                     method: 'GET',
                                     headers: {
                                         'Accept': 'application/json',
@@ -4327,7 +4327,7 @@
 
                         try {
                             // Fetch languages from server
-                            const response = await fetch(`{{ route('freelancer_profile.languages.index') }}`, {
+                            const response = await fetch(`{{ route('languages.index') }}`, {
                                 method: 'GET',
                                 headers: {
                                     'Accept': 'application/json',
@@ -4578,7 +4578,7 @@
                         };
 
                         try {
-                            const response = await fetch(`{{ route('freelancer_profile.languages.store') }}`, {
+                            const response = await fetch(`{{ route('languages.store') }}`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -4696,7 +4696,7 @@
 
                                 // Create new languages if any
                                 if (newLanguages.length > 0) {
-                                    await fetch(`{{ route('freelancer_profile.languages.store') }}`, {
+                                    await fetch(`{{ route('languages.store') }}`, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
