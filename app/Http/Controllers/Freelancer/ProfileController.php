@@ -200,10 +200,22 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized action'
-            ]);
+            ], 403);
         }
 
-        return response()->json($experience);
+        return response()->json([
+            'success' => true,
+            'data' => $experience,
+            'id' => $experience->id,
+            'job_role_id' => $experience->job_role_id,
+            'company' => $experience->company,
+            'description' => $experience->description,
+            'employment_type' => $experience->employment_type,
+            'location' => $experience->location,
+            'start_date' => $experience->start_date,
+            'end_date' => $experience->end_date,
+            'is_current' => $experience->is_current
+        ]);
     }
 
     public function updateExperience(Request $request, $id)
