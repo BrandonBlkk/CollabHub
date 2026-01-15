@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
+use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
@@ -93,14 +94,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('freelancer-profile.education.delete');
 
         // Certificate
-        Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])
-            ->name('freelancer-profile.certificate.store');
-        Route::get('freelancer-profile/certificate/{id}/edit', [FreelancerProfileController::class, 'editCertificate'])
-            ->name('freelancer-profile.certificate.edit');
-        Route::put('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'updateCertificate'])
-            ->name('freelancer-profile.certificate.update');
-        Route::delete('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'deleteCertificate'])
-            ->name('freelancer-profile.certificate.delete');
+        Route::apiResource('freelancer-profile/certificates', CertificateController::class)
+            ->except('index');
     });
 });
 

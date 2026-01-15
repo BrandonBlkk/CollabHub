@@ -460,7 +460,7 @@
                 <h3 class="text-lg font-bold text-gray-900">Add New Certification</h3>
             </div>
 
-            <form id="certificationForm" method="POST" action="{{ route('freelancer-profile.certificate.store') }}"
+            <form id="certificationForm" method="POST" action="{{ route('certificates.store') }}"
                 class="p-6 space-y-4">
                 @csrf
                 @method('POST')
@@ -3362,7 +3362,7 @@
                                 document.getElementById('edit_certificate_url').value = '';
 
                                 try {
-                                    const response = await fetch(`/freelancer-profile/certificate/${certificateId}/edit`);
+                                    const response = await fetch('{{ route('certificates.show', ':id') }}'.replace(':id', certificateId));
 
                                     if (!response.ok) {
                                         throw new Error('Failed to fetch certificate data');
@@ -3424,7 +3424,8 @@
                                 submitBtn.disabled = true;
 
                                 try {
-                                    const response = await fetch(`/freelancer-profile/certificate/${certificateId}`, {
+                                    const response = await fetch('{{ route('certificates.update', ':id') }}'.replace(':id',
+                                        certificateId), {
                                         method: 'POST',
                                         headers: {
                                             'X-CSRF-TOKEN': csrfToken,
@@ -3527,7 +3528,8 @@
 
                                 try {
                                     // Make the AJAX request
-                                    const response = await fetch(`${baseUrl}/freelancer-profile/certificate/${certificateId}`, {
+                                    const response = await fetch("{{ route('certificates.destroy', ':id') }}".replace(':id',
+                                        certificateId), {
                                         method: 'DELETE',
                                         headers: {
                                             'X-CSRF-TOKEN': csrfToken,
