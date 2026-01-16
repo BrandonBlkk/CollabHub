@@ -9,8 +9,7 @@
                 <h3 class="text-lg font-bold text-gray-900">Add New Experience</h3>
             </div>
 
-            <form id="experienceForm" method="POST" action="{{ route('freelancer-profile.experience.store') }}"
-                class="p-6 space-y-4">
+            <form id="experienceForm" method="POST" action="{{ route('experiences.store') }}" class="p-6 space-y-4">
                 @csrf
                 <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
@@ -2025,7 +2024,7 @@
                                 document.getElementById('edit_is_current').checked = false;
 
                                 try {
-                                    const response = await fetch(`/freelancer-profile/experience/${experienceId}/edit`);
+                                    const response = await fetch('{{ route('experiences.show', ':id') }}'.replace(':id', experienceId));
 
                                     if (!response.ok) {
                                         throw new Error('Failed to fetch experience data');
@@ -2073,7 +2072,7 @@
 
                                     // Set form action
                                     document.getElementById('editExperienceForm').action =
-                                        `/freelancer-profile/experience/${experienceId}`;
+                                        '{{ route('experiences.update', ':id') }}'.replace(':id', experienceId);
                                 } catch (error) {
                                     alert('Failed to load experience data. Please try again.');
                                     hideEditExperienceModal();
@@ -2519,7 +2518,8 @@
                                 }
 
                                 try {
-                                    const response = await fetch(`/freelancer-profile/experience/${experienceId}`, {
+                                    const response = await fetch("{{ route('experiences.destroy', ':id') }}".replace(':id',
+                                        experienceId), {
                                         method: 'DELETE',
                                         headers: {
                                             'X-CSRF-TOKEN': csrfToken,

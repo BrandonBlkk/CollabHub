@@ -7,6 +7,7 @@ use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
 use App\Http\Controllers\Freelancer\CertificateController;
+use App\Http\Controllers\Freelancer\ExperienceController;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
@@ -74,14 +75,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/skills/{skill}', [SkillController::class, 'removeSkill'])->name('skills.remove');
 
         // Experience
-        Route::post('freelancer-profile/experience', [FreelancerProfileController::class, 'storeExperience'])
-            ->name('freelancer-profile.experience.store');
-        Route::get('freelancer-profile/experience/{id}/edit', [FreelancerProfileController::class, 'editExperience'])
-            ->name('freelancer-profile.experience.edit');
-        Route::put('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'updateExperience'])
-            ->name('freelancer-profile.experience.update');
-        Route::delete('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'deleteExperience'])
-            ->name('freelancer-profile.experience.delete');
+        Route::apiResource('freelancer-profile/experiences', ExperienceController::class)
+            ->except('index');
 
         // Education
         Route::post('freelancer-profile/education', [FreelancerProfileController::class, 'storeEducation'])
