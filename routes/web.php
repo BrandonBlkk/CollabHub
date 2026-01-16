@@ -7,6 +7,7 @@ use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
 use App\Http\Controllers\Freelancer\CertificateController;
+use App\Http\Controllers\Freelancer\EducationController;
 use App\Http\Controllers\Freelancer\ExperienceController;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
@@ -79,14 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->except('index');
 
         // Education
-        Route::post('freelancer-profile/education', [FreelancerProfileController::class, 'storeEducation'])
-            ->name('freelancer-profile.education.store');
-        Route::get('freelancer-profile/education/{id}/edit', [FreelancerProfileController::class, 'editEducation'])
-            ->name('freelancer-profile.education.edit');
-        Route::put('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'updateEducation'])
-            ->name('freelancer-profile.education.update');
-        Route::delete('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'deleteEducation'])
-            ->name('freelancer-profile.education.delete');
+        Route::apiResource('freelancer-profile/educations', EducationController::class)
+            ->except('index');
 
         // Certificate
         Route::apiResource('freelancer-profile/certificates', CertificateController::class)

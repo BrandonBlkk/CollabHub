@@ -201,8 +201,7 @@
                 <h3 class="text-lg font-bold text-gray-900">Add New Education</h3>
             </div>
 
-            <form id="educationForm" method="POST" action="{{ route('freelancer-profile.education.store') }}"
-                class="p-6 space-y-4">
+            <form id="educationForm" method="POST" action="{{ route('educations.store') }}" class="p-6 space-y-4">
                 @csrf
                 <input type="hidden" name="freelancer_id" value="{{ $freelancer->freelancer->id }}">
 
@@ -2720,7 +2719,7 @@
 
                                 try {
                                     // Fetch education data
-                                    const response = await fetch(`/freelancer-profile/education/${educationId}/edit`);
+                                    const response = await fetch('{{ route('educations.show', ':id') }}'.replace(':id', educationId));
 
                                     if (!response.ok) {
                                         throw new Error('Failed to fetch education data');
@@ -2765,7 +2764,7 @@
 
                                     // Set form action
                                     document.getElementById('editEducationForm').action =
-                                        `/freelancer-profile/education/${educationId}`;
+                                        '{{ route('educations.update', ':id') }}'.replace(':id', educationId);
 
                                 } catch (error) {
                                     alert('Failed to load education data. Please try again.');
@@ -3172,7 +3171,7 @@
 
                                 try {
                                     // Make the AJAX request
-                                    const response = await fetch(`/freelancer-profile/education/${educationId}`, {
+                                    const response = await fetch('{{ route('educations.destroy', ':id') }}'.replace(':id', educationId), {
                                         method: 'DELETE',
                                         headers: {
                                             'X-CSRF-TOKEN': csrfToken,
