@@ -4,7 +4,7 @@
     <!-- Add Experience Modal -->
     <div id="addExperienceModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
         style="display: none;">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class=" bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900">Add New Experience</h3>
             </div>
@@ -82,7 +82,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddExperienceModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -104,6 +104,11 @@
                 <h3 class="text-lg font-bold text-gray-900">Edit Experience</h3>
             </div>
 
+            <div id="submitSpinner" class="h-[80vh] hidden items-center justify-center">
+                <div class="w-8 h-8 border-t-2 border-black rounded-full animate-spin mr-2">
+                </div>
+            </div>
+
             <form id="editExperienceForm" method="POST" class="p-6 space-y-4">
                 @csrf
                 @method('PUT')
@@ -114,7 +119,7 @@
                     <label for="edit_job_role_id" class="block text-sm font-medium text-gray-700 mb-1">
                         Job Role *
                     </label>
-                    <select name="job_role_id" id="edit_job_role_id"
+                    <select name="job_role_id" id="edit_job_role_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         <option value="">Select Job Role</option>
                         @foreach ($jobRoles as $jobRole)
@@ -151,9 +156,9 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_start_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Date
+                            Start Date *
                         </label>
-                        <input type="month" id="edit_start_date" name="start_date"
+                        <input type="month" id="edit_start_date" name="start_date" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                     </div>
 
@@ -179,7 +184,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditExperienceModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -308,7 +313,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddEducationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -340,7 +345,7 @@
                     <label for="edit_university_id" class="block text-sm font-medium text-gray-700 mb-1">
                         University *
                     </label>
-                    <select name="university_id" id="edit_university_id"
+                    <select name="university_id" id="edit_university_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         <option value="">Select University</option>
                         @foreach ($universities as $university)
@@ -354,7 +359,7 @@
                     <label for="edit_major_id" class="block text-sm font-medium text-gray-700 mb-1">
                         Major/Field of Study *
                     </label>
-                    <select name="major_id" id="edit_major_id"
+                    <select name="major_id" id="edit_major_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         <option value="">Select Major</option>
                         @foreach ($majors as $major)
@@ -436,7 +441,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditEducationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -520,7 +525,7 @@
                         placeholder="https://example.com/verify">
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddCertificationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -552,7 +557,7 @@
                         Certification Name *
                     </label>
                     <input type="text" id="edit_certification_name" name="name"
-                        placeholder="Enter your certificate name" required
+                        placeholder="e.g., AWS Certified Solutions Architect" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
@@ -560,16 +565,17 @@
                     <label for="edit_issuer" class="block text-sm font-medium text-gray-700 mb-1">
                         Issuing Organization *
                     </label>
-                    <input type="text" id="edit_issuer" name="issuer" placeholder="Enter your issuer" required
+                    <input type="text" id="edit_issuer" name="issuer" placeholder="e.g., Amazon Web Services"
+                        required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_issued_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Issued Year
+                            Issued Year *
                         </label>
-                        <select id="edit_issued_year" name="issued_year"
+                        <select id="edit_issued_year" name="issued_year" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                             <option value="">Select Year</option>
                             @for ($year = date('Y'); $year >= 1990; $year--)
@@ -598,10 +604,11 @@
                     </label>
                     <input type="url" id="edit_certificate_url" name="certificate_url"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
-                        placeholder="https://example.com/verify">
+                        placeholder="https://www.credly.com/badges/..." pattern="https?://.+">
+                    <p class="text-xs text-gray-500 mt-1">Include https:// in the URL</p>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditCertificationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
                         Cancel
@@ -2008,8 +2015,16 @@
 
                             async function showEditExperienceModal(experienceId) {
                                 const modal = document.getElementById('editExperienceModal');
+                                const form = document.getElementById('editExperienceForm');
+                                const loader = document.getElementById('submitSpinner');
+
                                 modal.style.display = 'flex';
                                 document.body.style.overflow = 'hidden';
+
+                                // Show loader, hide form
+                                loader.classList.remove('hidden');
+                                loader.classList.add('flex');
+                                form.classList.add('hidden');
 
                                 // Clear previous data
                                 document.getElementById('edit_experience_id').value = '';
@@ -2070,9 +2085,14 @@
                                     }
 
                                     // Set form action
-                                    document.getElementById('editExperienceForm').action =
-                                        '{{ route('experiences.update', ':id') }}'.replace(':id', experienceId);
+                                    form.action = '{{ route('experiences.update', ':id') }}'.replace(':id', experienceId);
+
+                                    // Hide loader, show form
+                                    loader.classList.add('hidden');
+                                    loader.classList.remove('flex');
+                                    form.classList.remove('hidden');
                                 } catch (error) {
+                                    console.error('Error loading experience data:', error);
                                     alert('Failed to load experience data. Please try again.');
                                     hideEditExperienceModal();
                                 }
@@ -2702,8 +2722,20 @@
 
                             async function showEditEducationModal(educationId) {
                                 const modal = document.getElementById('editEducationModal');
+                                const form = document.getElementById('editEducationForm');
+
+                                // Create and show loader
+                                const loader = document.createElement('div');
+                                loader.id = 'educationLoader';
+                                loader.className = 'h-[80vh] flex items-center justify-center';
+                                loader.innerHTML = '<div class="w-8 h-8 border-t-2 border-black rounded-full animate-spin mr-2"></div>';
+
                                 modal.style.display = 'flex';
                                 document.body.style.overflow = 'hidden';
+
+                                // Hide form, show loader
+                                form.classList.add('hidden');
+                                form.parentNode.insertBefore(loader, form);
 
                                 // Clear previous data
                                 document.getElementById('edit_education_id').value = '';
@@ -2763,10 +2795,14 @@
                                     }
 
                                     // Set form action
-                                    document.getElementById('editEducationForm').action =
-                                        '{{ route('educations.update', ':id') }}'.replace(':id', educationId);
+                                    form.action = '{{ route('educations.update', ':id') }}'.replace(':id', educationId);
+
+                                    // Remove loader, show form
+                                    loader.remove();
+                                    form.classList.remove('hidden');
 
                                 } catch (error) {
+                                    console.error('Error loading education data:', error);
                                     alert('Failed to load education data. Please try again.');
                                     hideEditEducationModal();
                                 }
@@ -3170,7 +3206,6 @@
                                 }
 
                                 try {
-                                    // Make the AJAX request
                                     const response = await fetch('{{ route('educations.destroy', ':id') }}'.replace(':id', educationId), {
                                         method: 'DELETE',
                                         headers: {
@@ -3347,10 +3382,21 @@
                             }
 
                             async function showEditCertificationModal(certificateId) {
-                                // Show loading state
                                 const modal = document.getElementById('editCertificationModal');
+                                const form = document.getElementById('editCertificationForm');
+
+                                // Create and show loader
+                                const loader = document.createElement('div');
+                                loader.id = 'certificationLoader';
+                                loader.className = 'h-[63vh] flex items-center justify-center';
+                                loader.innerHTML = '<div class="w-8 h-8 border-t-2 border-black rounded-full animate-spin mr-2"></div>';
+
                                 modal.style.display = 'flex';
                                 document.body.style.overflow = 'hidden';
+
+                                // Hide form, show loader
+                                form.classList.add('hidden');
+                                form.parentNode.insertBefore(loader, form);
 
                                 // Clear previous data
                                 document.getElementById('edit_certificate_id').value = '';
@@ -3377,7 +3423,15 @@
                                     document.getElementById('edit_expiry_year').value = data.expiry_year || '';
                                     document.getElementById('edit_certificate_url').value = data.certificate_url || '';
 
+                                    // Set form action
+                                    form.action = '{{ route('certificates.update', ':id') }}'.replace(':id', certificateId);
+
+                                    // Remove loader, show form
+                                    loader.remove();
+                                    form.classList.remove('hidden');
+
                                 } catch (error) {
+                                    console.error('Error loading certification data:', error);
                                     alert('Failed to load certification data. Please try again.');
                                     hideEditCertificationModal();
                                 }
