@@ -6,6 +6,10 @@ use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
+use App\Http\Controllers\Freelancer\CertificateController;
+use App\Http\Controllers\Freelancer\EducationController;
+use App\Http\Controllers\Freelancer\ExperienceController;
+use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
 use Illuminate\Support\Facades\Route;
@@ -32,14 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
 
     // User Languages Routes
-    Route::get('/freelancer-profile/languages', [FreelancerProfileController::class, 'getLanguages'])
-        ->name('freelancer_profile.languages.index');
-    Route::post('/freelancer-profile/languages', [FreelancerProfileController::class, 'storeLanguage'])
-        ->name('freelancer_profile.languages.store');
-    Route::put('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'updateLanguage'])
-        ->name('freelancer_profile.languages.update');
-    Route::delete('/freelancer-profile/languages/{id}', [FreelancerProfileController::class, 'deleteLanguage'])
-        ->name('freelancer_profile.languages.delete');
+    Route::apiResource('freelancer-profile/languages', LanguageController::class)
+        ->except('show');
 
     // Admin-Only Routes
     Route::middleware(['auth', 'verified', 'role:admin|super_admin'])
@@ -78,34 +76,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/skills/{skill}', [SkillController::class, 'removeSkill'])->name('skills.remove');
 
         // Experience
-        Route::post('freelancer-profile/experience', [FreelancerProfileController::class, 'storeExperience'])
-            ->name('freelancer-profile.experience.store');
-        Route::get('freelancer-profile/experience/{id}/edit', [FreelancerProfileController::class, 'editExperience'])
-            ->name('freelancer-profile.experience.edit');
-        Route::put('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'updateExperience'])
-            ->name('freelancer-profile.experience.update');
-        Route::delete('freelancer-profile/experience/{id}', [FreelancerProfileController::class, 'deleteExperience'])
-            ->name('freelancer-profile.experience.delete');
+        Route::apiResource('freelancer-profile/experiences', ExperienceController::class)
+            ->except('index');
 
         // Education
-        Route::post('freelancer-profile/education', [FreelancerProfileController::class, 'storeEducation'])
-            ->name('freelancer-profile.education.store');
-        Route::get('freelancer-profile/education/{id}/edit', [FreelancerProfileController::class, 'editEducation'])
-            ->name('freelancer-profile.education.edit');
-        Route::put('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'updateEducation'])
-            ->name('freelancer-profile.education.update');
-        Route::delete('freelancer-profile/education/{id}', [FreelancerProfileController::class, 'deleteEducation'])
-            ->name('freelancer-profile.education.delete');
+        Route::apiResource('freelancer-profile/educations', EducationController::class)
+            ->except('index');
 
         // Certificate
-        Route::post('freelancer-profile/certificate', [FreelancerProfileController::class, 'storeCertificate'])
-            ->name('freelancer-profile.certificate.store');
-        Route::get('freelancer-profile/certificate/{id}/edit', [FreelancerProfileController::class, 'editCertificate'])
-            ->name('freelancer-profile.certificate.edit');
-        Route::put('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'updateCertificate'])
-            ->name('freelancer-profile.certificate.update');
-        Route::delete('freelancer-profile/certificate/{id}', [FreelancerProfileController::class, 'deleteCertificate'])
-            ->name('freelancer-profile.certificate.delete');
+        Route::apiResource('freelancer-profile/certificates', CertificateController::class)
+            ->except('index');
+
+        // Backup and Restore
+        Route::get('settings/trash-data', [SettingController::class, 'getTrashData'])
+            ->name('settings.trash.data');
+        Route::post('/settings/restore/{type}/{id}', [SettingController::class, 'restoreItem'])->name('settings.restore');
+        Route::delete('/settings/delete-permanently/{type}/{id}', [SettingController::class, 'permanentlyDelete'])->name('settings.delete.permanent');
+        Route::post('/settings/trash/empty', [SettingController::class, 'emptyTrash'])->name('settings.trash.empty');
     });
 });
 
