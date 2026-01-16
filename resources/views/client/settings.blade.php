@@ -3,6 +3,9 @@
 @section('title', 'Your Profile')
 
 @section('content')
+    {{-- Dark overlay --}}
+    <div id="darkoverlay" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10"></div>
+
     <!-- Page Header -->
     <div class="flex items-center justify-between">
         <div>
@@ -25,7 +28,7 @@
 
             <!-- Application Preferences -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Application Preferences</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Application Preferences</h2>
 
                 <div>
                     <div class="space-y-6">
@@ -136,7 +139,7 @@
 
             <!-- Notification Settings -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Notification Settings</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Notification Settings</h2>
 
                 <div class="space-y-6">
                     <!-- Email Notifications -->
@@ -225,7 +228,7 @@
 
             <!-- Privacy & Security -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Privacy & Security</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Privacy & Security</h2>
 
                 <div class="space-y-6">
                     <!-- Account Visibility -->
@@ -283,7 +286,7 @@
         <div class="space-y-3 mt-3">
             <!-- Account Status -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Account Status</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Account Status</h2>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between text-sm">
@@ -333,16 +336,120 @@
                 </div>
             </div>
 
+            <!-- Trash / Archive Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
+                    <p class="text-gray-600 text-sm mt-1">Manage deleted items</p>
+                </div>
+
+                <!-- Summary Stats - Initially loading -->
+                <div id="trash-summary-container">
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-gray-50 rounded-lg p-3 text-center">
+                            <div class="text-lg font-semibold text-gray-900">
+                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                            </div>
+                            <div class="text-xs text-gray-600">Experiences</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 text-center">
+                            <div class="text-lg font-semibold text-gray-900">
+                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                            </div>
+                            <div class="text-xs text-gray-600">Education</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 text-center">
+                            <div class="text-lg font-semibold text-gray-900">
+                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                            </div>
+                            <div class="text-xs text-gray-600">Certificates</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 text-center py-4">
+                        <div class="item-start animate-pulse bg-gray-200 h-4 w-52 rounded mb-2"></div>
+                        <div class="flex space-x-2 justify-center">
+                            <div class="animate-pulse bg-blue-100 h-9 w-full rounded-lg"></div>
+                            <div class="animate-pulse bg-gray-100 h-9 w-36 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trash Modal -->
+            <div id="trashModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                        <!-- Modal Header -->
+                        <div class="flex items-center justify-between p-6">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
+                                <p class="text-gray-600 text-sm mt-1">Restore or permanently delete items</p>
+                            </div>
+                            <button onclick="closeTrashModal()"
+                                class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Modal Content -->
+                        <div class="flex-1 overflow-hidden flex flex-col">
+                            <!-- Tab Navigation -->
+                            <div class="border-b border-gray-200">
+                                <nav class="flex space-x-4 px-6 overflow-x-auto" id="trash-modal-tabs">
+                                    <!-- Tabs will be populated by JavaScript -->
+                                </nav>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="flex-1 overflow-y-auto p-3 px-6">
+                                <div id="modal-loading" class="text-center py-12">
+                                    <div
+                                        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4">
+                                    </div>
+                                    <p class="text-gray-500 text-sm">Loading trash data...</p>
+                                </div>
+
+                                <!-- Tab contents will be populated by JavaScript -->
+                                <div id="modal-experiences-trash" class="h-full overflow-y-auto hidden"></div>
+                                <div id="modal-educations-trash" class="h-full overflow-hidden hidden"></div>
+                                <div id="modal-certificates-trash" class="h-full overflow-hidden hidden"></div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="p-6 border-t border-gray-200 flex justify-between items-center">
+                            <div class="text-sm text-gray-600" id="modal-footer-count">
+                                Loading...
+                            </div>
+                            <div class="flex space-x-3 select-none">
+                                <button onclick="closeTrashModal()"
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                    Close
+                                </button>
+                                <button id="empty-all-trash-btn" onclick="emptyTrash()"
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium hidden">
+                                    Empty All Trash
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Danger Zone -->
             <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Danger Zone</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Danger Zone</h2>
 
                 <div class="space-y-4">
                     <div>
                         <h3 class="font-medium text-gray-900 mb-2">Deactivate Account</h3>
                         <p class="text-gray-500 text-sm mb-3">Temporarily disable your account</p>
                         <button onclick="deactivateAccount()"
-                            class="w-full px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 transition duration-300 text-sm font-medium">
+                            class="w-full px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 transition duration-300 text-sm font-medium select-none">
                             Deactivate Account
                         </button>
                     </div>
@@ -353,7 +460,7 @@
                         </p>
                         @if (auth()->user()->role === 'client')
                             <button onclick="deleteAccount()"
-                                class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
                                 Delete Account
                             </button>
                         @elseif (auth()->user()->role === 'freelancer')
@@ -361,7 +468,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium">
+                                    class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
                                     Delete Account
                                 </button>
                             </form>
@@ -372,7 +479,7 @@
 
             <!-- Save All Changes -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Save Changes</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Save Changes</h2>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
@@ -391,7 +498,7 @@
 
                     <div class="pt-4 border-t border-gray-200">
                         <button onclick="resetToDefaults()" type="button"
-                            class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                            class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium select-none">
                             Reset to Defaults
                         </button>
                     </div>
@@ -403,6 +510,685 @@
 
 @push('scripts')
     <script>
+        // Global variables to store trash data
+        let trashData = {
+            summary: {
+                experiences: 0,
+                educations: 0,
+                certificates: 0,
+                total: 0
+            },
+            experiences: [],
+            educations: [],
+            certificates: []
+        };
+
+        // Track current active tab in modal
+        let currentActiveTab = 'experiences';
+
+        // Load trash data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTrashData();
+        });
+
+        // Function to load trash data from backend
+        async function loadTrashData() {
+            try {
+                const response = await fetch('/settings/trash-data', {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Ensure all arrays exist before assigning
+                    trashData = {
+                        summary: data.data.summary || {
+                            experiences: 0,
+                            educations: 0,
+                            certificates: 0,
+                            total: 0
+                        },
+                        experiences: data.data.experiences || [],
+                        educations: data.data.educations || [],
+                        certificates: data.data.certificates || []
+                    };
+                    renderTrashSummary();
+                } else {
+                    showToast('Failed to load trash data: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Load trash data error:', error);
+                showToast('Error loading trash data', 'error');
+            }
+        }
+
+        // Render summary section
+        function renderTrashSummary() {
+            const summary = trashData.summary;
+            const container = document.getElementById('trash-summary-container');
+
+            // Ensure summary exists
+            if (!summary || typeof summary !== 'object') {
+                container.innerHTML = `
+            <div class="text-center py-6">
+                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <p class="text-gray-500 text-sm">Failed to load trash data</p>
+                <button onclick="loadTrashData()" class="mt-2 text-blue-600 text-sm hover:text-blue-800">
+                    Retry
+                </button>
+            </div>
+        `;
+                return;
+            }
+
+            if (summary.total > 0) {
+                container.innerHTML = `
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-gray-900">${summary.experiences || 0}</div>
+                    <div class="text-xs text-gray-600">Experiences</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-gray-900">${summary.educations || 0}</div>
+                    <div class="text-xs text-gray-600">Education</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-gray-900">${summary.certificates || 0}</div>
+                    <div class="text-xs text-gray-600">Certificates</div>
+                </div>
+            </div>
+            <div class="text-sm text-gray-600 mb-3">
+                You have ${summary.total} deleted item${summary.total > 1 ? 's' : ''} in trash
+            </div>
+            <div class="flex space-x-2 select-none">
+                <button onclick="openTrashModal()"
+                    class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm font-medium transition duration-300">
+                    Manage Items
+                </button>
+                <button onclick="emptyTrash()"
+                    class="px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition duration-300">
+                    Empty All
+                </button>
+            </div>
+        `;
+            } else {
+                container.innerHTML = `
+            <div class="text-center py-6">
+                <p class="text-gray-500 text-sm">Trash is empty</p>
+                <p class="text-gray-400 text-xs mt-1">Deleted items will appear here</p>
+            </div>
+        `;
+            }
+        }
+
+        // Modal functions
+        function openTrashModal() {
+            const modal = document.getElementById('trashModal');
+            const darkoverlay = document.getElementById('darkoverlay');
+            modal.classList.remove('hidden');
+            if (darkoverlay) {
+                darkoverlay.classList.remove('hidden');
+            }
+
+            setTimeout(() => {
+                modal.style.opacity = '1';
+            }, 10);
+
+            // Render modal content
+            renderModalContent();
+        }
+
+        function closeTrashModal() {
+            const modal = document.getElementById('trashModal');
+            modal.style.opacity = '0';
+            const darkoverlay = document.getElementById('darkoverlay');
+            if (darkoverlay) {
+                darkoverlay.classList.add('hidden');
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Render modal content
+        function renderModalContent() {
+            if (!trashData) {
+                console.error('trashData is not defined');
+                return;
+            }
+
+            const summary = trashData.summary || {
+                experiences: 0,
+                educations: 0,
+                certificates: 0,
+                total: 0
+            };
+
+            // Render tabs
+            const tabsContainer = document.getElementById('trash-modal-tabs');
+            tabsContainer.innerHTML = `
+        <button type="button" onclick="showTrashTab('experiences')" id="tab-experiences"
+            class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
+            Work Experience
+            ${summary.experiences > 0 ? `
+                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                ${summary.experiences}
+                                                                                                                                            </span>
+                                                                                                                                        ` : ''}
+        </button>
+        <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
+            class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
+            Education
+            ${summary.educations > 0 ? `
+                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                ${summary.educations}
+                                                                                                                                            </span>
+                                                                                                                                        ` : ''}
+        </button>
+        <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
+            class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
+            Certifications
+            ${summary.certificates > 0 ? `
+                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                ${summary.certificates}
+                                                                                                                                            </span>
+                                                                                                                                        ` : ''}
+        </button>
+    `;
+
+            // Render experiences tab content
+            renderTrashTabContent('experiences');
+            renderTrashTabContent('educations');
+            renderTrashTabContent('certificates');
+
+            // Update footer
+            updateModalFooter();
+
+            // Show/hide empty all button
+            const emptyBtn = document.getElementById('empty-all-trash-btn');
+            if (summary.total > 0) {
+                emptyBtn.classList.remove('hidden');
+            } else {
+                emptyBtn.classList.add('hidden');
+            }
+
+            // Hide loading and show content
+            const modalLoading = document.getElementById('modal-loading');
+            if (modalLoading) {
+                modalLoading.classList.add('hidden');
+            }
+
+            // Show the current active tab
+            showTrashTab(currentActiveTab);
+        }
+
+        // Render individual tab content
+        function renderTrashTabContent(tabType) {
+            const tabElement = document.getElementById(`modal-${tabType}-trash`);
+            const items = trashData[tabType] || [];
+
+            if (items.length > 0) {
+                let html = '';
+                items.forEach(item => {
+                    if (tabType === 'experiences') {
+                        html += `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-gray-300 transition-colors"
+                        data-item-id="${item.id}" data-item-type="experience">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0 mr-4">
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.job_title || 'No Title'}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.company || 'No Company'}</p>
+                                <p class="text-gray-500 text-xs mt-1">
+                                    ${item.formatted_dates?.start || 'N/A'} - ${item.formatted_dates?.end || 'Present'}
+                                </p>
+                                <p class="text-red-500 text-xs mt-1">
+                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2 min-w-[120px]">
+                                <button onclick="restoreItem('experience', ${item.id})"
+                                    class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    Restore
+                                </button>
+                                <button onclick="permanentlyDelete('experience', ${item.id})"
+                                    class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Forever
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    } else if (tabType === 'educations') {
+                        html += `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-gray-300 transition-colors"
+                        data-item-id="${item.id}" data-item-type="education">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0 mr-4">
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.degree || 'No Degree'}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.university || 'No University'}</p>
+                                ${item.major ? `<p class="text-gray-500 text-xs">${item.major}</p>` : ''}
+                                <p class="text-gray-500 text-xs mt-1">
+                                    ${item.formatted_years?.start || 'N/A'} - ${item.formatted_years?.end || 'Present'}
+                                </p>
+                                <p class="text-red-500 text-xs mt-1">
+                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                </p>
+                            </div>
+                            <div class="flex flex-col space-y-2 min-w-[120px]">
+                                <button onclick="restoreItem('education', ${item.id})"
+                                    class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    Restore
+                                </button>
+                                <button onclick="permanentlyDelete('education', ${item.id})"
+                                    class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Forever
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    } else if (tabType === 'certificates') {
+                        html += `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-gray-300 transition-colors"
+                        data-item-id="${item.id}" data-item-type="certificate">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0 mr-4">
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.name || 'No Name'}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.issuer || 'No Issuer'}</p>
+                                <p class="text-gray-500 text-xs mt-1">
+                                    Issued: ${item.formatted_dates?.issued || 'N/A'} | Expires: ${item.formatted_dates?.expires || 'No Expiry'}
+                                </p>
+                                <p class="text-red-500 text-xs mt-1">
+                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                </p>
+                            </div>
+                            <div class="flex flex-col space-y-2 min-w-[120px]">
+                                <button onclick="restoreItem('certificate', ${item.id})"
+                                    class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    Restore
+                                </button>
+                                <button onclick="permanentlyDelete('certificate', ${item.id})"
+                                    class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Forever
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    }
+                });
+                tabElement.innerHTML = html;
+            } else {
+                let emptyMessage = '';
+                if (tabType === 'experiences') {
+                    emptyMessage = 'No deleted experiences';
+                } else if (tabType === 'educations') {
+                    emptyMessage = 'No deleted education';
+                } else if (tabType === 'certificates') {
+                    emptyMessage = 'No deleted certificates';
+                }
+
+                tabElement.innerHTML = `
+            <div class="text-center py-12">
+                <p class="text-gray-500 text-sm">${emptyMessage}</p>
+                <p class="text-gray-400 text-xs mt-1">Deleted ${tabType} will appear here</p>
+            </div>
+        `;
+            }
+        }
+
+        // Update modal footer
+        function updateModalFooter() {
+            const summary = trashData.summary || {
+                total: 0
+            };
+            document.getElementById('modal-footer-count').textContent =
+                `${summary.total || 0} item${summary.total !== 1 ? 's' : ''} in trash`;
+        }
+
+        // Tab switching for modal
+        function showTrashTab(tab) {
+            currentActiveTab = tab;
+
+            // Hide all tab contents
+            document.querySelectorAll('[id^="modal-"][id$="-trash"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Show selected tab content
+            const selectedTab = document.getElementById(`modal-${tab}-trash`);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+
+            // Update active tab styling
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-blue-500', 'text-blue-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Set active tab
+            const activeTab = document.getElementById(`tab-${tab}`);
+            if (activeTab) {
+                activeTab.classList.remove('border-transparent', 'text-gray-500');
+                activeTab.classList.add('border-blue-500', 'text-blue-600');
+            }
+        }
+
+        // Action functions
+        async function restoreItem(type, id) {
+            if (!confirm('Are you sure you want to restore this item?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/settings/restore/${type}/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove item from trash data
+                    removeItemFromTrashData(type, id);
+
+                    // Re-render UI
+                    renderTrashSummary();
+
+                    // If modal is open, update it
+                    const modal = document.getElementById('trashModal');
+                    if (!modal.classList.contains('hidden')) {
+                        // Re-render only the affected tab
+                        renderTrashTabContent(type + 's'); // Add 's' to match array name
+                        updateModalTabs();
+                        updateModalFooter();
+
+                        // Update empty all button visibility
+                        const emptyBtn = document.getElementById('empty-all-trash-btn');
+                        if (trashData.summary.total > 0) {
+                            emptyBtn.classList.remove('hidden');
+                        } else {
+                            emptyBtn.classList.add('hidden');
+                        }
+                    }
+
+                    showToast(data.message || 'Item restored successfully!', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to restore item');
+                }
+            } catch (error) {
+                console.error('Restore error:', error);
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function permanentlyDelete(type, id) {
+            if (!confirm('Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/settings/delete-permanently/${type}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove item from trash data
+                    removeItemFromTrashData(type, id);
+
+                    // Re-render UI
+                    renderTrashSummary();
+
+                    // If modal is open, update it
+                    const modal = document.getElementById('trashModal');
+                    if (!modal.classList.contains('hidden')) {
+                        // Re-render only the affected tab
+                        renderTrashTabContent(type + 's'); // Add 's' to match array name
+                        updateModalTabs();
+                        updateModalFooter();
+
+                        // Update empty all button visibility
+                        const emptyBtn = document.getElementById('empty-all-trash-btn');
+                        if (trashData.summary.total > 0) {
+                            emptyBtn.classList.remove('hidden');
+                        } else {
+                            emptyBtn.classList.add('hidden');
+                        }
+                    }
+
+                    showToast(data.message || 'Item permanently deleted!', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to delete item');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function emptyTrash() {
+            if (!confirm(
+                    'Are you sure you want to permanently delete ALL items in trash? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/settings/trash/empty', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Clear all trash data
+                    trashData = {
+                        summary: {
+                            experiences: 0,
+                            educations: 0,
+                            certificates: 0,
+                            total: 0
+                        },
+                        experiences: [],
+                        educations: [],
+                        certificates: []
+                    };
+
+                    // Re-render UI
+                    renderTrashSummary();
+
+                    // If modal is open, update it
+                    const modal = document.getElementById('trashModal');
+                    if (!modal.classList.contains('hidden')) {
+                        // Re-render all tabs
+                        renderTrashTabContent('experiences');
+                        renderTrashTabContent('educations');
+                        renderTrashTabContent('certificates');
+                        updateModalTabs();
+                        updateModalFooter();
+
+                        // Hide empty all button
+                        const emptyBtn = document.getElementById('empty-all-trash-btn');
+                        emptyBtn.classList.add('hidden');
+                    }
+
+                    showToast(data.message || 'All trash emptied successfully!', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to empty trash');
+                }
+            } catch (error) {
+                console.error('Empty trash error:', error);
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Helper function to remove item from trash data
+        function removeItemFromTrashData(type, id) {
+            if (!trashData || typeof trashData !== 'object') {
+                console.error('trashData is not defined or not an object');
+                return;
+            }
+
+            const arrayName = type + 's'; // Convert 'experience' to 'experiences'
+
+            // Ensure the array exists
+            if (!trashData[arrayName] || !Array.isArray(trashData[arrayName])) {
+                console.error(`trashData.${arrayName} is not an array`);
+                trashData[arrayName] = [];
+            }
+
+            // Remove from array
+            const index = trashData[arrayName].findIndex(item => item && item.id === id);
+            if (index !== -1) {
+                trashData[arrayName].splice(index, 1);
+            }
+
+            // Ensure summary exists
+            if (!trashData.summary || typeof trashData.summary !== 'object') {
+                trashData.summary = {
+                    experiences: 0,
+                    educations: 0,
+                    certificates: 0,
+                    total: 0
+                };
+            }
+
+            // Update summary counts
+            trashData.summary[arrayName] = trashData[arrayName].length;
+            trashData.summary.total =
+                (trashData.summary.experiences || 0) +
+                (trashData.summary.educations || 0) +
+                (trashData.summary.certificates || 0);
+        }
+
+        // Update modal tabs (just the count badges)
+        function updateModalTabs() {
+            const summary = trashData.summary || {
+                experiences: 0,
+                educations: 0,
+                certificates: 0,
+                total: 0
+            };
+
+            // Update experiences tab
+            const expTab = document.getElementById('tab-experiences');
+            if (expTab) {
+                const span = expTab.querySelector('span');
+                if (span) {
+                    if (summary.experiences > 0) {
+                        span.textContent = summary.experiences;
+                        span.classList.remove('hidden');
+                    } else {
+                        span.remove();
+                    }
+                } else if (summary.experiences > 0) {
+                    expTab.innerHTML =
+                        `Work Experience <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.experiences}</span>`;
+                }
+            }
+
+            // Update educations tab
+            const eduTab = document.getElementById('tab-educations');
+            if (eduTab) {
+                const span = eduTab.querySelector('span');
+                if (span) {
+                    if (summary.educations > 0) {
+                        span.textContent = summary.educations;
+                        span.classList.remove('hidden');
+                    } else {
+                        span.remove();
+                    }
+                } else if (summary.educations > 0) {
+                    eduTab.innerHTML =
+                        `Education <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.educations}</span>`;
+                }
+            }
+
+            // Update certificates tab
+            const certTab = document.getElementById('tab-certificates');
+            if (certTab) {
+                const span = certTab.querySelector('span');
+                if (span) {
+                    if (summary.certificates > 0) {
+                        span.textContent = summary.certificates;
+                        span.classList.remove('hidden');
+                    } else {
+                        span.remove();
+                    }
+                } else if (summary.certificates > 0) {
+                    certTab.innerHTML =
+                        `Certifications <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.certificates}</span>`;
+                }
+            }
+        }
+
+        // Close modal on outside click
+        const trashModal = document.getElementById('trashModal');
+        if (trashModal) {
+            trashModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeTrashModal();
+                }
+            });
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('trashModal');
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeTrashModal();
+            }
+        });
+
         // Initialize toggle switches on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeToggleSwitches();
@@ -572,7 +1358,7 @@
 
             const toast = document.createElement('div');
             toast.className =
-                `custom-toast fixed top-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'}`;
+                `custom-toast fixed bottom-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'}`;
             toast.textContent = message;
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(-20px)';

@@ -86,6 +86,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Certificate
         Route::apiResource('freelancer-profile/certificates', CertificateController::class)
             ->except('index');
+
+        // Backup and Restore
+        Route::get('settings/trash-data', [SettingController::class, 'getTrashData'])
+            ->name('settings.trash.data');
+        Route::post('/settings/restore/{type}/{id}', [SettingController::class, 'restoreItem'])->name('settings.restore');
+        Route::delete('/settings/delete-permanently/{type}/{id}', [SettingController::class, 'permanentlyDelete'])->name('settings.delete.permanent');
+        Route::post('/settings/trash/empty', [SettingController::class, 'emptyTrash'])->name('settings.trash.empty');
     });
 });
 
