@@ -399,7 +399,7 @@
                         <div class="flex-1 overflow-hidden flex flex-col">
                             <!-- Tab Navigation -->
                             <div class="border-b border-gray-200">
-                                <nav class="flex space-x-4 px-6 overflow-x-auto" id="trash-modal-tabs">
+                                <nav class="flex space-x-4 px-6 overflow-x-auto select-none" id="trash-modal-tabs">
                                     <!-- Tabs will be populated by JavaScript -->
                                 </nav>
                             </div>
@@ -680,28 +680,28 @@
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Work Experience
             ${summary.experiences > 0 ? `
-                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                ${summary.experiences}
-                                                                                                                                            </span>
-                                                                                                                                        ` : ''}
+                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                ${summary.experiences}
+                                                                                                                                                                                            </span>
+                                                                                                                                                                                     ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Education
             ${summary.educations > 0 ? `
-                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                ${summary.educations}
-                                                                                                                                            </span>
-                                                                                                                                        ` : ''}
+                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                ${summary.educations}
+                                                                                                                                                                                            </span>
+                                                                                                                                                                                        ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Certifications
             ${summary.certificates > 0 ? `
-                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                ${summary.certificates}
-                                                                                                                                            </span>
-                                                                                                                                        ` : ''}
+                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                ${summary.certificates}
+                                                                                                                                                                                            </span>
+                                                                                                                                                                                        ` : ''}
         </button>
     `;
 
@@ -754,7 +754,7 @@
                                     Deleted: ${item.deleted_at || 'Unknown'}
                                 </p>
                             </div>
-                            <div class="flex items-center space-x-2 min-w-[120px]">
+                            <div class="flex items-center space-x-2 min-w-[120px] select-none">
                                 <button onclick="restoreItem('experience', ${item.id})"
                                     class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -791,7 +791,7 @@
                                     Deleted: ${item.deleted_at || 'Unknown'}
                                 </p>
                             </div>
-                            <div class="flex flex-col space-y-2 min-w-[120px]">
+                            <div class="flex flex-col space-y-2 min-w-[120px] select-none">
                                 <button onclick="restoreItem('education', ${item.id})"
                                     class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -827,7 +827,7 @@
                                     Deleted: ${item.deleted_at || 'Unknown'}
                                 </p>
                             </div>
-                            <div class="flex flex-col space-y-2 min-w-[120px]">
+                            <div class="flex flex-col space-y-2 min-w-[120px] select-none">
                                 <button onclick="restoreItem('certificate', ${item.id})"
                                     class="text-green-600 hover:text-green-800 text-xs p-2 hover:bg-green-50 rounded transition-colors flex items-center justify-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -862,7 +862,7 @@
                 }
 
                 tabElement.innerHTML = `
-            <div class="text-center py-12">
+            <div class="text-center py-20">
                 <p class="text-gray-500 text-sm">${emptyMessage}</p>
                 <p class="text-gray-400 text-xs mt-1">Deleted ${tabType} will appear here</p>
             </div>
