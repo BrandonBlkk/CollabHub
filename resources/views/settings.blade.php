@@ -2,6 +2,10 @@
 
 @section('title', 'Your Profile')
 
+@auth
+    <meta name="user-role" content="{{ Auth::user()->role }}">
+@endauth
+
 @section('content')
     {{-- Dark overlay --}}
     <div id="darkoverlay" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10"></div>
@@ -337,44 +341,47 @@
             </div>
 
             <!-- Trash / Archive Section -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="mb-6">
-                    <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
-                    <p class="text-gray-600 text-sm mt-1">Manage deleted items</p>
-                </div>
-
-                <!-- Summary Stats - Initially loading -->
-                <div id="trash-summary-container">
-                    <div class="grid grid-cols-3 gap-3 mb-4">
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <div class="text-lg font-semibold text-gray-900">
-                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
-                            </div>
-                            <div class="text-xs text-gray-600">Experiences</div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <div class="text-lg font-semibold text-gray-900">
-                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
-                            </div>
-                            <div class="text-xs text-gray-600">Education</div>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <div class="text-lg font-semibold text-gray-900">
-                                <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
-                            </div>
-                            <div class="text-xs text-gray-600">Certificates</div>
-                        </div>
+            @if (auth()->user()->role === 'freelancer')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
+                        <p class="text-gray-600 text-sm mt-1">Manage deleted items</p>
                     </div>
 
-                    <div class="flex flex-col gap-2 text-center py-4">
-                        <div class="item-start animate-pulse bg-gray-200 h-4 w-52 rounded mb-2"></div>
-                        <div class="flex space-x-2 justify-center">
-                            <div class="animate-pulse bg-blue-100 h-9 w-full rounded-lg"></div>
-                            <div class="animate-pulse bg-gray-100 h-9 w-36 rounded-lg"></div>
+                    <!-- Summary Stats - Initially loading -->
+                    <div id="trash-summary-container">
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="text-lg font-semibold text-gray-900">
+                                    <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                                </div>
+                                <div class="text-xs text-gray-600">Experiences</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="text-lg font-semibold text-gray-900">
+                                    <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                                </div>
+                                <div class="text-xs text-gray-600">Education</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="text-lg font-semibold text-gray-900">
+                                    <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
+                                </div>
+                                <div class="text-xs text-gray-600">Certificates</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 text-center py-4">
+                            <div class="item-start animate-pulse bg-gray-200 h-4 w-52 rounded mb-2"></div>
+                            <div class="flex space-x-2 justify-center">
+                                <div class="animate-pulse bg-blue-100 h-9 w-full rounded-lg"></div>
+                                <div class="animate-pulse bg-gray-100 h-9 w-36 rounded-lg"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @else
+            @endif
 
             <!-- Trash Modal -->
             <div id="trashModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
@@ -534,6 +541,16 @@
         // Function to load trash data from backend
         async function loadTrashData() {
             try {
+                // Get user role from meta tag
+                const userRoleMeta = document.querySelector('meta[name="user-role"]');
+                const userRole = userRoleMeta ? userRoleMeta.content : null;
+
+                // Only proceed if user is freelancer
+                if (userRole !== 'freelancer') {
+                    console.log('User is not a freelancer, skipping trash data fetch');
+                    return;
+                }
+
                 const response = await fetch('/settings/trash-data', {
                     method: 'GET',
                     headers: {
@@ -566,6 +583,11 @@
                 showToast('Error loading trash data', 'error');
             }
         }
+
+        // Initialize only if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTrashData();
+        });
 
         // Render summary section
         function renderTrashSummary() {
@@ -680,28 +702,28 @@
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Work Experience
             ${summary.experiences > 0 ? `
-                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                ${summary.experiences}
-                                                                                                                                                                                            </span>
-                                                                                                                                                                                     ` : ''}
+                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                            ${summary.experiences}
+                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                 ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Education
             ${summary.educations > 0 ? `
-                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                ${summary.educations}
-                                                                                                                                                                                            </span>
-                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                            ${summary.educations}
+                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                    ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Certifications
             ${summary.certificates > 0 ? `
-                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                ${summary.certificates}
-                                                                                                                                                                                            </span>
-                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                            ${summary.certificates}
+                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                    ` : ''}
         </button>
     `;
 
