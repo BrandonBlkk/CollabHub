@@ -909,7 +909,7 @@
                 <div x-data="{ activeTab: 'overview' }" class="bg-white rounded-2xl shadow-sm border border-gray-200">
                     <!-- Tab Headers -->
                     <div class="border-b border-gray-200">
-                        <nav class="flex space-x-1 px-6 pt-2 overflow-x-auto">
+                        <nav class="flex space-x-1 px-6 pt-2 overflow-x-auto select-none">
                             <button type="button" @click="activeTab = 'overview'"
                                 :class="activeTab === 'overview' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
@@ -4285,7 +4285,7 @@
                                     // Show empty state
                                     viewContainer.innerHTML = '';
                                     const emptyState = document.createElement('p');
-                                    emptyState.className = 'text-gray-600 text-sm text-center';
+                                    emptyState.className = 'text-gray-600 text-sm text-center py-7';
                                     emptyState.textContent = 'No languages added yet.';
                                     viewContainer.appendChild(emptyState);
                                 }
@@ -4437,7 +4437,7 @@
                                 });
                             } else {
                                 editContainer.innerHTML =
-                                    '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                                    '<p class="text-gray-600 text-sm text-center py-7">No languages added yet.</p>';
                             }
                         } catch (error) {
                             editContainer.innerHTML = `

@@ -12,7 +12,7 @@ class SettingController extends Controller
 {
     public function index()
     {
-        return view('client.settings');
+        return view('settings');
     }
 
     public function update(Request $request)
