@@ -311,7 +311,6 @@
                     {{-- Get all categories --}}
                     @forelse ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        <option value="9">Other</option>
                     @empty
                         <option value="" disabled>No categories found</option>
                     @endforelse

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
+use App\Http\Controllers\EarningsController;
 use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\EducationController;
 use App\Http\Controllers\Freelancer\ExperienceController;
@@ -93,6 +94,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings/restore/{type}/{id}', [SettingController::class, 'restoreItem'])->name('settings.restore');
         Route::delete('/settings/delete-permanently/{type}/{id}', [SettingController::class, 'permanentlyDelete'])->name('settings.delete.permanent');
         Route::post('/settings/trash/empty', [SettingController::class, 'emptyTrash'])->name('settings.trash.empty');
+
+        // Earnings
+        Route::get('/earnings', [EarningsController::class, 'earnings'])->name('earnings');
     });
 });
 
