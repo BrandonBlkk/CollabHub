@@ -13,6 +13,7 @@ use App\Http\Controllers\Freelancer\ExperienceController;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
+use App\Http\Controllers\MessagesController;
 use Illuminate\Support\Facades\Route;
 
 // Force the user to login
@@ -30,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    // Messages
+    Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
 
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
