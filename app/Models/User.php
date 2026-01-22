@@ -41,6 +41,27 @@ class User extends Authenticatable
         return $this->hasOne(Freelancer::class);
     }
 
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'accepted')
+            ->withTimestamps();
+    }
+
+    public function friendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'pending')
+            ->withTimestamps();
+    }
+
+    public function sentFriendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
+            ->wherePivot('status', 'pending')
+            ->withTimestamps();
+    }
+
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id')
