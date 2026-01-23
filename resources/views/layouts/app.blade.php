@@ -150,25 +150,6 @@
                 }
             });
         }
-
-        // Auto-update time
-        function updateTime() {
-            const timeElement = document.querySelector('.text-sm.text-gray-500');
-            if (timeElement) {
-                const now = new Date();
-                const options = {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                };
-                timeElement.textContent = now.toLocaleDateString('en-US', options);
-            }
-        }
-
-        // Update time on load and every minute
-        updateTime();
-        setInterval(updateTime, 60000);
     </script>
 
     @stack('scripts')

@@ -10,6 +10,7 @@ use App\Http\Controllers\EarningsController;
 use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\EducationController;
 use App\Http\Controllers\Freelancer\ExperienceController;
+use App\Http\Controllers\Freelancer\FindProjectsContoller;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //  Freelancer-Only Routes
     Route::middleware('role:freelancer')->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
+
+        // Find Projects
+        Route::get('/find-projects', [FindProjectsContoller::class, 'index'])->name('find-projects');
+        Route::get('/find-projects/jobs', [FindProjectsContoller::class, 'getJobs'])->name('find-projects.jobs');
 
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
