@@ -78,6 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Find Projects
         Route::get('/find-projects', [FindProjectsContoller::class, 'index'])->name('find-projects');
         Route::get('/find-projects/jobs', [FindProjectsContoller::class, 'getJobs'])->name('find-projects.jobs');
+        Route::get('/find-projects/jobs/{id}', [FindProjectsContoller::class, 'getJob'])->name('jobs.show');
 
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
