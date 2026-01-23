@@ -105,61 +105,123 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="jobs-container">
         <!-- Job Card Template (Hidden) -->
         <template id="job-card-template">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer h-full flex flex-col"
                 data-status="open" data-type="fixed" data-experience="expert" data-duration="3_to_6_months">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <span
-                                class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
-                                Open
-                            </span>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs text-gray-500 posted-time">Posted: Just now</span>
-                                <button class="text-gray-400 hover:text-gray-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                    </svg>
-                                </button>
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
+                                    Open
+                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-500 posted-time">Posted: Just now</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">Untitled Project</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2 job-description">
+                                No description provided.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4 select-none skills-container">
+                                <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">No Skills
+                                    Required</span>
                             </div>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">Untitled Project</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2 job-description">
-                            No description provided.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4 select-none skills-container">
-                            <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">No Skills
-                                Required</span>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-gray-100">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                    </svg>
+                                    <span class="font-semibold text-gray-900 budget-amount">Budget not specified</span>
+                                    <span class="text-gray-500 text-sm ml-2 job-type">Not specified</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-600 text-sm duration-text">Duration not specified</span>
+                                </div>
+                            </div>
+                            <button
+                                class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-project-btn">
+                                <span>View Project</span>
+                                <span
+                                    class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full proposals-count">0</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between pt-4 border-t border-gray-100 gap-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                            </svg>
-                            <span class="font-semibold text-gray-900 budget-amount">Budget not specified</span>
-                            <span class="text-gray-500 text-sm ml-2 job-type">Not specified</span>
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-gray-600 text-sm duration-text">Duration not specified</span>
+            </div>
+        </template>
+
+        <!-- Skeleton Loading Template -->
+        <template id="skeleton-template">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <!-- Status Badge Skeleton -->
+                                <div class="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                                <div class="flex items-center space-x-2">
+                                    <!-- Posted Time Skeleton -->
+                                    <div class="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
+                                    <!-- Menu Button Skeleton -->
+                                    <div class="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                                </div>
+                            </div>
+                            <!-- Title Skeleton -->
+                            <div class="w-3/4 h-6 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                            <!-- Description Skeleton -->
+                            <div class="space-y-2 mb-4">
+                                <div class="w-full h-4 bg-gray-200 rounded animate-pulse"></div>
+                                <div class="w-2/3 h-4 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                            <!-- Skills Skeleton -->
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <div class="w-20 h-6 bg-gray-200 rounded animate-pulse"></div>
+                                <div class="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                                <div class="w-24 h-6 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <div class="w-20 h-6 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
                         </div>
                     </div>
-                    <button
-                        class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-project-btn">
-                        <span>View Project</span>
-                        <span
-                            class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full proposals-count">0</span>
-                    </button>
+                    <div class="mt-auto pt-4 border-t border-gray-100">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
+                                <!-- Budget Section Skeleton -->
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 bg-gray-200 rounded mr-2 animate-pulse"></div>
+                                    <div class="w-32 h-5 bg-gray-200 rounded animate-pulse"></div>
+                                </div>
+                                <!-- Duration Section Skeleton -->
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 bg-gray-200 rounded mr-2 animate-pulse"></div>
+                                    <div class="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
+                                </div>
+                            </div>
+                            <!-- View Project Button Skeleton -->
+                            <div class="flex-1 xs:flex-none">
+                                <div class="w-full h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </template>
@@ -172,8 +234,22 @@
         <script>
             const jobsContainer = document.getElementById('jobs-container');
             const jobCardTemplate = document.getElementById('job-card-template');
+            const skeletonTemplate = document.getElementById('skeleton-template');
+
+            // Function to show skeleton loading animation
+            function showSkeletonLoading(count = 4) {
+                jobsContainer.innerHTML = '';
+
+                for (let i = 0; i < count; i++) {
+                    const skeleton = skeletonTemplate.content.cloneNode(true);
+                    jobsContainer.appendChild(skeleton);
+                }
+            }
 
             async function fetchJobs() {
+                // Skeleton loading
+                showSkeletonLoading();
+
                 try {
                     const response = await fetch('{{ route('find-projects.jobs') }}', {
                         method: 'GET',
@@ -199,13 +275,21 @@
                 } catch (error) {
                     console.error('Error fetching jobs:', error);
                     jobsContainer.innerHTML =
-                        '<p class="text-center text-gray-600">Error loading projects. Please try again.</p>';
+                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
+                        '<div>' +
+                        '<p class="text-gray-600 mb-2">Error loading projects. Please try again.</p>' +
+                        '<button onclick="fetchJobs()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">' +
+                        'Retry' +
+                        '</button>' +
+                        '</div>' +
+                        '</div>';
                 }
             }
 
             function displayJobs(jobs) {
                 if (!jobs || jobs.length === 0) {
-                    jobsContainer.innerHTML = '<p class="text-center text-gray-600">No open projects found.</p>';
+                    jobsContainer.innerHTML =
+                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center"><p class="text-gray-600">No open projects found.</p></div>';
                     return;
                 }
 
@@ -227,6 +311,17 @@
                     const statusBadge = cardElement.querySelector('.status-badge');
                     if (job.status) {
                         statusBadge.textContent = job.status.charAt(0).toUpperCase() + job.status.slice(1);
+                        // Update badge color based on status
+                        if (job.status === 'open') {
+                            statusBadge.className =
+                                'px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge';
+                        } else if (job.status === 'closed') {
+                            statusBadge.className =
+                                'px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 select-none status-badge';
+                        } else if (job.status === 'in_progress') {
+                            statusBadge.className =
+                                'px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none status-badge';
+                        }
                     }
 
                     // Set posted time
