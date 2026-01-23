@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Job;
 use Illuminate\Http\Request;
 
-class FindProjectsContoller extends Controller
+class FindJobsContoller extends Controller
 {
     public function index()
     {
-        return view('freelancer.find-projects');
+        return view('freelancer.find-jobs');
     }
 
     // Get all jobs

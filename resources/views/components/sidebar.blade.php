@@ -25,9 +25,9 @@
         </x-sidebar-item>
 
         @if ($role === 'freelancer')
-            <x-sidebar-item href="{{ route('find-projects') }}" :active="request()->routeIs('find-projects')"
+            <x-sidebar-item href="{{ route('find-jobs') }}" :active="request()->routeIs('find-jobs')"
                 icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                Find Projects
+                Find Jobs
             </x-sidebar-item>
 
             <x-sidebar-item href="#"

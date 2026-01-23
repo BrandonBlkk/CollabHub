@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Find Projects')
+@section('title', 'Find Jobs')
 
 @section('content')
     <!-- Page Header -->
     <div class="mb-3">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Find Projects</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Find Jobs</h1>
             <p class="text-gray-600 mt-1">
-                Browse and apply for freelance projects
+                Browse and apply for freelance jobs
             </p>
         </div>
     </div>
@@ -111,7 +111,7 @@
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <h3 class="text-xl font-semibold text-gray-900" id="modal-title">Project Details</h3>
+                                <h3 class="text-lg font-bold text-gray-900" id="modal-title">Job Details</h3>
                                 <div class="mt-2">
                                     <div class="flex items-center space-x-2">
                                         <span id="modal-status" class="px-2 py-1 rounded-full text-xs font-medium"></span>
@@ -132,10 +132,10 @@
                     <!-- Modal Content -->
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 overflow-y-auto max-h-[70vh]">
                         <div class="space-y-6">
-                            <!-- Project Title -->
+                            <!-- Job Title -->
                             <div>
-                                <h2 class="text-2xl font-bold text-gray-900" id="modal-job-title"></h2>
-                                <div class="mt-1 flex items-center space-x-4">
+                                <h2 class="text-lg font-bold text-gray-900" id="modal-job-title"></h2>
+                                <div class="mt-1 flex items-center space-x-4 text-sm">
                                     <div class="flex items-center text-gray-600">
                                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -164,10 +164,10 @@
                                 </div>
                             </div>
 
-                            <!-- Project Description -->
-                            <div class="bg-gray-50 rounded-lg p-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-3">Project Description</h3>
-                                <div class="prose max-w-none text-gray-700" id="modal-description"></div>
+                            <!-- Job Description -->
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h3>
+                                <div class="text-sm max-w-none text-gray-700" id="modal-description"></div>
                             </div>
 
                             <!-- Skills Required -->
@@ -176,17 +176,17 @@
                                 <div class="flex flex-wrap gap-2" id="modal-skills"></div>
                             </div>
 
-                            <!-- Project Details Grid -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Job Details Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div class="bg-gray-50 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-900 mb-2">Project Type</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2">Job Type</h4>
                                     <div class="flex items-center">
                                         <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        <span id="modal-detail-type" class="text-gray-700"></span>
+                                        <span id="modal-detail-type" class="text-sm text-gray-700"></span>
                                     </div>
                                 </div>
                                 <div class="bg-gray-50 rounded-lg p-4">
@@ -197,7 +197,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span id="modal-detail-experience" class="text-gray-700"></span>
+                                        <span id="modal-detail-experience" class="text-sm text-gray-700"></span>
                                     </div>
                                 </div>
                                 <div class="bg-gray-50 rounded-lg p-4">
@@ -208,7 +208,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span id="modal-detail-duration" class="text-gray-700"></span>
+                                        <span id="modal-detail-duration" class="text-sm text-gray-700"></span>
                                     </div>
                                 </div>
                                 <div class="bg-gray-50 rounded-lg p-4">
@@ -219,16 +219,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        <span id="modal-proposals-count" class="text-gray-700"></span>
+                                        <span id="modal-proposals-count" class="text-sm text-gray-700"></span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Posted Information -->
-                            <div class="border-t border-gray-200 pt-4">
-                                <div class="text-sm text-gray-500">
-                                    <p>Project posted: <span id="modal-created-at"></span></p>
-                                    <p>Expires: <span id="modal-expires-at"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -236,20 +228,20 @@
 
                     <!-- Modal Footer -->
                     <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200">
-                        <button type="button" id="apply-project-btn"
-                            class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
+                        <button type="button" id="apply-job-btn"
+                            class="inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
                             Submit Proposal
                         </button>
-                        <button type="button" id="save-project-btn"
-                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
+                        <button type="button" id="save-job-btn"
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                             </svg>
-                            Save Project
+                            Save Job
                         </button>
                         <button type="button" id="cancel-modal"
-                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
                             Cancel
                         </button>
                     </div>
@@ -274,15 +266,9 @@
                                 </span>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xs text-gray-500 posted-time">Posted: Just now</span>
-                                    <button class="text-gray-400 hover:text-gray-600">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
-                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">Untitled Project</h3>
+                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">Untitled Job</h3>
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2 job-description">
                                 No description provided.
                             </p>
@@ -314,8 +300,8 @@
                                 </div>
                             </div>
                             <button
-                                class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-project-btn">
-                                <span>View Project</span>
+                                class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-job-btn">
+                                <span>View Job</span>
                                 <span
                                     class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full proposals-count">0</span>
                             </button>
@@ -373,7 +359,7 @@
                                     <div class="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
                                 </div>
                             </div>
-                            <!-- View Project Button Skeleton -->
+                            <!-- View Job Button Skeleton -->
                             <div class="flex-1 xs:flex-none">
                                 <div class="w-full h-10 bg-gray-200 rounded-lg animate-pulse"></div>
                             </div>
@@ -388,176 +374,6 @@
             <!-- Jobs will be dynamically inserted here -->
         </div>
 
-        {{-- <script>
-            const jobsContainer = document.getElementById('jobs-container');
-            const jobCardTemplate = document.getElementById('job-card-template');
-            const skeletonTemplate = document.getElementById('skeleton-template');
-
-            // Function to show skeleton loading animation
-            function showSkeletonLoading(count = 4) {
-                jobsContainer.innerHTML = '';
-
-                for (let i = 0; i < count; i++) {
-                    const skeleton = skeletonTemplate.content.cloneNode(true);
-                    jobsContainer.appendChild(skeleton);
-                }
-            }
-
-            async function fetchJobs() {
-                // Skeleton loading
-                showSkeletonLoading();
-
-                try {
-                    const response = await fetch('{{ route('find-projects.jobs') }}', {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content'),
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        displayJobs(data.jobs);
-                    } else {
-                        throw new Error(data.message || 'Failed to fetch jobs');
-                    }
-                } catch (error) {
-                    console.error('Error fetching jobs:', error);
-                    jobsContainer.innerHTML =
-                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
-                        '<div>' +
-                        '<p class="text-gray-600 mb-2">Error loading projects. Please try again.</p>' +
-                        '<button onclick="fetchJobs()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">' +
-                        'Retry' +
-                        '</button>' +
-                        '</div>' +
-                        '</div>';
-                }
-            }
-
-            function displayJobs(jobs) {
-                if (!jobs || jobs.length === 0) {
-                    jobsContainer.innerHTML =
-                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center"><p class="text-gray-600">No open projects found.</p></div>';
-                    return;
-                }
-
-                // Clear existing content
-                jobsContainer.innerHTML = '';
-
-                jobs.forEach(job => {
-                    // Clone the template
-                    const jobCard = jobCardTemplate.content.cloneNode(true);
-                    const cardElement = jobCard.querySelector('div');
-
-                    // Set data attributes
-                    cardElement.setAttribute('data-status', job.status || 'open');
-                    cardElement.setAttribute('data-type', job.type || 'fixed');
-                    cardElement.setAttribute('data-experience', job.experience_level || 'expert');
-                    cardElement.setAttribute('data-duration', job.duration || '3_to_6_months');
-
-                    // Set status badge
-                    const statusBadge = cardElement.querySelector('.status-badge');
-                    if (job.status) {
-                        statusBadge.textContent = job.status.charAt(0).toUpperCase() + job.status.slice(1);
-                        // Update badge color based on status
-                        if (job.status === 'open') {
-                            statusBadge.className =
-                                'px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge';
-                        } else if (job.status === 'closed') {
-                            statusBadge.className =
-                                'px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 select-none status-badge';
-                        } else if (job.status === 'in_progress') {
-                            statusBadge.className =
-                                'px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none status-badge';
-                        }
-                    }
-
-                    // Set posted time
-                    const postedTime = cardElement.querySelector('.posted-time');
-                    postedTime.textContent = `Posted: ${formatTimeAgo(job.created_at)}`;
-
-                    // Set job title
-                    const jobTitle = cardElement.querySelector('.job-title');
-                    jobTitle.textContent = job.title || 'Untitled Project';
-
-                    // Set job description
-                    const jobDescription = cardElement.querySelector('.job-description');
-                    jobDescription.textContent = job.description || 'No description provided.';
-
-                    // Set skills
-                    const skillsContainer = cardElement.querySelector('.skills-container');
-                    skillsContainer.innerHTML = '';
-
-                    if (job.skills_required && job.skills_required.length > 0) {
-                        job.skills_required.forEach(skill => {
-                            const skillElement = document.createElement('span');
-                            skillElement.className =
-                                'px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded';
-                            skillElement.textContent = skill;
-                            skillsContainer.appendChild(skillElement);
-                        });
-                    } else {
-                        const noSkillElement = document.createElement('span');
-                        noSkillElement.className = 'px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded';
-                        noSkillElement.textContent = 'No Skills Required';
-                        skillsContainer.appendChild(noSkillElement);
-                    }
-
-                    // Set budget and job type
-                    const budgetAmount = cardElement.querySelector('.budget-amount');
-                    const jobType = cardElement.querySelector('.job-type');
-
-                    if (job.budget_min && job.budget_max) {
-                        budgetAmount.textContent = `$${job.budget_min} - $${job.budget_max}`;
-                    } else {
-                        budgetAmount.textContent = 'Budget not specified';
-                    }
-
-                    if (job.type) {
-                        jobType.textContent = job.type.charAt(0).toUpperCase() + job.type.slice(1);
-                    } else {
-                        jobType.textContent = 'Not specified';
-                    }
-
-                    // Set duration
-                    const durationText = cardElement.querySelector('.duration-text');
-                    durationText.textContent = job.duration || 'Duration not specified';
-
-                    // Set proposals count
-                    const proposalsCount = cardElement.querySelector('.proposals-count');
-                    proposalsCount.textContent = job.proposals_count || 0;
-
-                    // Append to container
-                    jobsContainer.appendChild(jobCard);
-                });
-            }
-
-            function formatTimeAgo(dateString) {
-                const date = new Date(dateString);
-                const now = new Date();
-                const diffInSeconds = Math.floor((now - date) / 1000);
-
-                if (diffInSeconds < 60) return 'Just now';
-                if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-                if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-                if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-                if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-                return `${Math.floor(diffInSeconds / 2592000)} months ago`;
-            }
-
-            // Call fetchJobs when the page loads
-            document.addEventListener('DOMContentLoaded', fetchJobs);
-        </script> --}}
-
         <script>
             const jobsContainer = document.getElementById('jobs-container');
             const jobCardTemplate = document.getElementById('job-card-template');
@@ -567,8 +383,8 @@
             const jobDetailsModal = document.getElementById('job-details-modal');
             const closeModalBtn = document.getElementById('close-modal');
             const cancelModalBtn = document.getElementById('cancel-modal');
-            const applyProjectBtn = document.getElementById('apply-project-btn');
-            const saveProjectBtn = document.getElementById('save-project-btn');
+            const applyJobBtn = document.getElementById('apply-job-btn');
+            const saveJobBtn = document.getElementById('save-job-btn');
 
             // Function to show skeleton loading animation
             function showSkeletonLoading(count = 4) {
@@ -614,7 +430,7 @@
                 showSkeletonLoading();
 
                 try {
-                    const response = await fetch('{{ route('find-projects.jobs') }}', {
+                    const response = await fetch('{{ route('find-jobs.jobs') }}', {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -640,7 +456,7 @@
                     jobsContainer.innerHTML =
                         '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
                         '<div>' +
-                        '<p class="text-gray-600 mb-2">Error loading projects. Please try again.</p>' +
+                        '<p class="text-gray-600 mb-2">Error loading jobs. Please try again.</p>' +
                         '<button onclick="fetchJobs()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">' +
                         'Retry' +
                         '</button>' +
@@ -651,7 +467,7 @@
 
             async function fetchJobDetails(jobId) {
                 try {
-                    const response = await fetch(`/find-projects/jobs/${jobId}`, {
+                    const response = await fetch(`/find-jobs/jobs/${jobId}`, {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -675,14 +491,14 @@
                     }
                 } catch (error) {
                     console.error('Error fetching job details:', error);
-                    alert('Failed to load project details. Please try again.');
+                    alert('Failed to load job details. Please try again.');
                 }
             }
 
             function displayJobDetails(job) {
                 // Set modal title
-                document.getElementById('modal-title').textContent = 'Project Details';
-                document.getElementById('modal-job-title').textContent = job.title || 'Untitled Project';
+                document.getElementById('modal-title').textContent = 'Job Details';
+                document.getElementById('modal-job-title').textContent = job.title || 'Untitled Job';
 
                 // Set status badge
                 const statusBadge = document.getElementById('modal-status');
@@ -755,7 +571,7 @@
                     skills.forEach(skill => {
                         const skillElement = document.createElement('span');
                         skillElement.className =
-                            'px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-full border border-blue-100';
+                            'px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100';
                         skillElement.textContent = skill;
                         skillsContainer.appendChild(skillElement);
                     });
@@ -775,20 +591,15 @@
                 const proposalsElement = document.getElementById('modal-proposals-count');
                 proposalsElement.textContent = job.proposals_count ? `${job.proposals_count} proposals` : '0 proposals';
 
-                // Set dates
-                document.getElementById('modal-created-at').textContent = formatDate(job.created_at);
-                document.getElementById('modal-expires-at').textContent = job.expires_at ? formatDate(job.expires_at) :
-                    'No expiration date';
-
                 // Update button actions
-                applyProjectBtn.onclick = () => {
+                applyJobBtn.onclick = () => {
                     alert(`Applying to: ${job.title}`);
                     // You can redirect to application page or show application form here
                     // window.location.href = `/jobs/${job.id}/apply`;
                 };
 
-                saveProjectBtn.onclick = () => {
-                    alert(`Project "${job.title}" saved to your list!`);
+                saveJobBtn.onclick = () => {
+                    alert(`Job "${job.title}" saved to your list!`);
                     // Add save functionality here
                 };
             }
@@ -796,7 +607,7 @@
             function displayJobs(jobs) {
                 if (!jobs || jobs.length === 0) {
                     jobsContainer.innerHTML =
-                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center"><p class="text-gray-600">No open projects found.</p></div>';
+                        '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center"><p class="text-gray-600">No open jobs found.</p></div>';
                     return;
                 }
 
@@ -838,7 +649,7 @@
 
                     // Set job title
                     const jobTitle = cardElement.querySelector('.job-title');
-                    jobTitle.textContent = job.title || 'Untitled Project';
+                    jobTitle.textContent = job.title || 'Untitled Job';
 
                     // Set job description
                     const jobDescription = cardElement.querySelector('.job-description');
@@ -897,19 +708,10 @@
                     const proposalsCount = cardElement.querySelector('.proposals-count');
                     proposalsCount.textContent = job.proposals_count || 0;
 
-                    // Add click event to "View Project" button
-                    const viewProjectBtn = cardElement.querySelector('.view-project-btn');
-                    viewProjectBtn.addEventListener('click', () => {
+                    // Add click event to "View Job" button
+                    const viewJobBtn = cardElement.querySelector('.view-job-btn');
+                    viewJobBtn.addEventListener('click', () => {
                         fetchJobDetails(job.id);
-                    });
-
-                    // Make entire card clickable (optional)
-                    cardElement.addEventListener('click', (e) => {
-                        // Don't trigger if clicking on the view project button or menu button
-                        if (!e.target.closest('.view-project-btn') && !e.target.closest(
-                                'button.text-gray-400')) {
-                            fetchJobDetails(job.id);
-                        }
                     });
 
                     // Append to container

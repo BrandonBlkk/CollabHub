@@ -10,7 +10,7 @@ use App\Http\Controllers\EarningsController;
 use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\EducationController;
 use App\Http\Controllers\Freelancer\ExperienceController;
-use App\Http\Controllers\Freelancer\FindProjectsContoller;
+use App\Http\Controllers\Freelancer\FindJobsContoller;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
@@ -75,10 +75,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:freelancer')->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
 
-        // Find Projects
-        Route::get('/find-projects', [FindProjectsContoller::class, 'index'])->name('find-projects');
-        Route::get('/find-projects/jobs', [FindProjectsContoller::class, 'getJobs'])->name('find-projects.jobs');
-        Route::get('/find-projects/jobs/{id}', [FindProjectsContoller::class, 'getJob'])->name('jobs.show');
+        // Find Jobs
+        Route::get('/find-jobs', [FindJobsContoller::class, 'index'])->name('find-jobs');
+        Route::get('/find-jobs/jobs', [FindJobsContoller::class, 'getJobs'])->name('find-jobs.jobs');
+        Route::get('/find-jobs/jobs/{id}', [FindJobsContoller::class, 'getJob'])->name('jobs.show');
 
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
