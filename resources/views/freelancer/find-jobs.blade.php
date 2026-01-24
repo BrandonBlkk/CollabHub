@@ -102,11 +102,13 @@
     </div>
 
     <!-- Job Details Modal -->
-    <div id="job-details-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden z-50 transition-opacity duration-300">
+    <div id="job-details-modal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-300 ease-out" id="modal-backdrop">
+        </div>
         <div class="fixed inset-0 overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div
-                    class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl w-full">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-4xl w-full translate-y-4 opacity-0 scale-95"
+                    id="modal-content">
                     <!-- Modal Header -->
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                         <div class="flex items-start justify-between">
@@ -120,7 +122,7 @@
                                 </div>
                             </div>
                             <button type="button" id="close-modal"
-                                class="text-gray-400 hover:text-gray-500 rounded-lg p-2">
+                                class="text-gray-400 hover:text-gray-500 rounded-lg p-2 transition-colors duration-200">
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -130,7 +132,7 @@
                     </div>
 
                     <!-- Modal Content -->
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 overflow-y-auto max-h-[70vh]">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 overflow-y-auto max-h-[68vh]">
                         <div class="space-y-6">
                             <!-- Job Title -->
                             <div>
@@ -227,13 +229,14 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200">
+                    <div
+                        class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
                         <button type="button" id="apply-job-btn"
                             class="inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
                             Submit Proposal
                         </button>
                         <button type="button" id="save-job-btn"
-                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
+                            class="px-4 py-2 flex items-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -241,7 +244,7 @@
                             Save Job
                         </button>
                         <button type="button" id="cancel-modal"
-                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition duration-200">
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
                             Cancel
                         </button>
                     </div>
@@ -381,6 +384,8 @@
 
             // Modal elements
             const jobDetailsModal = document.getElementById('job-details-modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const modalContent = document.getElementById('modal-content');
             const closeModalBtn = document.getElementById('close-modal');
             const cancelModalBtn = document.getElementById('cancel-modal');
             const applyJobBtn = document.getElementById('apply-job-btn');
@@ -398,13 +403,37 @@
 
             // Modal functions
             function openModal() {
+                // First remove hidden class
                 jobDetailsModal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                document.body.style.overflow = 'hidden';
+
+                // Trigger reflow to ensure transition works
+                void jobDetailsModal.offsetWidth;
+
+                setTimeout(() => {
+                    modalBackdrop.classList.remove('opacity-0');
+                    modalBackdrop.classList.add('opacity-100');
+                }, 10);
+
+                setTimeout(() => {
+                    modalContent.classList.remove('translate-y-4', 'opacity-0');
+                    modalContent.classList.add('translate-y-0', 'opacity-100');
+                }, 10);
             }
 
             function closeModal() {
-                jobDetailsModal.classList.add('hidden');
-                document.body.style.overflow = 'auto'; // Restore scrolling
+                // Remove transform classes for content
+                modalContent.classList.remove('translate-y-0', 'opacity-100');
+                modalContent.classList.add('translate-y-4', 'opacity-0');
+
+                // Remove opacity class for backdrop
+                modalBackdrop.classList.remove('opacity-100');
+                modalBackdrop.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    jobDetailsModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }, 300);
             }
 
             // Event listeners for modal
@@ -506,13 +535,14 @@
 
                 // Update badge color based on status
                 if (job.status === 'open') {
-                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                    statusBadge.className =
+                        'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none';
                 } else if (job.status === 'closed') {
-                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 select-none';
                 } else if (job.status === 'in_progress') {
-                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none';
                 } else {
-                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+                    statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 select-none';
                 }
 
                 // Set posted time
@@ -571,7 +601,7 @@
                     skills.forEach(skill => {
                         const skillElement = document.createElement('span');
                         skillElement.className =
-                            'px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100';
+                            'px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100 select-none';
                         skillElement.textContent = skill;
                         skillsContainer.appendChild(skillElement);
                     });

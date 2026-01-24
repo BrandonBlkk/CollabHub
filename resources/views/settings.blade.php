@@ -702,28 +702,28 @@
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Work Experience
             ${summary.experiences > 0 ? `
-                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                            ${summary.experiences}
-                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                 ` : ''}
+                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                ${summary.experiences}
+                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                     ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Education
             ${summary.educations > 0 ? `
-                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                            ${summary.educations}
-                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                ${summary.educations}
+                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                        ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Certifications
             ${summary.certificates > 0 ? `
-                                                                                                                                                                                                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                            ${summary.certificates}
-                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                ${summary.certificates}
+                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                        ` : ''}
         </button>
     `;
 
