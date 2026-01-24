@@ -59,6 +59,11 @@ class Job extends Model
         return $this->hasOne(Contract::class);
     }
 
+    public function favoriteJobs()
+    {
+        return $this->hasMany(FavoriteJob::class);
+    }
+
     // Helper: Display budget like in your UI
     public function getBudgetDisplayAttribute(): string
     {
