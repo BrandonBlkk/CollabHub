@@ -441,6 +441,7 @@
         // Global variables to store jobs data
         let allJobsData = [];
         let savedJobsData = [];
+        let inProgressJobsData = [];
         let currentTab = 'all';
         let isInitialLoad = true;
 
@@ -464,7 +465,7 @@
                     displayJobs(savedJobsData);
                     applyCurrentFilters();
                 } else {
-                    fetchSavedJobs();
+                    fetchJobs('saved');
                 }
             } else if (status === 'all') {
                 // If we already have all jobs data, just display it
@@ -472,26 +473,18 @@
                     displayJobs(allJobsData);
                     applyCurrentFilters();
                 } else {
-                    fetchJobs();
+                    fetchJobs('all');
                 }
-            } else {
-                // For other tabs (in_progress, applied), filter the existing allJobsData
-                if (allJobsData.length > 0) {
-                    const filteredJobs = allJobsData.filter(job => {
-                        // Adjust this condition based on your job data structure
-                        if (status === 'in_progress') return job.status === 'in_progress';
-                        if (status === 'applied') {
-                            // You'll need to add an 'applied' property to your job data
-                            // return job.applied === true;
-                            return false; // Placeholder
-                        }
-                        return false;
-                    });
-                    displayJobs(filteredJobs);
+            } else if (status === 'in_progress') {
+                // If we already have in progress jobs data, just display it
+                if (inProgressJobsData.length > 0 && !isInitialLoad) {
+                    displayJobs(inProgressJobsData);
                     applyCurrentFilters();
                 } else {
-                    fetchJobs();
+                    fetchJobs('in_progress');
                 }
+            } else {
+                // Handle other statuses if needed
             }
 
             isInitialLoad = false;
@@ -548,6 +541,22 @@
                 });
 
                 displayJobs(filteredSavedJobs);
+            } else if (currentTab === 'in_progress') {
+                // Filter in progress jobs
+                const filteredInProgressJobs = inProgressJobsData.filter(job => {
+                    const title = job.title ? job.title.toLowerCase() : '';
+                    const description = job.description ? job.description.toLowerCase() : '';
+                    const skills = job.skills_required ?
+                        (Array.isArray(job.skills_required) ?
+                            job.skills_required.join(' ').toLowerCase() :
+                            job.skills_required.toLowerCase()) : '';
+
+                    return title.includes(searchTerm) ||
+                        description.includes(searchTerm) ||
+                        skills.includes(searchTerm);
+                });
+
+                displayJobs(filteredInProgressJobs);
             } else {
                 // Filter all jobs
                 const filteredJobs = allJobsData.filter(job => {
@@ -584,6 +593,8 @@
             let dataToFilter = [];
             if (currentTab === 'saved') {
                 dataToFilter = [...savedJobsData];
+            } else if (currentTab === 'in_progress') {
+                dataToFilter = [...inProgressJobsData];
             } else {
                 dataToFilter = [...allJobsData];
             }
@@ -648,6 +659,8 @@
             // Reset to show all jobs based on current tab
             if (currentTab === 'saved') {
                 displayJobs(savedJobsData);
+            } else if (currentTab === 'in_progress') {
+                displayJobs(inProgressJobsData);
             } else {
                 displayJobs(allJobsData);
             }
@@ -663,6 +676,8 @@
             // Reset to show all jobs based on current tab
             if (currentTab === 'saved') {
                 displayJobs(savedJobsData);
+            } else if (currentTab === 'in_progress') {
+                displayJobs(inProgressJobsData);
             } else {
                 displayJobs(allJobsData);
             }
@@ -670,7 +685,15 @@
 
         // Update showing counts
         function updateShowingCounts(visibleCount) {
-            const totalJobs = currentTab === 'saved' ? savedJobsData.length : allJobsData.length;
+            let totalJobs = 0;
+            if (currentTab === 'saved') {
+                totalJobs = savedJobsData.length;
+            } else if (currentTab === 'in_progress') {
+                totalJobs = inProgressJobsData.length;
+            } else {
+                totalJobs = allJobsData.length;
+            }
+
             document.getElementById('showing-from').textContent = visibleCount > 0 ? '1' : '0';
             document.getElementById('showing-to').textContent = visibleCount;
             document.getElementById('total-jobs').textContent = totalJobs;
@@ -693,7 +716,7 @@
         // Initialize counts
         document.addEventListener('DOMContentLoaded', function() {
             // Initial fetch will update counts
-            fetchJobs();
+            fetchJobs('all');
         });
 
         // Close sidebar when clicking outside on mobile
@@ -786,48 +809,6 @@
                 closeModal();
             }
         });
-
-        async function fetchJobs() {
-            // Skeleton loading
-            showSkeletonLoading();
-
-            try {
-                const response = await fetch('{{ route('find-jobs.jobs') }}', {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Store all jobs data
-                    allJobsData = data.jobs;
-                    displayJobs(data.jobs);
-                } else {
-                    throw new Error(data.message || 'Failed to fetch jobs');
-                }
-            } catch (error) {
-                console.error('Error fetching jobs:', error);
-                jobsContainer.innerHTML =
-                    '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
-                    '<div>' +
-                    '<p class="text-gray-600 mb-2">Error loading jobs. Please try again.</p>' +
-                    '<button onclick="fetchJobs()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">' +
-                    'Retry' +
-                    '</button>' +
-                    '</div>' +
-                    '</div>';
-            }
-        }
 
         async function fetchJobDetails(jobId) {
             try {
@@ -1123,12 +1104,29 @@
             updateShowingCounts(jobs.length);
         }
 
-        // Function to fetch saved jobs
-        async function fetchSavedJobs() {
+        async function fetchJobs(type = 'all') {
             showSkeletonLoading();
 
+            const routes = {
+                'all': '{{ route('find-jobs.jobs') }}',
+                'saved': '{{ route('find-jobs.saved') }}',
+                'in_progress': '{{ route('find-jobs.in-progress') }}'
+            };
+
+            const errorMessages = {
+                'all': 'Error loading jobs. Please try again.',
+                'saved': 'Error loading saved jobs. Please try again.',
+                'in_progress': 'Error loading in progress jobs. Please try again.'
+            };
+
+            const retryFunctions = {
+                'all': 'fetchJobs(\'all\')',
+                'saved': 'fetchJobs(\'saved\')',
+                'in_progress': 'fetchJobs(\'in_progress\')'
+            };
+
             try {
-                const response = await fetch('{{ route('find-jobs.saved') }}', {
+                const response = await fetch(routes[type], {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -1145,19 +1143,26 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store saved jobs data
-                    savedJobsData = data.jobs;
+                    // Store data based on type
+                    if (type === 'all') {
+                        allJobsData = data.jobs;
+                    } else if (type === 'saved') {
+                        savedJobsData = data.jobs;
+                    } else if (type === 'in_progress') {
+                        inProgressJobsData = data.jobs;
+                    }
+
                     displayJobs(data.jobs);
                 } else {
-                    throw new Error(data.message || 'Failed to fetch saved jobs');
+                    throw new Error(data.message || `Failed to fetch ${type} jobs`);
                 }
             } catch (error) {
-                console.error('Error fetching saved jobs:', error);
+                console.error(`Error fetching ${type} jobs:`, error);
                 jobsContainer.innerHTML =
                     '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
                     '<div>' +
-                    '<p class="text-gray-600 mb-2">Error loading saved jobs. Please try again.</p>' +
-                    '<button onclick="fetchSavedJobs()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">' +
+                    `<p class="text-gray-600 mb-2">${errorMessages[type]}</p>` +
+                    `<button onclick="${retryFunctions[type]}" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">` +
                     'Retry' +
                     '</button>' +
                     '</div>' +
@@ -1197,7 +1202,7 @@
                             displayJobs(savedJobsData);
                         } else {
                             // Fetch updated saved jobs list
-                            fetchSavedJobs();
+                            fetchJobs('saved');
                         }
                     }
 
@@ -1234,6 +1239,12 @@
             } else {
                 // Remove from savedJobsData
                 savedJobsData = savedJobsData.filter(job => job.id !== jobId);
+            }
+
+            // Also update in inProgressJobsData if the job is there
+            const inProgressIndex = inProgressJobsData.findIndex(job => job.id === jobId);
+            if (inProgressIndex !== -1) {
+                inProgressJobsData[inProgressIndex].is_saved = isSaved;
             }
         }
 

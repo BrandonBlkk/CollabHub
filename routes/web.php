@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/find-jobs/jobs', [FindJobsContoller::class, 'getJobs'])->name('find-jobs.jobs');
         Route::get('/find-jobs/jobs/{id}', [FindJobsContoller::class, 'getJob'])->name('jobs.show');
         Route::get('/jobs/saved', [FindJobsContoller::class, 'getSavedJobs'])->name('find-jobs.saved');
+        Route::get('/jobs/in-progress', [FindJobsContoller::class, 'getInProgressJobs'])->name('find-jobs.in-progress');
         Route::post('/jobs/toggle-save', [FindJobsContoller::class, 'toggleSaveJob'])->name('find-jobs.toggle-save');
 
         // Skill
