@@ -79,6 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/find-jobs', [FindJobsContoller::class, 'index'])->name('find-jobs');
         Route::get('/find-jobs/jobs', [FindJobsContoller::class, 'getJobs'])->name('find-jobs.jobs');
         Route::get('/find-jobs/jobs/{id}', [FindJobsContoller::class, 'getJob'])->name('jobs.show');
+        Route::get('/jobs/saved', [FindJobsContoller::class, 'getSavedJobs'])->name('find-jobs.saved');
+        Route::post('/jobs/toggle-save', [FindJobsContoller::class, 'toggleSaveJob'])->name('find-jobs.toggle-save');
 
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');

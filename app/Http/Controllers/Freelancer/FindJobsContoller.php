@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Freelancer;
 
 use App\Http\Controllers\Controller;
+use App\Models\FavoriteJob;
 use App\Models\Job;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FindJobsContoller extends Controller
 {
@@ -24,6 +26,64 @@ class FindJobsContoller extends Controller
                 'jobs' => $jobs
             ]
         );
+    }
+
+    // Get saved jobs
+    public function getSavedJobs(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get all favorite job IDs for the current user
+        $favoriteJobIds = FavoriteJob::where('user_id', $user->id)
+            ->pluck('job_id')
+            ->toArray();
+
+        $jobs = Job::whereIn('id', $favoriteJobIds)
+            ->get();
+
+        $jobs->each(function ($job) {
+            $job->is_saved = true;
+        });
+
+        return response()->json([
+            'success' => true,
+            'jobs' => $jobs
+        ]);
+    }
+
+    // Toggle save job
+    public function toggleSaveJob(Request $request)
+    {
+        $request->validate([
+            'job_id' => 'required|exists:jobs,id'
+        ]);
+
+        $user = Auth::user();
+        $jobId = $request->job_id;
+
+        $existing = FavoriteJob::where('user_id', $user->id)
+            ->where('job_id', $jobId)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Job removed from saved jobs',
+                'action' => 'removed'
+            ]);
+        } else {
+            FavoriteJob::create([
+                'user_id' => $user->id,
+                'job_id' => $jobId
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Job saved successfully',
+                'action' => 'saved'
+            ]);
+        }
     }
 
     // Get a specific job
