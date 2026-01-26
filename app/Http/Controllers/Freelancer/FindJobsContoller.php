@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Freelancer;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppliedJob;
 use App\Models\FavoriteJob;
 use App\Models\InProgressJob;
 use App\Models\Job;
@@ -63,6 +64,29 @@ class FindJobsContoller extends Controller
             ->toArray();
 
         $jobs = Job::whereIn('id', $inProgressJobIds)
+            ->get();
+
+        $jobs->each(function ($job) {
+            $job->is_saved = true;
+        });
+
+        return response()->json([
+            'success' => true,
+            'jobs' => $jobs
+        ]);
+    }
+
+    // Get in applied jobs
+    public function getAppliedJobs(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get all favorite job IDs for the current user
+        $appliedJobIds = AppliedJob::where('user_id', $user->id)
+            ->pluck('job_id')
+            ->toArray();
+
+        $jobs = Job::whereIn('id', $appliedJobIds)
             ->get();
 
         $jobs->each(function ($job) {

@@ -442,6 +442,7 @@
         let allJobsData = [];
         let savedJobsData = [];
         let inProgressJobsData = [];
+        let appliedJobsData = [];
         let currentTab = 'all';
         let isInitialLoad = true;
 
@@ -483,8 +484,14 @@
                 } else {
                     fetchJobs('in_progress');
                 }
-            } else {
-                // Handle other statuses if needed
+            } else if (status === 'applied') {
+                // If we already have applied jobs data, just display it
+                if (appliedJobsData.length > 0 && !isInitialLoad) {
+                    displayJobs(appliedJobsData);
+                    applyCurrentFilters();
+                } else {
+                    fetchJobs('applied');
+                }
             }
 
             isInitialLoad = false;
@@ -557,6 +564,22 @@
                 });
 
                 displayJobs(filteredInProgressJobs);
+            } else if (currentTab === 'applied') {
+                // Filter applied jobs
+                const filteredAppliedJobs = appliedJobsData.filter(job => {
+                    const title = job.title ? job.title.toLowerCase() : '';
+                    const description = job.description ? job.description.toLowerCase() : '';
+                    const skills = job.skills_required ?
+                        (Array.isArray(job.skills_required) ?
+                            job.skills_required.join(' ').toLowerCase() :
+                            job.skills_required.toLowerCase()) : '';
+
+                    return title.includes(searchTerm) ||
+                        description.includes(searchTerm) ||
+                        skills.includes(searchTerm);
+                });
+
+                displayJobs(filteredAppliedJobs);
             } else {
                 // Filter all jobs
                 const filteredJobs = allJobsData.filter(job => {
@@ -595,6 +618,8 @@
                 dataToFilter = [...savedJobsData];
             } else if (currentTab === 'in_progress') {
                 dataToFilter = [...inProgressJobsData];
+            } else if (currentTab === 'applied') {
+                dataToFilter = [...appliedJobsData];
             } else {
                 dataToFilter = [...allJobsData];
             }
@@ -1110,19 +1135,22 @@
             const routes = {
                 'all': '{{ route('find-jobs.jobs') }}',
                 'saved': '{{ route('find-jobs.saved') }}',
-                'in_progress': '{{ route('find-jobs.in-progress') }}'
+                'in_progress': '{{ route('find-jobs.in-progress') }}',
+                'applied': '{{ route('find-jobs.applied') }}'
             };
 
             const errorMessages = {
                 'all': 'Error loading jobs. Please try again.',
                 'saved': 'Error loading saved jobs. Please try again.',
-                'in_progress': 'Error loading in progress jobs. Please try again.'
+                'in_progress': 'Error loading in progress jobs. Please try again.',
+                'applied': 'Error loading applied jobs. Please try again.'
             };
 
             const retryFunctions = {
                 'all': 'fetchJobs(\'all\')',
                 'saved': 'fetchJobs(\'saved\')',
-                'in_progress': 'fetchJobs(\'in_progress\')'
+                'in_progress': 'fetchJobs(\'in_progress\')',
+                'applied': 'fetchJobs(\'applied\')'
             };
 
             try {
@@ -1150,6 +1178,8 @@
                         savedJobsData = data.jobs;
                     } else if (type === 'in_progress') {
                         inProgressJobsData = data.jobs;
+                    } else if (type === 'applied') {
+                        appliedJobsData = data.jobs;
                     }
 
                     displayJobs(data.jobs);
