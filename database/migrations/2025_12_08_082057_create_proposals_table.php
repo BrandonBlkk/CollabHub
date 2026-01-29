@@ -11,6 +11,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('job_id')->constrained()->cascadeOnDelete();
             $table->foreignId('freelancer_id')->constrained()->cascadeOnDelete();
+            $table->text('proposal_text');
+            $table->decimal('bid_amount', 10, 2);
             $table->timestamps();
             $table->softDeletes();
         });
