@@ -84,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/jobs/applied', [FindJobsContoller::class, 'getAppliedJobs'])->name('find-jobs.applied');
         Route::post('/jobs/toggle-save', [FindJobsContoller::class, 'toggleSaveJob'])->name('find-jobs.toggle-save');
 
+        // Proposal
+        Route::post('/jobs/proposals-save', [FindJobsContoller::class, 'storeProposal'])->name('find-jobs.proposals-save');
+
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
         Route::get('/skills/{skill}/related', [SkillController::class, 'relatedSkills'])->name('skills.related');
