@@ -261,6 +261,122 @@
         </div>
     </div>
 
+    <!-- Proposal Submission Modal -->
+    <div id="proposal-modal" class="fixed inset-0 z-[60] hidden transition-opacity duration-300">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out" id="proposal-backdrop">
+        </div>
+        <div class="fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-2xl w-full translate-y-4 opacity-0 scale-95"
+                    id="proposal-content">
+                    <!-- Modal Header -->
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">Submit Proposal</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600">Job: <span id="proposal-job-title"
+                                            class="font-medium"></span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Please fill in your proposal details below</p>
+                                </div>
+                            </div>
+                            <button type="button" id="close-proposal-modal"
+                                class="text-gray-400 hover:text-gray-500 rounded-lg p-2 transition-colors duration-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Form -->
+                    <form id="proposal-form">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pt-0 sm:pb-4 overflow-y-auto max-h-[60vh]">
+                            <div class="space-y-4">
+                                <!-- Hidden job ID -->
+                                <input type="hidden" id="proposal-job-id" name="job_id">
+
+                                <!-- Proposal Text -->
+                                <div>
+                                    <label for="proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Proposal Details <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea id="proposal-text" name="proposal_text" rows="6"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                        placeholder="Describe your approach, relevant experience, and why you're the best fit for this job..."></textarea>
+                                </div>
+
+                                <!-- Bid Amount -->
+                                <div>
+                                    <label for="bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Your Bid Amount (USD) <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">$</span>
+                                        </div>
+                                        <input type="number" id="bid-amount" name="bid_amount" step="0.01"
+                                            min="1"
+                                            class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                            placeholder="0.00">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Enter your proposed budget for this job</p>
+                                </div>
+
+                                <!-- Estimated Timeline (Optional) -->
+                                <div>
+                                    <label for="estimated-timeline" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Estimated Timeline (Optional)
+                                    </label>
+                                    <select name="estimated-timeline" id="estimated-timeline"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm">
+                                        <option value="2 weeks">2 weeks</option>
+                                        <option value="3-4 weeks">3-4 weeks</option>
+                                        <option value="1-2 months">1-2 months</option>
+                                        <option value="3-6 months">3-6 months</option>
+                                        <option value="more than 6 months">More than 6 months</option>
+                                        <option value="not sure">Not sure</option>
+                                        <option value="ongoing support">Ongoing support</option>
+                                        <option value="to be discussed">To be discussed</option>
+                                    </select>
+                                </div>
+
+                                <!-- Error Message Container -->
+                                <div id="proposal-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                                    <p class="text-sm text-red-600" id="proposal-error-text"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div
+                            class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
+                            <button type="submit" id="submit-proposal-btn"
+                                class="inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span id="submit-proposal-text">Submit Proposal</span>
+                                <span id="submit-proposal-loading" class="hidden ml-2">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button type="button" id="cancel-proposal-modal"
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Jobs Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="jobs-container">
         <!-- Job Card Template (Hidden) -->
@@ -975,9 +1091,7 @@
 
             // Update button actions
             applyJobBtn.onclick = () => {
-                alert(`Applying to: ${job.title}`);
-                // You can redirect to application page or show application form here
-                // window.location.href = `/jobs/${job.id}/apply`;
+                openProposalModal(job);
             };
 
             // Update save button action
@@ -1247,6 +1361,231 @@
                 };
             }
         }
+
+        // Proposal Modal elements
+        const proposalModal = document.getElementById('proposal-modal');
+        const proposalBackdrop = document.getElementById('proposal-backdrop');
+        const proposalContent = document.getElementById('proposal-content');
+        const closeProposalModalBtn = document.getElementById('close-proposal-modal');
+        const cancelProposalModalBtn = document.getElementById('cancel-proposal-modal');
+        const proposalForm = document.getElementById('proposal-form');
+        const submitProposalBtn = document.getElementById('submit-proposal-btn');
+        const submitProposalText = document.getElementById('submit-proposal-text');
+        const submitProposalLoading = document.getElementById('submit-proposal-loading');
+        const proposalError = document.getElementById('proposal-error');
+        const proposalErrorText = document.getElementById('proposal-error-text');
+
+        // Current job details for proposal
+        let currentJobForProposal = null;
+
+        // Proposal Modal functions
+        function openProposalModal(job) {
+            currentJobForProposal = job;
+
+            // Set job details
+            document.getElementById('proposal-job-title').textContent = job.title || 'Untitled Job';
+            document.getElementById('proposal-job-id').value = job.id;
+
+            // Clear form
+            proposalForm.reset();
+            hideProposalError();
+
+            // Add character counter for proposal text
+            const proposalText = document.getElementById('proposal-text');
+            proposalText.addEventListener('input', updateCharCounter);
+
+            // Initialize character counter
+            updateCharCounter.call(proposalText);
+
+            // First remove hidden class
+            proposalModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Trigger reflow to ensure transition works
+            void proposalModal.offsetWidth;
+
+            setTimeout(() => {
+                proposalBackdrop.classList.remove('opacity-0');
+                proposalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                proposalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                proposalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+            }, 10);
+
+            // Close job details modal
+            closeModal();
+        }
+
+        function closeProposalModal() {
+            // Remove transform classes for content
+            proposalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+            proposalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+
+            // Remove opacity class for backdrop
+            proposalBackdrop.classList.remove('opacity-100');
+            proposalBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                proposalModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                currentJobForProposal = null;
+
+                // Remove character counter event listener
+                const proposalText = document.getElementById('proposal-text');
+                proposalText.removeEventListener('input', updateCharCounter);
+
+                // Remove character counter if exists
+                const existingCounter = proposalText.nextElementSibling;
+                if (existingCounter && existingCounter.classList.contains('char-counter')) {
+                    existingCounter.remove();
+                }
+            }, 300);
+
+            // Open job details modal
+            openModal();
+        }
+
+        // Character counter function
+        function updateCharCounter() {
+            const text = this.value;
+            const length = text.length;
+            const minLength = 100;
+
+            // Create or update counter
+            let counter = this.nextElementSibling;
+            if (!counter || !counter.classList.contains('char-counter')) {
+                counter = document.createElement('div');
+                counter.className = 'char-counter text-xs text-right mt-1';
+                this.parentNode.insertBefore(counter, this.nextElementSibling);
+            }
+
+            // Reset classes
+            counter.className = 'char-counter text-xs text-right mt-1';
+
+            // Add conditional classes based on length
+            if (length < minLength) {
+                counter.classList.add('text-red-500');
+                counter.textContent = `${length} characters (Minimum ${minLength} required)`;
+            } else if (length < 150) {
+                counter.classList.add('text-amber-500');
+                counter.textContent = `${length} characters`;
+            } else {
+                counter.classList.add('text-emerald-500');
+                counter.textContent = `${length} characters`;
+            }
+        }
+
+        // Show/hide proposal error
+        function showProposalError(message) {
+            proposalErrorText.textContent = message;
+            proposalError.classList.remove('hidden');
+        }
+
+        function hideProposalError() {
+            proposalError.classList.add('hidden');
+        }
+
+        // Form validation
+        function validateProposalForm(formData) {
+            const errors = [];
+
+            // Check proposal text
+            const proposalText = formData.get('proposal_text')?.trim() || '';
+            if (proposalText.length < 100) {
+                errors.push('Proposal details must be at least 100 characters');
+            }
+
+            // Check bid amount
+            const bidAmount = parseFloat(formData.get('bid_amount'));
+            if (!bidAmount || bidAmount <= 0) {
+                errors.push('Please enter a valid bid amount');
+            }
+
+            return errors;
+        }
+
+        // Submit proposal
+        async function submitProposal(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Validate form
+            const errors = validateProposalForm(formData);
+            if (errors.length > 0) {
+                showProposalError(errors.join(', '));
+                return;
+            }
+
+            // Show loading state
+            submitProposalText.textContent = 'Submitting...';
+            submitProposalLoading.classList.remove('hidden');
+            submitProposalBtn.disabled = true;
+            hideProposalError();
+
+            try {
+                const response = await fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to submit proposal');
+                }
+
+                if (data.success) {
+                    // Show success message
+                    alert('Proposal submitted successfully!');
+
+                    // Close modal
+                    closeProposalModal();
+
+                    // If on applied tab, refresh the list
+                    if (currentTab === 'applied') {
+                        fetchJobs('applied');
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to submit proposal');
+                }
+            } catch (error) {
+                console.error('Error submitting proposal:', error);
+                showProposalError(error.message || 'Failed to submit proposal. Please try again.');
+            } finally {
+                // Reset button state
+                submitProposalText.textContent = 'Submit Proposal';
+                submitProposalLoading.classList.add('hidden');
+                submitProposalBtn.disabled = false;
+            }
+        }
+
+        // Event listeners for proposal modal
+        closeProposalModalBtn.addEventListener('click', closeProposalModal);
+        cancelProposalModalBtn.addEventListener('click', closeProposalModal);
+        proposalForm.addEventListener('submit', submitProposal);
+
+        // Close proposal modal when clicking outside
+        proposalModal.addEventListener('click', (e) => {
+            if (e.target === proposalModal) {
+                closeProposalModal();
+            }
+        });
+
+        // Close proposal modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !proposalModal.classList.contains('hidden')) {
+                closeProposalModal();
+            }
+        });
 
         // Helper function to update job saved status in memory
         function updateJobSavedStatus(jobId, isSaved) {
