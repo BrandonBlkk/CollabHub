@@ -9,7 +9,7 @@ class Proposal extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['job_id', 'freelancer_id', 'cover_letter', 'proposed_rate'];
+    protected $fillable = ['job_id', 'freelancer_id', 'proposal_text', 'bid_amount', 'estimated_timeline'];
 
     public function job()
     {
