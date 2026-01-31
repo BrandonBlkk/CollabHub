@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('freelancer_id')->constrained()->cascadeOnDelete();
             $table->text('proposal_text');
             $table->decimal('bid_amount', 10, 2);
+            $table->string('estimated_timeline');
             $table->timestamps();
             $table->softDeletes();
         });
