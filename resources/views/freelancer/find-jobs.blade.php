@@ -321,7 +321,8 @@
                                             class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
                                             placeholder="0.00">
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-1">Enter your proposed budget for this job</p>
+                                    <p class="text-xs text-gray-500 mt-1">Enter your proposed budget between
+                                        (USD) <span id="min_max_budget"></span></p>
                                 </div>
 
                                 <!-- Estimated Timeline (Optional) -->
@@ -338,7 +339,7 @@
                                         <option value="more than 6 months">More than 6 months</option>
                                         <option value="not sure">Not sure</option>
                                         <option value="ongoing support">Ongoing support</option>
-                                        <option value="to be discussed">To be discussed</option>
+                                        <option value="to be discussed" selected>To be discussed (default)</option>
                                     </select>
                                 </div>
 
@@ -1362,6 +1363,7 @@
         const closeProposalModalBtn = document.getElementById('close-proposal-modal');
         const cancelProposalModalBtn = document.getElementById('cancel-proposal-modal');
         const proposalForm = document.getElementById('proposal-form');
+        const min_max_budget = document.getElementById('min_max_budget');
         const submitProposalBtn = document.getElementById('submit-proposal-btn');
         const submitProposalText = document.getElementById('submit-proposal-text');
         const submitProposalLoading = document.getElementById('submitSpinner');
@@ -1386,6 +1388,12 @@
             // Add character counter for proposal text
             const proposalText = document.getElementById('proposal-text');
             proposalText.addEventListener('input', updateCharCounter);
+
+            const bid_amount = document.getElementById('bid-amount');
+            bid_amount.min = job.budget_min;
+            bid_amount.max = job.budget_max;
+            bid_amount.value = job.budget_min;
+            min_max_budget.textContent = `${job.budget_min} - ${job.budget_max}`;
 
             // Initialize character counter
             updateCharCounter.call(proposalText);
