@@ -10,7 +10,7 @@ use App\Http\Controllers\EarningsController;
 use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\EducationController;
 use App\Http\Controllers\Freelancer\ExperienceController;
-use App\Http\Controllers\Freelancer\FindJobsContoller;
+use App\Http\Controllers\Freelancer\FindJobsController;
 use App\Http\Controllers\Freelancer\LanguageController;
 use App\Http\Controllers\Freelancer\ProfileController as FreelancerProfileController;
 use App\Http\Controllers\Freelancer\SkillController;
@@ -76,16 +76,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('freelancer-profile', FreelancerProfileController::class);
 
         // Find Jobs
-        Route::get('/find-jobs', [FindJobsContoller::class, 'index'])->name('find-jobs');
-        Route::get('/find-jobs/jobs', [FindJobsContoller::class, 'getJobs'])->name('find-jobs.jobs');
-        Route::get('/find-jobs/jobs/{id}', [FindJobsContoller::class, 'getJob'])->name('jobs.show');
-        Route::get('/jobs/saved', [FindJobsContoller::class, 'getSavedJobs'])->name('find-jobs.saved');
-        Route::get('/jobs/in-progress', [FindJobsContoller::class, 'getInProgressJobs'])->name('find-jobs.in-progress');
-        Route::get('/jobs/applied', [FindJobsContoller::class, 'getAppliedJobs'])->name('find-jobs.applied');
-        Route::post('/jobs/toggle-save', [FindJobsContoller::class, 'toggleSaveJob'])->name('find-jobs.toggle-save');
+        Route::get('/find-jobs', [FindJobsController::class, 'index'])->name('find-jobs');
+        Route::get('/find-jobs/jobs', [FindJobsController::class, 'getJobs'])->name('find-jobs.jobs');
+        Route::get('/find-jobs/jobs/{id}', [FindJobsController::class, 'getJob'])->name('jobs.show');
+        Route::get('/jobs/saved', [FindJobsController::class, 'getSavedJobs'])->name('find-jobs.saved');
+        Route::get('/jobs/in-progress', [FindJobsController::class, 'getInProgressJobs'])->name('find-jobs.in-progress');
+        Route::get('/jobs/applied', [FindJobsController::class, 'getAppliedJobs'])->name('find-jobs.applied');
+        Route::post('/jobs/toggle-save', [FindJobsController::class, 'toggleSaveJob'])->name('find-jobs.toggle-save');
 
         // Proposal
-        Route::post('/jobs/proposals-save', [FindJobsContoller::class, 'storeProposal'])->name('find-jobs.proposals-save');
+        Route::post('/jobs/proposals-save', [FindJobsController::class, 'storeProposal'])->name('find-jobs.proposals-save');
+        Route::get('/jobs/proposals/{id}', [FindJobsController::class, 'getProposal'])->name('find-jobs.proposals');
+        Route::put('/jobs/proposals/{id}/update', [FindJobsController::class, 'updateProposal'])->name('find-jobs.proposals.update');
+        Route::put('/jobs/proposals/{id}/withdraw', [FindJobsController::class, 'withdrawProposal'])->name('find-jobs.proposals.withdraw');
 
         // Skill
         Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
