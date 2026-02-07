@@ -243,9 +243,13 @@
                     <!-- Modal Footer -->
                     <div
                         class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
+                        <button type="button" id="update-job-btn"
+                            class="hidden w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
+                            Update Proposal
+                        </button>
                         <button type="button" id="apply-job-btn"
                             class="inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
-                            Submit Proposal
+                            Apply Job
                         </button>
                         <button type="button" id="save-job-btn"
                             class="px-4 py-2 flex items-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
@@ -361,6 +365,116 @@
                                 <span id="submit-proposal-text">Submit Proposal</span>
                             </button>
                             <button type="button" id="cancel-proposal-modal"
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proposal Update Modal -->
+    <div id="proposal-update-modal" class="fixed inset-0 z-[60] hidden transition-opacity duration-300">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out" id="proposal-backdrop">
+        </div>
+        <div class="fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-2xl w-full translate-y-4 opacity-0 scale-95"
+                    id="update-proposal-content">
+                    <!-- Modal Header -->
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">Update Proposal</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600">Job: <span id="proposal-job-title"
+                                            class="font-medium"></span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Please fill in your proposal details below</p>
+                                </div>
+                            </div>
+                            <button type="button" id="close-update-proposal-modal"
+                                class="text-gray-400 hover:text-gray-500 rounded-lg p-2 transition-colors duration-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Content - Form -->
+                    <form id="proposal-form">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pt-0 sm:pb-4 overflow-y-auto max-h-[60vh]">
+                            <div class="space-y-4">
+                                <!-- Hidden job ID -->
+                                <input type="hidden" id="proposal-job-id" name="job_id">
+
+                                <!-- Proposal Text -->
+                                <div>
+                                    <label for="proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Proposal Details <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea id="proposal-text" name="proposal_text" rows="6"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                        placeholder="Describe your approach, relevant experience, and why you're the best fit for this job..."></textarea>
+                                </div>
+
+                                <!-- Bid Amount -->
+                                <div>
+                                    <label for="bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Your Bid Amount (USD) <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">$</span>
+                                        </div>
+                                        <input type="number" id="bid-amount" name="bid_amount" step="0.01"
+                                            min="1"
+                                            class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                            placeholder="0.00">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Enter your proposed budget between
+                                        (USD) <span id="min_max_budget"></span></p>
+                                </div>
+
+                                <!-- Estimated Timeline (Optional) -->
+                                <div>
+                                    <label for="estimated-timeline" class="block text-sm font-medium text-gray-900 mb-2">
+                                        Estimated Timeline (Optional)
+                                    </label>
+                                    <select name="estimated_timeline" id="estimated-timeline"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm">
+                                        <option value="2 weeks">2 weeks</option>
+                                        <option value="3-4 weeks">3-4 weeks</option>
+                                        <option value="1-2 months">1-2 months</option>
+                                        <option value="3-6 months">3-6 months</option>
+                                        <option value="more than 6 months">More than 6 months</option>
+                                        <option value="not sure">Not sure</option>
+                                        <option value="ongoing support">Ongoing support</option>
+                                        <option value="to be discussed" selected>To be discussed (default)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Error Message Container -->
+                                <div id="proposal-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                                    <p class="text-sm text-red-600" id="proposal-error-text"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div
+                            class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
+                            <button type="submit" id="update-proposal-btn"
+                                class="inline-flex w-full items-center justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <div id="submitSpinner"
+                                    class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
+                                </div>
+                                <span id="submit-proposal-update-text">Save Proposal</span>
+                            </button>
+                            <button type="button" id="cancel-proposal-update-modal"
                                 class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
                                 Cancel
                             </button>
@@ -880,6 +994,7 @@
         const closeModalBtn = document.getElementById('close-modal');
         const cancelModalBtn = document.getElementById('cancel-modal');
         const applyJobBtn = document.getElementById('apply-job-btn');
+        const updateJobBtn = document.getElementById('update-job-btn');
         const saveJobBtn = document.getElementById('save-job-btn');
 
         // Function to show skeleton loading animation
@@ -1074,7 +1189,7 @@
 
             // Set proposals count
             const proposalsElement = document.getElementById('modal-proposals-count');
-            proposalsElement.textContent = job.proposals_count ? `${job.proposals_count} proposals` : '0 proposals';
+            proposalsElement.textContent = job.proposals_count ? `${job.proposals_count} proposals` : '0 proposal';
 
             // Update save button text
             if (job.is_saved) {
@@ -1082,6 +1197,109 @@
             } else {
                 saveJobBtn.textContent = 'Save Job';
             }
+
+            // Function to update buttons based on job status
+            function updateButtonsBasedOnStatus(job) {
+                const applyJobBtn = document.getElementById('apply-job-btn');
+                const updateJobBtn = document.getElementById('update-job-btn');
+                const saveJobBtn = document.getElementById('save-job-btn');
+
+                // Reset all buttons first
+                applyJobBtn.classList.remove('hidden');
+                applyJobBtn.classList.add('inline-flex');
+                updateJobBtn.classList.remove('inline-flex');
+                updateJobBtn.classList.add('hidden');
+                applyJobBtn.disabled = false;
+                applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+
+                // Define status behaviors
+                const statusConfig = {
+                    'submitted': {
+                        showApply: false,
+                        applyEnabled: false,
+                        showUpdate: true,
+                        updateText: 'Update Proposal'
+                    },
+                    'viewed': {
+                        showApply: true,
+                        applyText: 'Already Viewed',
+                        applyEnabled: false,
+                        showUpdate: true,
+                        updateText: 'Update Proposal'
+                    },
+                    'shortlisted': {
+                        showApply: true,
+                        applyText: 'Already Shortlisted',
+                        applyEnabled: false,
+                        showUpdate: true,
+                        updateText: 'Withdraw Application'
+                    },
+                    'interviewing': {
+                        showApply: false,
+                        applyText: 'Interview in Progress',
+                        applyEnabled: false,
+                        showUpdate: true,
+                        updateText: 'Update Application'
+                    },
+                    'revising': {
+                        showApply: false,
+                        applyText: 'Application Under Revision',
+                        applyEnabled: false,
+                        showUpdate: true,
+                        updateText: 'Update Revision'
+                    },
+                    'rejected': {
+                        showApply: true,
+                        applyText: 'Reapply',
+                        applyEnabled: true,
+                        showUpdate: false
+                    },
+                    'accepted': {
+                        showApply: true,
+                        applyText: 'Offer Accepted',
+                        applyEnabled: false,
+                        showUpdate: false
+                    },
+                    'withdrawn': {
+                        showApply: true,
+                        applyText: 'Apply Job',
+                        applyEnabled: true,
+                        showUpdate: false
+                    }
+                };
+
+                // Get config for current status (default to 'viewed' if status not found)
+                const config = statusConfig[job.applied_status] || statusConfig.submitted;
+
+                // Apply button configuration
+                if (config.showApply) {
+                    applyJobBtn.classList.remove('hidden');
+                    applyJobBtn.classList.add('inline-flex');
+                    applyJobBtn.textContent = config.applyText;
+                    applyJobBtn.disabled = !config.applyEnabled;
+
+                    if (!config.applyEnabled) {
+                        applyJobBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                    } else {
+                        applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                    }
+                } else {
+                    applyJobBtn.classList.remove('inline-flex');
+                    applyJobBtn.classList.add('hidden');
+                }
+
+                // Update button configuration
+                if (config.showUpdate) {
+                    updateJobBtn.classList.remove('hidden');
+                    updateJobBtn.classList.add('inline-flex');
+                    updateJobBtn.textContent = config.updateText;
+                } else {
+                    updateJobBtn.classList.remove('inline-flex');
+                    updateJobBtn.classList.add('hidden');
+                }
+            }
+
+            updateButtonsBasedOnStatus(job);
 
             // Update button actions
             applyJobBtn.onclick = () => {
@@ -1657,5 +1875,79 @@
 
             return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
         }
+
+        // Get modal elements
+        const proposalUpdateModal = document.getElementById('proposal-update-modal');
+        const updateProposalContent = document.getElementById('update-proposal-content');
+        // const closeProposalModalBtn = document.getElementById('close-proposal-modal');
+        const cancelProposalUpdateBtn = document.getElementById('cancel-proposal-update-modal');
+        const closeUpdateProposalModalBtn = document.getElementById('close-update-proposal-modal');
+        const updateProposalButton = document.getElementById('update-job-btn');
+
+        // Function to open the modal
+        function openUpdateProposalModal() {
+            // Reset form and show modal
+            document.getElementById('proposal-form').reset();
+            document.getElementById('proposal-error').classList.add('hidden');
+
+            // Show modal
+            proposalUpdateModal.classList.remove('hidden');
+
+            // Trigger animation
+            setTimeout(() => {
+                updateProposalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                updateProposalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                proposalBackdrop.classList.remove('opacity-0');
+                proposalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            closeModal();
+        }
+
+        // Function to close the modal
+        function closeUpdateProposalModal() {
+            // Trigger animation
+            updateProposalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+            updateProposalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+            proposalBackdrop.classList.remove('opacity-100');
+            proposalBackdrop.classList.add('opacity-0');
+            proposalUpdateModal.classList.add('hidden');
+
+            openModal();
+        }
+
+        closeUpdateProposalModalBtn.addEventListener('click', closeUpdateProposalModal);
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the Update Proposal button (make sure it exists)
+            const updateProposalButton = document.getElementById('update-job-btn');
+
+            // Check if button exists and add event listener
+            if (updateProposalButton) {
+                updateProposalButton.addEventListener('click', openUpdateProposalModal);
+            }
+
+            // Close modal when clicking backdrop
+            proposalBackdrop.addEventListener('click', closeUpdateProposalModal);
+
+            // Close modal when clicking close button
+            closeProposalModalBtn.addEventListener('click', closeUpdateProposalModal);
+
+            // Close modal when clicking cancel button
+            cancelProposalUpdateBtn.addEventListener('click', closeUpdateProposalModal);
+
+            // Close modal when pressing Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !proposalUpdateModal.classList.contains('hidden')) {
+                    closeUpdateProposalModal();
+                }
+            });
+
+            // Prevent modal from closing when clicking inside content
+            proposalContent.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
     </script>
 @endpush
