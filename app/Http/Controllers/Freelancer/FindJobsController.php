@@ -85,6 +85,7 @@ class FindJobsController extends Controller
 
         // Get all favorite job IDs for the current user
         $appliedJobIds = AppliedJob::where('user_id', $user->id)
+            ->where('status', '!=', 'withdrawn')
             ->pluck('job_id')
             ->toArray();
 
