@@ -51,7 +51,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">Active Projects</p>
+                        <p class="text-gray-500 text-sm font-medium">Active Jobs</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">4</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -212,62 +212,54 @@
         <!-- Left Column -->
         <div class="lg:col-span-2 space-y-3">
             @if (auth()->user()->role === 'freelancer')
-                <!-- Freelancer: Recent Projects -->
+                <!-- Freelancer: Recommended Jobs -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Recommended Projects</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <h2 class="text-xl font-bold text-gray-900">Recommended Jobs</h2>
+                        <a href="{{ route('find-jobs') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
                     </div>
 
-                    <div class="space-y-4">
-                        @for ($i = 1; $i <= 3; $i++)
-                            <div
-                                class="project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">Web
-                                                Development</span>
-                                            <span class="text-gray-500 text-xs">• Posted 2 hours ago</span>
+                    <div id="recommended-jobs-container" class="space-y-4">
+                        <!-- Loading skeleton -->
+                        <div id="jobs-loading" class="space-y-4">
+                            @for ($i = 1; $i <= 3; $i++)
+                                <div class="p-4 border border-gray-200 rounded-lg animate-pulse">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-4">
+                                                <div class="h-6 bg-gray-200 rounded w-24"></div>
+                                                <div class="h-4 bg-gray-200 rounded w-32"></div>
+                                            </div>
+                                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                            <div class="h-3 bg-gray-200 rounded w-full mb-3"></div>
+                                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                                            <div class="flex items-center justify-between mt-5">
+                                                <div class="flex items-center space-x-4">
+                                                    <div class="h-4 bg-gray-200 rounded w-20"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-16"></div>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="h-4 bg-gray-200 rounded w-12"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <h3 class="font-semibold text-gray-900 mb-1">Build a responsive
-                                            e-commerce website</h3>
-                                        <p class="text-gray-600 text-sm mb-3">Looking for an experienced
-                                            frontend developer to build a modern e-commerce site with
-                                            React.js and Tailwind CSS...</p>
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                <span class="text-gray-700 font-medium">$1,500 -
-                                                    $3,000</span>
-                                                <span class="text-gray-500 text-sm">Fixed Price</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <svg class="w-4 h-4 text-yellow-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path
-                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                                <span class="text-gray-600 text-sm ml-1">4.8</span>
-                                                <span class="text-gray-500 text-sm ml-2">(12
-                                                    reviews)</span>
-                                            </div>
+                                        <div class="ml-4">
+                                            <div class="h-9 bg-gray-200 rounded w-24"></div>
                                         </div>
                                     </div>
-                                    <button
-                                        class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
-                                        Apply Now
-                                    </button>
                                 </div>
-                            </div>
-                        @endfor
+                            @endfor
+                        </div>
+
+                        <!-- Dynamic content will be loaded here -->
                     </div>
                 </div>
 
                 <!-- Freelancer: Active Projects -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Active Projects</h2>
+                        <h2 class="text-xl font-bold text-gray-900">Active Jobs</h2>
                         <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
                     </div>
 
@@ -581,3 +573,167 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+
+                if (diffHours < 24) {
+                    return `Posted ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+                } else {
+                    const diffDays = Math.floor(diffHours / 24);
+                    return `Posted ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+                }
+            }
+
+            // Function to render job cards
+            function renderJobCards(jobs) {
+                const container = document.getElementById('recommended-jobs-container');
+                const loadingElement = document.getElementById('jobs-loading');
+
+                // Remove loading skeleton
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+
+                // Clear existing content
+                container.innerHTML = '';
+
+                if (jobs.length === 0) {
+                    container.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">No recommended jobs found at the moment.</p>
+                    </div>
+                `;
+                    return;
+                }
+
+                jobs.forEach(job => {
+                    const jobCard = document.createElement('div');
+                    jobCard.className =
+                        'project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200';
+
+                    // Format salary range
+                    let salaryRange = 'Negotiable';
+                    if (job.type === 'fixed') {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()} - $${parseFloat(job.budget_max).toLocaleString()}`;
+                    } else if (job.type === 'hourly' && job.budget_min && job.budget_max) {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()}/hr - $${parseFloat(job.budget_max).toLocaleString()}/hr`;
+                    } else if (job.budget_min && job.budget_max) {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()} - $${parseFloat(job.budget_max).toLocaleString()}`;
+                    }
+
+                    // Format job type display
+                    let jobTypeDisplay = 'Fixed Price';
+                    if (job.type === 'hourly') {
+                        jobTypeDisplay = 'Hourly Rate';
+                    }
+
+                    // Get category name from server response
+                    const categoryName = job.category?.name || 'General';
+
+                    jobCard.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                    ${categoryName}
+                                </span>
+                                <span class="text-gray-500 text-xs">• ${formatDate(job.created_at)}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-1">${job.title || 'Untitled Job'}</h3>
+                            <p class="text-gray-600 text-sm mb-3">${job.description ? (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) : 'No description provided.'}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-gray-700 font-medium">${salaryRange}</span>
+                                    <span class="text-gray-500 text-sm">${jobTypeDisplay}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <span class="text-gray-600 text-sm ml-1">${job.average_rating || '4.5'}</span>
+                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '12'} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="applyForJob(${job.id})"
+                            class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
+                            Apply Now
+                        </button>
+                    </div>
+                `;
+
+                    container.appendChild(jobCard);
+                });
+            }
+
+            // Function to fetch recommended jobs
+            async function fetchRecommendedJobs() {
+                try {
+                    const response = await fetch('{{ route('recommended-jobs') }}', {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success && data.jobs) {
+                        // Render the job cards with the fetched data
+                        renderJobCards(data.jobs);
+                    } else {
+                        throw new Error(data.message || 'Failed to fetch job details');
+                    }
+                } catch (error) {
+                    console.error('Error fetching job details:', error);
+
+                    // Show error message and keep loading skeleton
+                    const container = document.getElementById('recommended-jobs-container');
+                    const loadingElement = document.getElementById('jobs-loading');
+
+                    if (loadingElement) {
+                        loadingElement.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-red-500">Failed to load recommended jobs. Please try again later.</p>
+                            <button onclick="fetchRecommendedJobs()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                    }
+                }
+            }
+
+            // Function to handle job application
+            window.applyForJob = function(jobId) {
+                // Implement your job application logic here
+                alert(`Applying for job ID: ${jobId}`);
+                // You can redirect to application page or open a modal
+                // window.location.href = `/jobs/${jobId}/apply`;
+            };
+
+            // Fetch jobs when page loads (only for freelancers)
+            @if (auth()->user()->role === 'freelancer')
+                fetchRecommendedJobs();
+            @endif
+        });
+    </script>
+@endpush

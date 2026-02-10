@@ -32,6 +32,25 @@ class FindJobsController extends Controller
         );
     }
 
+    // Get recommended jobs
+    public function getRecommendedJobs(Request $request)
+    {
+        $jobs = Job::where('status', 'open')
+            ->with(['category' => function ($query) {
+                $query->select('id', 'name');
+            }])->where('status', 'open')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        return response()->json(
+            [
+                'success' => true,
+                'jobs' => $jobs
+            ]
+        );
+    }
+
     // Get saved jobs
     public function getSavedJobs(Request $request)
     {

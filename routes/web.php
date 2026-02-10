@@ -73,6 +73,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //  Freelancer-Only Routes
     Route::middleware('role:freelancer')->group(function () {
+        Route::get('/recommended-jobs', [FindJobsController::class, 'getRecommendedJobs'])->name('recommended-jobs');
+
+        // Freelancer Profile
         Route::resource('freelancer-profile', FreelancerProfileController::class);
 
         // Find Jobs
