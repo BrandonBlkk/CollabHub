@@ -41,6 +41,11 @@ class User extends Authenticatable
         return $this->hasOne(Freelancer::class);
     }
 
+    public function profileViews()
+    {
+        return $this->hasMany(ProfileView::class);
+    }
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
