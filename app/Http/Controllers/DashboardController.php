@@ -29,6 +29,7 @@ class DashboardController extends Controller
             'profileViewsChangePercent' => 0,
             'profileViewsTrend' => 'neutral',
             'statsPeriodLabel' => 'from last month',
+            'freelancerActiveJobs' => collect(),
         ];
 
         if ($user->role === 'freelancer' && $user->freelancer) {
@@ -99,6 +100,15 @@ class DashboardController extends Controller
                 'profileViewsChangePercent' => $this->calculateChangePercent($currentMonthProfileViews, $previousMonthProfileViews),
                 'profileViewsTrend' => $this->resolveTrend($currentMonthProfileViews, $previousMonthProfileViews),
                 'statsPeriodLabel' => 'from last month',
+                'freelancerActiveJobs' => Contract::query()
+                    ->where('freelancer_id', $freelancerId)
+                    ->whereHas('job', fn($query) => $query->whereIn('status', ['open', 'in_progress']))
+                    ->with([
+                        'job:id,title,status,budget_min,budget_max,expires_at',
+                    ])
+                    ->latest('updated_at')
+                    ->limit(5)
+                    ->get(),
             ];
         }
 

@@ -276,40 +276,63 @@
                         <!-- Dynamic content will be loaded here -->
                     </div>
                 </div>
-
                 <!-- Freelancer: Active Projects -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Active Jobs</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <a href="{{ route('find-jobs') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all &rarr;</a>
                     </div>
 
                     <div class="space-y-4">
-                        @for ($i = 1; $i <= 2; $i++)
+                        @forelse ($freelancerActiveJobs as $contract)
+                            @php
+                                $job = $contract->job;
+                                $isInProgress = $job?->status === 'in_progress';
+                                $statusLabel = $isInProgress ? 'In Progress' : 'Active';
+                                $dotColor = $isInProgress ? 'bg-amber-500' : 'bg-green-500';
+                                $progressPercent = $isInProgress ? 65 : 35;
+                                $progressBarColor = $isInProgress ? 'bg-amber-600' : 'bg-green-600';
+
+                                $amountDisplay = 'Negotiable';
+                                if ($contract->total_amount) {
+                                    $amountDisplay = '$' . number_format((float) $contract->total_amount, 2);
+                                } elseif (!is_null($job?->budget_min) && !is_null($job?->budget_max)) {
+                                    $amountDisplay =
+                                        '$' .
+                                        number_format((float) $job->budget_min, 0) .
+                                        ' - $' .
+                                        number_format((float) $job->budget_max, 0);
+                                }
+
+                                $deadlineDisplay = $job?->expires_at
+                                    ? $job->expires_at->format('M d, Y')
+                                    : 'No deadline';
+                            @endphp
                             <div class="project-card p-4 border border-gray-200 rounded-lg">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
-                                        <h3 class="font-semibold text-gray-900 mb-2">Mobile App Development
+                                        <h3 class="font-semibold text-gray-900 mb-2">{{ $job?->title ?? 'Untitled Job' }}
                                         </h3>
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center space-x-2">
-                                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                                <span class="text-gray-600 text-sm">In Progress</span>
+                                                <div class="w-2 h-2 rounded-full {{ $dotColor }}"></div>
+                                                <span class="text-gray-600 text-sm">{{ $statusLabel }}</span>
                                             </div>
-                                            <span class="text-gray-700 font-medium">$2,500</span>
+                                            <span class="text-gray-700 font-medium">{{ $amountDisplay }}</span>
                                         </div>
                                         <div class="mb-3">
                                             <div class="flex justify-between text-sm text-gray-600 mb-1">
                                                 <span>Progress</span>
-                                                <span>60%</span>
+                                                <span>{{ $progressPercent }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-green-600 h-2 rounded-full progress-bar"
-                                                    style="width: 60%"></div>
+                                                <div class="{{ $progressBarColor }} h-2 rounded-full progress-bar"
+                                                    style="width: {{ $progressPercent }}%"></div>
                                             </div>
                                         </div>
                                         <div class="flex items-center justify-between text-sm">
-                                            <span class="text-gray-600">Deadline: Dec 15, 2023</span>
+                                            <span class="text-gray-600">Deadline: {{ $deadlineDisplay }}</span>
                                             <div class="flex items-center space-x-3">
                                                 <button
                                                     class="text-blue-600 hover:text-blue-800 font-medium">Update</button>
@@ -319,7 +342,11 @@
                                     </div>
                                 </div>
                             </div>
-                        @endfor
+                        @empty
+                            <div class="p-4 my-10 text-center text-gray-500 text-sm">
+                                No active jobs found.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             @else
@@ -443,152 +470,76 @@
             <!-- Upcoming Deadlines -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Upcoming Deadlines</h2>
-                <div class="space-y-4">
-                    @for ($i = 1; $i <= 3; $i++)
+                @php
+                    $upcomingDeadlines = [
+                        [
+                            'title' => 'Landing Page Final Review',
+                            'days' => 1,
+                            'desc' => 'Approve hero section and CTA updates',
+                            'date' => 'Feb 13, 2026',
+                        ],
+                        [
+                            'title' => 'API Integration Milestone',
+                            'days' => 2,
+                            'desc' => 'Connect payment and invoice endpoints',
+                            'date' => 'Feb 14, 2026',
+                        ],
+                        [
+                            'title' => 'Mobile UI QA Pass',
+                            'days' => 3,
+                            'desc' => 'Resolve responsive issues on iOS and Android',
+                            'date' => 'Feb 15, 2026',
+                        ],
+                        [
+                            'title' => 'Backend Performance Tuning',
+                            'days' => 4,
+                            'desc' => 'Optimize heavy dashboard queries',
+                            'date' => 'Feb 16, 2026',
+                        ],
+                        [
+                            'title' => 'Client Demo Preparation',
+                            'days' => 5,
+                            'desc' => 'Prepare walkthrough and staging data',
+                            'date' => 'Feb 17, 2026',
+                        ],
+                        [
+                            'title' => 'Auth Flow Regression Test',
+                            'days' => 6,
+                            'desc' => 'Validate signup/signin and password reset',
+                            'date' => 'Feb 18, 2026',
+                        ],
+                        [
+                            'title' => 'Messaging Module Update',
+                            'days' => 7,
+                            'desc' => 'Finalize unread badge and thread sorting',
+                            'date' => 'Feb 19, 2026',
+                        ],
+                        [
+                            'title' => 'Contract Page Cleanup',
+                            'days' => 8,
+                            'desc' => 'Update labels and status visibility',
+                            'date' => 'Feb 20, 2026',
+                        ],
+                    ];
+                @endphp
+                <div class="space-y-4 max-h-[392px] overflow-y-auto pr-1">
+                    @foreach ($upcomingDeadlines as $deadline)
                         <div class="p-3 border border-gray-200 rounded-lg">
                             <div class="flex items-center justify-between mb-2">
-                                <h3 class="font-semibold text-gray-900 text-sm">Project Deliverable
-                                    {{ $i }}</h3>
-                                <span class="text-red-600 text-xs font-medium">Due in {{ $i }}
-                                    days</span>
+                                <h3 class="font-semibold text-gray-900 text-sm">{{ $deadline['title'] }}</h3>
+                                <span class="text-red-600 text-xs font-medium">Due in {{ $deadline['days'] }} days</span>
                             </div>
-                            <p class="text-gray-600 text-xs mb-2">Final design review and deployment</p>
+                            <p class="text-gray-600 text-xs mb-2">{{ $deadline['desc'] }}</p>
                             <div class="flex items-center text-gray-500 text-xs">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                Dec {{ 10 + $i }}, 2023
+                                {{ $deadline['date'] }}
                             </div>
                         </div>
-                    @endfor
-                </div>
-            </div>
-
-            <!-- Notifications -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Recent Notifications</h2>
-                <div class="space-y-4">
-                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">Meeting Reminder</h3>
-                                <p class="text-gray-600 text-xs">Project review meeting in 30 minutes</p>
-                                <span class="text-gray-500 text-xs">10 min ago</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">Payment Received</h3>
-                                <p class="text-gray-600 text-xs">$1,500 payment has been deposited</p>
-                                <span class="text-gray-500 text-xs">2 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">New Proposal</h3>
-                                <p class="text-gray-600 text-xs">You have received a new proposal</p>
-                                <span class="text-gray-500 text-xs">5 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <button
-                        class="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-blue-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            <span class="text-blue-700 text-sm font-medium">
-                                @if (auth()->user()->role === 'freelancer')
-                                    Send Proposal
-                                @else
-                                    Post a Job
-                                @endif
-                            </span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-green-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
-                                </path>
-                            </svg>
-                            <span class="text-green-700 text-sm font-medium">Messages</span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-purple-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                </path>
-                            </svg>
-                            <span class="text-purple-700 text-sm font-medium">Reports</span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-amber-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                </path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span class="text-amber-700 text-sm font-medium">Settings</span>
-                        </div>
-                    </button>
+                    @endforeach
                 </div>
             </div>
         </div>
