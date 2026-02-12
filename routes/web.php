@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FreelancerController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\SettingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EarningsController;
 use App\Http\Controllers\Freelancer\CertificateController;
 use App\Http\Controllers\Freelancer\EducationController;
@@ -29,9 +30,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // User-Only Routes
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
