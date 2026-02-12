@@ -25,12 +25,29 @@
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
         @if (auth()->user()->role === 'freelancer')
+            @php
+                $formatTrend = function ($trend, $percent) {
+                    $isDown = $trend === 'down';
+                    $isNeutral = $trend === 'neutral';
+
+                    return [
+                        'direction' => $isDown ? '↓' : ($isNeutral ? '→' : '↑'),
+                        'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
+                        'percent' => number_format(abs($percent ?? 0), 2),
+                    ];
+                };
+
+                $earningsUi = $formatTrend($earningsTrend ?? 'neutral', $earningsChangePercent ?? 0);
+                $activeProjectsUi = $formatTrend($activeProjectsTrend ?? 'neutral', $activeProjectsChangePercent ?? 0);
+                $proposalsUi = $formatTrend($proposalsSentTrend ?? 'neutral', $proposalsSentChangePercent ?? 0);
+                $profileViewsUi = $formatTrend($profileViewsTrend ?? 'neutral', $profileViewsChangePercent ?? 0);
+            @endphp
             <!-- Freelancer Stats -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Total Earnings</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">$12,580</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($totalEarnings ?? 0, 2) }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,8 +59,8 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 18%</span>
-                        <span class="text-gray-500 ml-2">from last month</span>
+                        <span class="{{ $earningsUi['color'] }} font-medium">{{ $earningsUi['direction'] }} {{ $earningsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -52,7 +69,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Active Projects</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">4</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $activeProjects ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,8 +81,8 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 2</span>
-                        <span class="text-gray-500 ml-2">from last week</span>
+                        <span class="{{ $activeProjectsUi['color'] }} font-medium">{{ $activeProjectsUi['direction'] }} {{ $activeProjectsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -74,7 +91,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Proposals Sent</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">12</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $proposalsSent ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,8 +103,8 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">30%</span>
-                        <span class="text-gray-500 ml-2">acceptance rate</span>
+                        <span class="{{ $proposalsUi['color'] }} font-medium">{{ $proposalsUi['direction'] }} {{ $proposalsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -96,7 +113,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Profile Views</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">245</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $profileViews ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,8 +127,8 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 42%</span>
-                        <span class="text-gray-500 ml-2">from last month</span>
+                        <span class="{{ $profileViewsUi['color'] }} font-medium">{{ $profileViewsUi['direction'] }} {{ $profileViewsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
