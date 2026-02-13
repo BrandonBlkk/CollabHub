@@ -234,7 +234,7 @@
         <div class="lg:col-span-2 space-y-3">
             @if (auth()->user()->role === 'freelancer')
                 <!-- Freelancer: Recommended Jobs -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-active-jobs">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Recommended Jobs</h2>
                         <a href="{{ route('find-jobs') }}"
@@ -468,8 +468,14 @@
         <!-- Right Column -->
         <div class="space-y-3">
             <!-- Upcoming Deadlines -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Upcoming Deadlines</h2>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-upcoming-deadlines">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Upcoming Deadlines</h2>
+                    <a href="{{ route('freelancer.deadlines') }}"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View all &rarr;
+                    </a>
+                </div>
                 @php
                     $upcomingDeadlines = [
                         [
