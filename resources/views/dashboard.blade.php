@@ -25,15 +25,32 @@
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
         @if (auth()->user()->role === 'freelancer')
+            @php
+                $formatTrend = function ($trend, $percent) {
+                    $isDown = $trend === 'down';
+                    $isNeutral = $trend === 'neutral';
+
+                    return [
+                        'direction' => $isDown ? '↓' : ($isNeutral ? '→' : '↑'),
+                        'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
+                        'percent' => number_format(abs($percent ?? 0), 2),
+                    ];
+                };
+
+                $earningsUi = $formatTrend($earningsTrend ?? 'neutral', $earningsChangePercent ?? 0);
+                $activeProjectsUi = $formatTrend($activeProjectsTrend ?? 'neutral', $activeProjectsChangePercent ?? 0);
+                $proposalsUi = $formatTrend($proposalsSentTrend ?? 'neutral', $proposalsSentChangePercent ?? 0);
+                $profileViewsUi = $formatTrend($profileViewsTrend ?? 'neutral', $profileViewsChangePercent ?? 0);
+            @endphp
             <!-- Freelancer Stats -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Total Earnings</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">$12,580</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($totalEarnings ?? 0, 2) }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
                             </path>
@@ -42,8 +59,9 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 18%</span>
-                        <span class="text-gray-500 ml-2">from last month</span>
+                        <span class="{{ $earningsUi['color'] }} font-medium">{{ $earningsUi['direction'] }}
+                            {{ $earningsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -52,7 +70,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Active Projects</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">4</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $activeProjects ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,8 +82,9 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 2</span>
-                        <span class="text-gray-500 ml-2">from last week</span>
+                        <span class="{{ $activeProjectsUi['color'] }} font-medium">{{ $activeProjectsUi['direction'] }}
+                            {{ $activeProjectsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -74,7 +93,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Proposals Sent</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">12</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $proposalsSent ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,8 +105,9 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">30%</span>
-                        <span class="text-gray-500 ml-2">acceptance rate</span>
+                        <span class="{{ $proposalsUi['color'] }} font-medium">{{ $proposalsUi['direction'] }}
+                            {{ $proposalsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -96,7 +116,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Profile Views</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">245</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $profileViews ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,8 +130,9 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 42%</span>
-                        <span class="text-gray-500 ml-2">from last month</span>
+                        <span class="{{ $profileViewsUi['color'] }} font-medium">{{ $profileViewsUi['direction'] }}
+                            {{ $profileViewsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -212,91 +233,106 @@
         <!-- Left Column -->
         <div class="lg:col-span-2 space-y-3">
             @if (auth()->user()->role === 'freelancer')
-                <!-- Freelancer: Recent Projects -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <!-- Freelancer: Recommended Jobs -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-active-jobs">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Recommended Projects</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <h2 class="text-xl font-bold text-gray-900">Recommended Jobs</h2>
+                        <a href="{{ route('find-jobs') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
                     </div>
 
-                    <div class="space-y-4">
-                        @for ($i = 1; $i <= 3; $i++)
-                            <div
-                                class="project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">Web
-                                                Development</span>
-                                            <span class="text-gray-500 text-xs">• Posted 2 hours ago</span>
+                    <div id="recommended-jobs-container" class="space-y-4">
+                        <!-- Loading skeleton -->
+                        <div id="jobs-loading" class="space-y-4">
+                            @for ($i = 1; $i <= 3; $i++)
+                                <div class="p-4 border border-gray-200 rounded-lg animate-pulse">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-4">
+                                                <div class="h-6 bg-gray-200 rounded w-24"></div>
+                                                <div class="h-4 bg-gray-200 rounded w-32"></div>
+                                            </div>
+                                            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                            <div class="h-3 bg-gray-200 rounded w-full mb-3"></div>
+                                            <div class="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                                            <div class="flex items-center justify-between mt-5">
+                                                <div class="flex items-center space-x-4">
+                                                    <div class="h-4 bg-gray-200 rounded w-20"></div>
+                                                    <div class="h-4 bg-gray-200 rounded w-16"></div>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="h-4 bg-gray-200 rounded w-12"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <h3 class="font-semibold text-gray-900 mb-1">Build a responsive
-                                            e-commerce website</h3>
-                                        <p class="text-gray-600 text-sm mb-3">Looking for an experienced
-                                            frontend developer to build a modern e-commerce site with
-                                            React.js and Tailwind CSS...</p>
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                <span class="text-gray-700 font-medium">$1,500 -
-                                                    $3,000</span>
-                                                <span class="text-gray-500 text-sm">Fixed Price</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <svg class="w-4 h-4 text-yellow-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path
-                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                                <span class="text-gray-600 text-sm ml-1">4.8</span>
-                                                <span class="text-gray-500 text-sm ml-2">(12
-                                                    reviews)</span>
-                                            </div>
+                                        <div class="ml-4">
+                                            <div class="h-9 bg-gray-200 rounded w-24"></div>
                                         </div>
                                     </div>
-                                    <button
-                                        class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
-                                        Apply Now
-                                    </button>
                                 </div>
-                            </div>
-                        @endfor
+                            @endfor
+                        </div>
+
+                        <!-- Dynamic content will be loaded here -->
                     </div>
                 </div>
-
                 <!-- Freelancer: Active Projects -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Active Projects</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <h2 class="text-xl font-bold text-gray-900">Active Jobs</h2>
+                        <a href="{{ route('find-jobs') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all &rarr;</a>
                     </div>
 
                     <div class="space-y-4">
-                        @for ($i = 1; $i <= 2; $i++)
+                        @forelse ($freelancerActiveJobs as $contract)
+                            @php
+                                $job = $contract->job;
+                                $isInProgress = $job?->status === 'in_progress';
+                                $statusLabel = $isInProgress ? 'In Progress' : 'Active';
+                                $dotColor = $isInProgress ? 'bg-amber-500' : 'bg-green-500';
+                                $progressPercent = $isInProgress ? 65 : 35;
+                                $progressBarColor = $isInProgress ? 'bg-amber-600' : 'bg-green-600';
+
+                                $amountDisplay = 'Negotiable';
+                                if ($contract->total_amount) {
+                                    $amountDisplay = '$' . number_format((float) $contract->total_amount, 2);
+                                } elseif (!is_null($job?->budget_min) && !is_null($job?->budget_max)) {
+                                    $amountDisplay =
+                                        '$' .
+                                        number_format((float) $job->budget_min, 0) .
+                                        ' - $' .
+                                        number_format((float) $job->budget_max, 0);
+                                }
+
+                                $deadlineDisplay = $job?->expires_at
+                                    ? $job->expires_at->format('M d, Y')
+                                    : 'No deadline';
+                            @endphp
                             <div class="project-card p-4 border border-gray-200 rounded-lg">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
-                                        <h3 class="font-semibold text-gray-900 mb-2">Mobile App Development
+                                        <h3 class="font-semibold text-gray-900 mb-2">{{ $job?->title ?? 'Untitled Job' }}
                                         </h3>
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center space-x-2">
-                                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                                <span class="text-gray-600 text-sm">In Progress</span>
+                                                <div class="w-2 h-2 rounded-full {{ $dotColor }}"></div>
+                                                <span class="text-gray-600 text-sm">{{ $statusLabel }}</span>
                                             </div>
-                                            <span class="text-gray-700 font-medium">$2,500</span>
+                                            <span class="text-gray-700 font-medium">{{ $amountDisplay }}</span>
                                         </div>
                                         <div class="mb-3">
                                             <div class="flex justify-between text-sm text-gray-600 mb-1">
                                                 <span>Progress</span>
-                                                <span>60%</span>
+                                                <span>{{ $progressPercent }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-green-600 h-2 rounded-full progress-bar"
-                                                    style="width: 60%"></div>
+                                                <div class="{{ $progressBarColor }} h-2 rounded-full progress-bar"
+                                                    style="width: {{ $progressPercent }}%"></div>
                                             </div>
                                         </div>
                                         <div class="flex items-center justify-between text-sm">
-                                            <span class="text-gray-600">Deadline: Dec 15, 2023</span>
+                                            <span class="text-gray-600">Deadline: {{ $deadlineDisplay }}</span>
                                             <div class="flex items-center space-x-3">
                                                 <button
                                                     class="text-blue-600 hover:text-blue-800 font-medium">Update</button>
@@ -306,7 +342,11 @@
                                     </div>
                                 </div>
                             </div>
-                        @endfor
+                        @empty
+                            <div class="p-4 my-10 text-center text-gray-500 text-sm">
+                                No active jobs found.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             @else
@@ -428,156 +468,250 @@
         <!-- Right Column -->
         <div class="space-y-3">
             <!-- Upcoming Deadlines -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Upcoming Deadlines</h2>
-                <div class="space-y-4">
-                    @for ($i = 1; $i <= 3; $i++)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-upcoming-deadlines">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Upcoming Deadlines</h2>
+                    <a href="{{ route('freelancer.deadlines') }}"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View all &rarr;
+                    </a>
+                </div>
+                @php
+                    $upcomingDeadlines = [
+                        [
+                            'title' => 'Landing Page Final Review',
+                            'days' => 1,
+                            'desc' => 'Approve hero section and CTA updates',
+                            'date' => 'Feb 13, 2026',
+                        ],
+                        [
+                            'title' => 'API Integration Milestone',
+                            'days' => 2,
+                            'desc' => 'Connect payment and invoice endpoints',
+                            'date' => 'Feb 14, 2026',
+                        ],
+                        [
+                            'title' => 'Mobile UI QA Pass',
+                            'days' => 3,
+                            'desc' => 'Resolve responsive issues on iOS and Android',
+                            'date' => 'Feb 15, 2026',
+                        ],
+                        [
+                            'title' => 'Backend Performance Tuning',
+                            'days' => 4,
+                            'desc' => 'Optimize heavy dashboard queries',
+                            'date' => 'Feb 16, 2026',
+                        ],
+                        [
+                            'title' => 'Client Demo Preparation',
+                            'days' => 5,
+                            'desc' => 'Prepare walkthrough and staging data',
+                            'date' => 'Feb 17, 2026',
+                        ],
+                        [
+                            'title' => 'Auth Flow Regression Test',
+                            'days' => 6,
+                            'desc' => 'Validate signup/signin and password reset',
+                            'date' => 'Feb 18, 2026',
+                        ],
+                        [
+                            'title' => 'Messaging Module Update',
+                            'days' => 7,
+                            'desc' => 'Finalize unread badge and thread sorting',
+                            'date' => 'Feb 19, 2026',
+                        ],
+                        [
+                            'title' => 'Contract Page Cleanup',
+                            'days' => 8,
+                            'desc' => 'Update labels and status visibility',
+                            'date' => 'Feb 20, 2026',
+                        ],
+                    ];
+                @endphp
+                <div class="space-y-4 max-h-[392px] overflow-y-auto pr-1">
+                    @foreach ($upcomingDeadlines as $deadline)
                         <div class="p-3 border border-gray-200 rounded-lg">
                             <div class="flex items-center justify-between mb-2">
-                                <h3 class="font-semibold text-gray-900 text-sm">Project Deliverable
-                                    {{ $i }}</h3>
-                                <span class="text-red-600 text-xs font-medium">Due in {{ $i }}
-                                    days</span>
+                                <h3 class="font-semibold text-gray-900 text-sm">{{ $deadline['title'] }}</h3>
+                                <span class="text-red-600 text-xs font-medium">Due in {{ $deadline['days'] }} days</span>
                             </div>
-                            <p class="text-gray-600 text-xs mb-2">Final design review and deployment</p>
+                            <p class="text-gray-600 text-xs mb-2">{{ $deadline['desc'] }}</p>
                             <div class="flex items-center text-gray-500 text-xs">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                Dec {{ 10 + $i }}, 2023
+                                {{ $deadline['date'] }}
                             </div>
                         </div>
-                    @endfor
-                </div>
-            </div>
-
-            <!-- Notifications -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Recent Notifications</h2>
-                <div class="space-y-4">
-                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">Meeting Reminder</h3>
-                                <p class="text-gray-600 text-xs">Project review meeting in 30 minutes</p>
-                                <span class="text-gray-500 text-xs">10 min ago</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">Payment Received</h3>
-                                <p class="text-gray-600 text-xs">$1,500 payment has been deposited</p>
-                                <span class="text-gray-500 text-xs">2 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">New Proposal</h3>
-                                <p class="text-gray-600 text-xs">You have received a new proposal</p>
-                                <span class="text-gray-500 text-xs">5 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <button
-                        class="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-blue-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            <span class="text-blue-700 text-sm font-medium">
-                                @if (auth()->user()->role === 'freelancer')
-                                    Send Proposal
-                                @else
-                                    Post a Job
-                                @endif
-                            </span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-green-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
-                                </path>
-                            </svg>
-                            <span class="text-green-700 text-sm font-medium">Messages</span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-purple-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                </path>
-                            </svg>
-                            <span class="text-purple-700 text-sm font-medium">Reports</span>
-                        </div>
-                    </button>
-
-                    <button
-                        class="p-3 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition duration-300">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-6 h-6 text-amber-600 mb-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                </path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span class="text-amber-700 text-sm font-medium">Settings</span>
-                        </div>
-                    </button>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+
+                if (diffHours < 24) {
+                    return `Posted ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+                } else {
+                    const diffDays = Math.floor(diffHours / 24);
+                    return `Posted ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+                }
+            }
+
+            // Function to render job cards
+            function renderJobCards(jobs) {
+                const container = document.getElementById('recommended-jobs-container');
+                const loadingElement = document.getElementById('jobs-loading');
+
+                // Remove loading skeleton
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+
+                // Clear existing content
+                container.innerHTML = '';
+
+                if (jobs.length === 0) {
+                    container.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">No recommended jobs found at the moment.</p>
+                    </div>
+                `;
+                    return;
+                }
+
+                jobs.forEach(job => {
+                    const jobCard = document.createElement('div');
+                    jobCard.className =
+                        'project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200';
+
+                    // Format salary range
+                    let salaryRange = 'Negotiable';
+                    if (job.type === 'fixed') {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()} - $${parseFloat(job.budget_max).toLocaleString()}`;
+                    } else if (job.type === 'hourly' && job.budget_min && job.budget_max) {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()}/hr - $${parseFloat(job.budget_max).toLocaleString()}/hr`;
+                    } else if (job.budget_min && job.budget_max) {
+                        salaryRange =
+                            `$${parseFloat(job.budget_min).toLocaleString()} - $${parseFloat(job.budget_max).toLocaleString()}`;
+                    }
+
+                    // Format job type display
+                    let jobTypeDisplay = 'Fixed Price';
+                    if (job.type === 'hourly') {
+                        jobTypeDisplay = 'Hourly Rate';
+                    }
+
+                    // Get category name from server response
+                    const categoryName = job.category?.name || 'General';
+
+                    jobCard.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                    ${categoryName}
+                                </span>
+                                <span class="text-gray-500 text-xs">• ${formatDate(job.created_at)}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-1">${job.title || 'Untitled Job'}</h3>
+                            <p class="text-gray-600 text-sm mb-3">${job.description ? (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) : 'No description provided.'}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-gray-700 font-medium">${salaryRange}</span>
+                                    <span class="text-gray-500 text-sm">${jobTypeDisplay}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <span class="text-gray-600 text-sm ml-1">${job.average_rating || '4.5'}</span>
+                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '12'} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="applyForJob(${job.id})"
+                            class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
+                            Apply Now
+                        </button>
+                    </div>
+                `;
+
+                    container.appendChild(jobCard);
+                });
+            }
+
+            // Function to fetch recommended jobs
+            async function fetchRecommendedJobs() {
+                try {
+                    const response = await fetch('{{ route('recommended-jobs') }}', {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success && data.jobs) {
+                        // Render the job cards with the fetched data
+                        renderJobCards(data.jobs);
+                    } else {
+                        throw new Error(data.message || 'Failed to fetch job details');
+                    }
+                } catch (error) {
+                    console.error('Error fetching job details:', error);
+
+                    // Show error message and keep loading skeleton
+                    const container = document.getElementById('recommended-jobs-container');
+                    const loadingElement = document.getElementById('jobs-loading');
+
+                    if (loadingElement) {
+                        loadingElement.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-red-500">Failed to load recommended jobs. Please try again later.</p>
+                            <button onclick="fetchRecommendedJobs()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                    }
+                }
+            }
+
+            // Function to handle job application
+            window.applyForJob = function(jobId) {
+                // Implement your job application logic here
+                alert(`Applying for job ID: ${jobId}`);
+                // You can redirect to application page or open a modal
+                // window.location.href = `/jobs/${jobId}/apply`;
+            };
+
+            // Fetch jobs when page loads (only for freelancers)
+            @if (auth()->user()->role === 'freelancer')
+                fetchRecommendedJobs();
+            @endif
+        });
+    </script>
+@endpush
