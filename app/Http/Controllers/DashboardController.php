@@ -111,6 +111,34 @@ class DashboardController extends Controller
                     ->get(),
             ];
         }
+        if ($user->role === 'client' && $user->client) {
+            $currentMonthStart = now()->startOfMonth();
+            $currentMonthEnd = now()->endOfMonth();
+            $previousMonthStart = now()->subMonthNoOverflow()->startOfMonth();
+            $previousMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
+
+            $currentMonthProfileViews = 0;
+            $previousMonthProfileViews = 0;
+
+            if (Schema::hasTable('profile_views')) {
+                $currentMonthProfileViews = DB::table('profile_views')
+                    ->where('profile_user_id', $user->id)
+                    ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+                    ->count();
+
+                $previousMonthProfileViews = DB::table('profile_views')
+                    ->where('profile_user_id', $user->id)
+                    ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+                    ->count();
+            }
+
+            $dashboardData = array_replace($dashboardData, [
+                'profileViews' => $currentMonthProfileViews,
+                'profileViewsChangePercent' => $this->calculateChangePercent($currentMonthProfileViews, $previousMonthProfileViews),
+                'profileViewsTrend' => $this->resolveTrend($currentMonthProfileViews, $previousMonthProfileViews),
+                'statsPeriodLabel' => 'from last month',
+            ]);
+        }
 
         return view('dashboard', $dashboardData);
     }

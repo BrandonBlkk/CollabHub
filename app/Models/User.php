@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     public function profileViews()
     {
-        return $this->hasMany(ProfileView::class);
+        return $this->hasMany(ProfileView::class, 'profile_user_id');
     }
 
     public function friends()
