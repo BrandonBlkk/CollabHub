@@ -35,6 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
 
+    // Public client profile (for authenticated users, including freelancers)
+    Route::get('/clients/{id}/profile', [ProfileController::class, 'publicShow'])->name('clients.profile.show');
+
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');

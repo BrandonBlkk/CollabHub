@@ -11,6 +11,7 @@ use App\Models\Job;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 class FindJobsController extends Controller
 {
@@ -22,12 +23,18 @@ class FindJobsController extends Controller
     // Get all jobs
     public function getJobs(Request $request)
     {
-        $jobs = Job::all();
+        $jobs = Job::with([
+            'category:id,name',
+            'client.user:id,name,profile_photo_path,location',
+        ])
+            ->withCount('proposals')
+            ->latest()
+            ->get();
 
         return response()->json(
             [
                 'success' => true,
-                'jobs' => $jobs
+                'jobs' => $this->transformJobs($jobs)
             ]
         );
     }
@@ -36,9 +43,12 @@ class FindJobsController extends Controller
     public function getRecommendedJobs(Request $request)
     {
         $jobs = Job::where('status', 'open')
-            ->with(['category' => function ($query) {
-                $query->select('id', 'name');
-            }])->where('status', 'open')
+            ->with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
+            ->withCount('proposals')
+            ->where('status', 'open')
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get();
@@ -46,7 +56,7 @@ class FindJobsController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'jobs' => $jobs
+                'jobs' => $this->transformJobs($jobs)
             ]
         );
     }
@@ -62,15 +72,16 @@ class FindJobsController extends Controller
             ->toArray();
 
         $jobs = Job::whereIn('id', $favoriteJobIds)
+            ->with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
+            ->withCount('proposals')
             ->get();
-
-        $jobs->each(function ($job) {
-            $job->is_saved = true;
-        });
 
         return response()->json([
             'success' => true,
-            'jobs' => $jobs
+            'jobs' => $this->transformJobs($jobs, true)
         ]);
     }
 
@@ -85,15 +96,16 @@ class FindJobsController extends Controller
             ->toArray();
 
         $jobs = Job::whereIn('id', $inProgressJobIds)
+            ->with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
+            ->withCount('proposals')
             ->get();
-
-        $jobs->each(function ($job) {
-            $job->is_saved = true;
-        });
 
         return response()->json([
             'success' => true,
-            'jobs' => $jobs
+            'jobs' => $this->transformJobs($jobs, true)
         ]);
     }
 
@@ -109,15 +121,16 @@ class FindJobsController extends Controller
             ->toArray();
 
         $jobs = Job::whereIn('id', $appliedJobIds)
+            ->with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
+            ->withCount('proposals')
             ->get();
-
-        $jobs->each(function ($job) {
-            $job->is_saved = true;
-        });
 
         return response()->json([
             'success' => true,
-            'jobs' => $jobs
+            'jobs' => $this->transformJobs($jobs, true)
         ]);
     }
 
@@ -351,11 +364,15 @@ class FindJobsController extends Controller
     public function getJob($id)
     {
         try {
-            $job = Job::findOrFail($id);
+            $job = Job::with('client.user:id,name,profile_photo_path,location')
+                ->withCount('proposals')
+                ->findOrFail($id);
             $appliedJob = AppliedJob::where('user_id', Auth::user()->id)
                 ->where('job_id', $job->id)
                 ->first();
-            $proposal_count = Proposal::where('job_id', $job->id)->count();
+
+            $clientUser = $job->client?->user;
+            $clientName = $clientUser?->name ?? 'Unknown Client';
 
             return response()->json([
                 'success' => true,
@@ -370,11 +387,20 @@ class FindJobsController extends Controller
                     'duration' => $job->duration,
                     'experience_level' => $job->experience_level,
                     'skills_required' => $job->skills_required,
-                    'proposals_count' => $proposal_count ?? 0,
+                    'proposals_count' => $job->proposals_count ?? 0,
                     'created_at' => $job->created_at,
                     'expires_at' => $job->expires_at,
                     'posted_at' => $job->posted_at,
-                    'applied_status' => $appliedJob ? $appliedJob->status : null
+                    'applied_status' => $appliedJob ? $appliedJob->status : null,
+                    'client_profile' => [
+                        'id' => $clientUser?->id,
+                        'name' => $clientName,
+                        'initial' => strtoupper(substr($clientName, 0, 1)),
+                        'company' => $job->client?->company,
+                        'location' => $clientUser?->location,
+                        'profile_photo_path' => $clientUser?->profile_photo_path,
+                        'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
+                    ],
                 ]
             ]);
         } catch (\Exception $e) {
@@ -383,5 +409,27 @@ class FindJobsController extends Controller
                 'message' => 'Job not found'
             ], 404);
         }
+    }
+
+    private function transformJobs(Collection $jobs, bool $isSaved = false): Collection
+    {
+        return $jobs->map(function ($job) use ($isSaved) {
+            $jobData = $job->toArray();
+            $clientUser = $job->client?->user;
+            $clientName = $clientUser?->name ?? 'Unknown Client';
+
+            $jobData['is_saved'] = $isSaved;
+            $jobData['client_profile'] = [
+                'id' => $clientUser?->id,
+                'name' => $clientName,
+                'initial' => strtoupper(substr($clientName, 0, 1)),
+                'company' => $job->client?->company,
+                'location' => $clientUser?->location,
+                'profile_photo_path' => $clientUser?->profile_photo_path,
+                'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
+            ];
+
+            return $jobData;
+        });
     }
 }

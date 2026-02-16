@@ -495,6 +495,25 @@
                 <div class="p-6 flex-1 flex flex-col">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
+                            <div class="flex items-center justify-between gap-3 mb-4">
+                                <a href="#" class="client-profile-link inline-flex items-center gap-3 group"
+                                    onclick="event.stopPropagation();">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
+                                        <img src="" alt="Client photo"
+                                            class="client-avatar-image w-full h-full object-cover hidden">
+                                        <span class="client-avatar-initial text-white text-sm font-bold">C</span>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 client-name">
+                                            Client
+                                            Name</p>
+                                        <p class="text-xs text-gray-500 client-company">Company</p>
+                                    </div>
+                                </a>
+                                <i class="ri-more-line font-bold client-view-profile"></i>
+                            </div>
                             <div class="flex items-center justify-between mb-2">
                                 <span
                                     class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
@@ -1401,6 +1420,41 @@
                 // Set posted time
                 const postedTime = cardElement.querySelector('.posted-time');
                 postedTime.textContent = `Posted: ${formatTimeAgo(job.created_at)}`;
+
+                // Set client profile info
+                const clientProfile = job.client_profile || {};
+                const clientProfileLink = cardElement.querySelector('.client-profile-link');
+                const clientName = cardElement.querySelector('.client-name');
+                const clientCompany = cardElement.querySelector('.client-company');
+                const clientAvatarImage = cardElement.querySelector('.client-avatar-image');
+                const clientAvatarInitial = cardElement.querySelector('.client-avatar-initial');
+                const clientViewProfile = cardElement.querySelector('.client-view-profile');
+
+                const resolvedClientName = clientProfile.name || 'Unknown Client';
+                const resolvedCompany = clientProfile.company || 'Independent client';
+                const resolvedInitial = (clientProfile.initial || resolvedClientName.charAt(0) || 'C')
+                    .toUpperCase();
+
+                clientName.textContent = resolvedClientName;
+                clientCompany.textContent = resolvedCompany;
+                clientAvatarInitial.textContent = resolvedInitial;
+
+                if (clientProfile.profile_url) {
+                    clientProfileLink.href = clientProfile.profile_url;
+                    clientViewProfile.classList.remove('hidden');
+                } else {
+                    clientProfileLink.href = '#';
+                    clientViewProfile.classList.add('hidden');
+                }
+
+                if (clientProfile.profile_photo_path) {
+                    clientAvatarImage.src = `/storage/${clientProfile.profile_photo_path}`;
+                    clientAvatarImage.classList.remove('hidden');
+                    clientAvatarInitial.classList.add('hidden');
+                } else {
+                    clientAvatarImage.classList.add('hidden');
+                    clientAvatarInitial.classList.remove('hidden');
+                }
 
                 // Set job title
                 const jobTitle = cardElement.querySelector('.job-title');
