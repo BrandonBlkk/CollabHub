@@ -46,6 +46,17 @@ class User extends Authenticatable
         return $this->hasMany(ProfileView::class, 'profile_user_id');
     }
 
+    public function jobViews()
+    {
+        return $this->hasMany(JobView::class, 'viewer_id');
+    }
+
+    public function viewedJobs()
+    {
+        return $this->belongsToMany(Job::class, 'job_views', 'viewer_id', 'job_id')
+            ->withTimestamps();
+    }
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
