@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Freelancer;
 use App\Http\Controllers\Controller;
 use App\Models\JobRole;
 use App\Models\Major;
+use App\Models\ProfileView;
 use App\Models\Skill;
 use App\Models\University;
 use App\Models\User;
@@ -37,7 +38,7 @@ class ProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $user = User::findOrFail($id);
 
@@ -52,6 +53,8 @@ class ProfileController extends Controller
             ->where('role', 'freelancer')
             ->where('id', $id)
             ->firstOrFail();
+
+        ProfileView::logView($request, $user);
 
         // Similar freelancers
         $similarFreelancers = User::with('freelancer')
