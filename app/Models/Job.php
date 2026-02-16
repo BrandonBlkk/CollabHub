@@ -64,6 +64,17 @@ class Job extends Model
         return $this->hasMany(FavoriteJob::class);
     }
 
+    public function views()
+    {
+        return $this->hasMany(JobView::class);
+    }
+
+    public function viewers()
+    {
+        return $this->belongsToMany(User::class, 'job_views', 'job_id', 'viewer_id')
+            ->withTimestamps();
+    }
+
     // Helper: Display budget like in your UI
     public function getBudgetDisplayAttribute(): string
     {
@@ -103,5 +114,10 @@ class Job extends Model
     public function getAllCategoriesAttribute()
     {
         return $this->category->ancestorsAndSelf()->pluck('id')->toArray();
+    }
+
+    public function getTotalViewsAttribute(): int
+    {
+        return $this->views()->count();
     }
 }
