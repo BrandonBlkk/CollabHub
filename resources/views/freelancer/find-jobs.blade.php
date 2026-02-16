@@ -558,7 +558,7 @@
                                 class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-job-btn">
                                 <span>View Job</span>
                                 <span
-                                    class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full proposals-count">0</span>
+                                    class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full views-count">0</span>
                             </button>
                         </div>
                     </div>
@@ -689,6 +689,82 @@
         let appliedJobsData = [];
         let currentTab = 'all';
         let isInitialLoad = true;
+        let jobViewsRealtimeInterval = null;
+
+        function getJobsRouteByType(type = 'all') {
+            const routes = {
+                'all': '{{ route('find-jobs.jobs') }}',
+                'saved': '{{ route('find-jobs.saved') }}',
+                'in_progress': '{{ route('find-jobs.in-progress') }}',
+                'applied': '{{ route('find-jobs.applied') }}'
+            };
+
+            return routes[type] || routes.all;
+        }
+
+        async function refreshJobViewsRealtime() {
+            try {
+                const response = await fetch(getJobsRouteByType(currentTab), {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                if (!data.success || !Array.isArray(data.jobs)) {
+                    return;
+                }
+
+                const viewsByJobId = {};
+                data.jobs.forEach(job => {
+                    viewsByJobId[job.id] = job.views_count || 0;
+                });
+
+                document.querySelectorAll('#jobs-container [data-id]').forEach(card => {
+                    const jobId = Number(card.getAttribute('data-id'));
+                    const viewsBadge = card.querySelector('.views-count');
+                    if (!viewsBadge) {
+                        return;
+                    }
+
+                    if (Object.prototype.hasOwnProperty.call(viewsByJobId, jobId)) {
+                        viewsBadge.textContent = viewsByJobId[jobId];
+                    }
+                });
+            } catch (error) {
+                // Silent fail for polling to avoid interrupting UX.
+            }
+        }
+
+        function startJobViewsRealtimePolling() {
+            if (jobViewsRealtimeInterval) {
+                clearInterval(jobViewsRealtimeInterval);
+            }
+
+            jobViewsRealtimeInterval = setInterval(refreshJobViewsRealtime, 2000);
+        }
+
+        function updateJobViewsBadge(jobId, viewsCount) {
+            const card = document.querySelector(`#jobs-container [data-id="${jobId}"]`);
+            if (!card) {
+                return;
+            }
+
+            const viewsBadge = card.querySelector('.views-count');
+            if (!viewsBadge) {
+                return;
+            }
+
+            viewsBadge.textContent = viewsCount || 0;
+        }
 
         // Tab filtering
         function filterJobs(status) {
@@ -986,6 +1062,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initial fetch will update counts
             fetchJobs('all');
+            startJobViewsRealtimePolling();
         });
 
         // Close sidebar when clicking outside on mobile
@@ -1099,6 +1176,7 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    updateJobViewsBadge(jobId, data.job.views_count);
                     displayJobDetails(data.job);
                     openModal();
                 } else {
@@ -1524,9 +1602,9 @@
                 const durationText = cardElement.querySelector('.duration-text');
                 durationText.textContent = formatDuration(job.duration) || 'Duration not specified';
 
-                // Set proposals count
-                const proposalsCount = cardElement.querySelector('.proposals-count');
-                proposalsCount.textContent = job.proposals_count || 0;
+                // Set views count on View Job button
+                const viewsCount = cardElement.querySelector('.views-count');
+                viewsCount.textContent = job.views_count || 0;
 
                 // Add click event to "View Job" button
                 const viewJobBtn = cardElement.querySelector('.view-job-btn');
@@ -1545,13 +1623,6 @@
         async function fetchJobs(type = 'all') {
             showSkeletonLoading();
 
-            const routes = {
-                'all': '{{ route('find-jobs.jobs') }}',
-                'saved': '{{ route('find-jobs.saved') }}',
-                'in_progress': '{{ route('find-jobs.in-progress') }}',
-                'applied': '{{ route('find-jobs.applied') }}'
-            };
-
             const errorMessages = {
                 'all': 'Error loading jobs. Please try again.',
                 'saved': 'Error loading saved jobs. Please try again.',
@@ -1567,7 +1638,7 @@
             };
 
             try {
-                const response = await fetch(routes[type], {
+                const response = await fetch(getJobsRouteByType(type), {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -1596,6 +1667,7 @@
                     }
 
                     displayJobs(data.jobs);
+                    refreshJobViewsRealtime();
                 } else {
                     throw new Error(data.message || `Failed to fetch ${type} jobs`);
                 }

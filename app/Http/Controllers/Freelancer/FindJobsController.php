@@ -8,6 +8,7 @@ use App\Models\FavoriteJob;
 use App\Models\Freelancer;
 use App\Models\InProgressJob;
 use App\Models\Job;
+use App\Models\JobView;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class FindJobsController extends Controller
             'category:id,name',
             'client.user:id,name,profile_photo_path,location',
         ])
-            ->withCount('proposals')
+            ->withCount(['proposals', 'views'])
             ->latest()
             ->get();
 
@@ -47,7 +48,7 @@ class FindJobsController extends Controller
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount('proposals')
+            ->withCount(['proposals', 'views'])
             ->where('status', 'open')
             ->orderBy('created_at', 'desc')
             ->limit(3)
@@ -76,7 +77,7 @@ class FindJobsController extends Controller
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount('proposals')
+            ->withCount(['proposals', 'views'])
             ->get();
 
         return response()->json([
@@ -100,7 +101,7 @@ class FindJobsController extends Controller
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount('proposals')
+            ->withCount(['proposals', 'views'])
             ->get();
 
         return response()->json([
@@ -125,7 +126,7 @@ class FindJobsController extends Controller
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount('proposals')
+            ->withCount(['proposals', 'views'])
             ->get();
 
         return response()->json([
@@ -361,12 +362,17 @@ class FindJobsController extends Controller
     }
 
     // Get a specific job
-    public function getJob($id)
+    public function getJob(Request $request, $id)
     {
         try {
             $job = Job::with('client.user:id,name,profile_photo_path,location')
-                ->withCount('proposals')
+                ->withCount(['proposals', 'views'])
                 ->findOrFail($id);
+
+            // Count one view per user per day (handled in JobView model).
+            JobView::logView($request, $job);
+            $job->loadCount('views');
+
             $appliedJob = AppliedJob::where('user_id', Auth::user()->id)
                 ->where('job_id', $job->id)
                 ->first();
@@ -388,6 +394,7 @@ class FindJobsController extends Controller
                     'experience_level' => $job->experience_level,
                     'skills_required' => $job->skills_required,
                     'proposals_count' => $job->proposals_count ?? 0,
+                    'views_count' => $job->views_count ?? 0,
                     'created_at' => $job->created_at,
                     'expires_at' => $job->expires_at,
                     'posted_at' => $job->posted_at,
