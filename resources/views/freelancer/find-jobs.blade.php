@@ -512,7 +512,34 @@
                                         <p class="text-xs text-gray-500 client-company">Company</p>
                                     </div>
                                 </a>
-                                <i class="ri-more-line font-bold client-view-profile"></i>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative">
+                                        <button type="button"
+                                            class="job-more-btn w-8 h-8 rounded-full border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center"
+                                            onclick="event.stopPropagation();">
+                                            <i class="ri-more-line font-bold"></i>
+                                        </button>
+                                        <div
+                                            class="job-more-menu hidden absolute right-0 top-9 z-30 w-36 rounded-lg border border-gray-200 bg-white shadow-lg py-1">
+                                            <button type="button"
+                                                class="menu-save-btn w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                                onclick="event.stopPropagation();">
+                                                <span class="inline-flex items-center gap-2">
+                                                    <i class="ri-bookmark-line"></i>
+                                                    <span>Save</span>
+                                                </span>
+                                            </button>
+                                            <button type="button"
+                                                class="menu-not-for-me-btn w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                                                onclick="event.stopPropagation();">
+                                                <span class="inline-flex items-center gap-2">
+                                                    <i class="ri-forbid-2-line"></i>
+                                                    <span>Not for me</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex items-center justify-between mb-2">
                                 <span
@@ -690,6 +717,16 @@
         let currentTab = 'all';
         let isInitialLoad = true;
         let jobViewsRealtimeInterval = null;
+        let dismissedJobIds = new Set();
+
+        try {
+            const dismissed = JSON.parse(localStorage.getItem('dismissed_job_ids') || '[]');
+            if (Array.isArray(dismissed)) {
+                dismissedJobIds = new Set(dismissed);
+            }
+        } catch (e) {
+            dismissedJobIds = new Set();
+        }
 
         function getJobsRouteByType(type = 'all') {
             const routes = {
@@ -750,6 +787,24 @@
             }
 
             jobViewsRealtimeInterval = setInterval(refreshJobViewsRealtime, 2000);
+        }
+
+        function closeAllJobMoreMenus() {
+            document.querySelectorAll('.job-more-menu').forEach(menu => menu.classList.add('hidden'));
+        }
+
+        function persistDismissedJobs() {
+            localStorage.setItem('dismissed_job_ids', JSON.stringify(Array.from(dismissedJobIds)));
+        }
+
+        function setSaveMenuButtonContent(button, isSaved) {
+            const label = isSaved ? 'Unsave' : 'Save';
+            button.innerHTML = `
+                <span class="inline-flex items-center gap-2">
+                    <i class="ri-bookmark-line"></i>
+                    <span>${label}</span>
+                </span>
+            `;
         }
 
         function updateJobViewsBadge(jobId, viewsCount) {
@@ -1069,6 +1124,8 @@
         document.addEventListener('click', function(event) {
             const sidebar = document.querySelector('.sidebar');
             const toggleBtn = document.getElementById('sidebarToggle');
+
+            closeAllJobMoreMenus();
 
             if (window.innerWidth <= 1024 &&
                 sidebar &&
@@ -1450,7 +1507,9 @@
         }
 
         function displayJobs(jobs) {
-            if (!jobs || jobs.length === 0) {
+            const visibleJobs = (jobs || []).filter(job => !dismissedJobIds.has(job.id));
+
+            if (visibleJobs.length === 0) {
                 jobsContainer.innerHTML =
                     '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
                     '<div>' +
@@ -1466,7 +1525,7 @@
             // Clear existing content
             jobsContainer.innerHTML = '';
 
-            jobs.forEach(job => {
+            visibleJobs.forEach(job => {
                 // Clone the template
                 const jobCard = jobCardTemplate.content.cloneNode(true);
                 const cardElement = jobCard.querySelector('div');
@@ -1506,7 +1565,6 @@
                 const clientCompany = cardElement.querySelector('.client-company');
                 const clientAvatarImage = cardElement.querySelector('.client-avatar-image');
                 const clientAvatarInitial = cardElement.querySelector('.client-avatar-initial');
-                const clientViewProfile = cardElement.querySelector('.client-view-profile');
 
                 const resolvedClientName = clientProfile.name || 'Unknown Client';
                 const resolvedCompany = clientProfile.company || 'Independent client';
@@ -1519,10 +1577,8 @@
 
                 if (clientProfile.profile_url) {
                     clientProfileLink.href = clientProfile.profile_url;
-                    clientViewProfile.classList.remove('hidden');
                 } else {
                     clientProfileLink.href = '#';
-                    clientViewProfile.classList.add('hidden');
                 }
 
                 if (clientProfile.profile_photo_path) {
@@ -1612,12 +1668,61 @@
                     fetchJobDetails(job.id);
                 });
 
+                // More menu actions
+                const moreBtn = cardElement.querySelector('.job-more-btn');
+                const moreMenu = cardElement.querySelector('.job-more-menu');
+                const saveMenuBtn = cardElement.querySelector('.menu-save-btn');
+                const notForMeBtn = cardElement.querySelector('.menu-not-for-me-btn');
+
+                setSaveMenuButtonContent(saveMenuBtn, !!job.is_saved);
+
+                moreBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isHidden = moreMenu.classList.contains('hidden');
+                    closeAllJobMoreMenus();
+                    if (isHidden) {
+                        moreMenu.classList.remove('hidden');
+                    }
+                });
+
+                saveMenuBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const result = await toggleSaveJob(job.id);
+
+                    if (result.success) {
+                        const isSavedNow = result.action === 'saved';
+                        job.is_saved = isSavedNow;
+                        setSaveMenuButtonContent(saveMenuBtn, isSavedNow);
+                        updateJobSavedStatus(job.id, isSavedNow);
+                        closeAllJobMoreMenus();
+                    } else {
+                        showToast(result.message || 'Unable to save job', 'error');
+                    }
+                });
+
+                notForMeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dismissedJobIds.add(job.id);
+                    persistDismissedJobs();
+
+                    allJobsData = allJobsData.filter(item => item.id !== job.id);
+                    savedJobsData = savedJobsData.filter(item => item.id !== job.id);
+                    inProgressJobsData = inProgressJobsData.filter(item => item.id !== job.id);
+                    appliedJobsData = appliedJobsData.filter(item => item.id !== job.id);
+
+                    cardElement.remove();
+                    const remainingCards = document.querySelectorAll('#jobs-container [data-id]').length;
+                    updateEmptyState(remainingCards);
+                    updateShowingCounts(remainingCards);
+                    closeAllJobMoreMenus();
+                });
+
                 // Append to container
                 jobsContainer.appendChild(jobCard);
             });
 
-            updateEmptyState(jobs.length);
-            updateShowingCounts(jobs.length);
+            updateEmptyState(visibleJobs.length);
+            updateShowingCounts(visibleJobs.length);
         }
 
         async function fetchJobs(type = 'all') {

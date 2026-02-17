@@ -376,6 +376,9 @@ class FindJobsController extends Controller
             $appliedJob = AppliedJob::where('user_id', Auth::user()->id)
                 ->where('job_id', $job->id)
                 ->first();
+            $isSaved = FavoriteJob::where('user_id', Auth::id())
+                ->where('job_id', $job->id)
+                ->exists();
 
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
@@ -399,6 +402,7 @@ class FindJobsController extends Controller
                     'expires_at' => $job->expires_at,
                     'posted_at' => $job->posted_at,
                     'applied_status' => $appliedJob ? $appliedJob->status : null,
+                    'is_saved' => $isSaved,
                     'client_profile' => [
                         'id' => $clientUser?->id,
                         'name' => $clientName,
