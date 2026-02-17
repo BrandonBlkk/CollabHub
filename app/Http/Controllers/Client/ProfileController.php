@@ -47,6 +47,24 @@ class ProfileController extends Controller
         return view('client.profile');
     }
 
+    public function publicShow(Request $request, string $id)
+    {
+        $clientUser = User::with(['client', 'jobs'])
+            ->where('role', 'client')
+            ->findOrFail($id);
+
+        ProfileView::logView($request, $clientUser);
+
+        $clientStats = [
+            'total_jobs' => $clientUser->jobs()->count(),
+            'open_jobs' => $clientUser->jobs()->where('status', 'open')->count(),
+            'in_progress_jobs' => $clientUser->jobs()->where('status', 'in_progress')->count(),
+            'completed_jobs' => $clientUser->jobs()->where('status', 'completed')->count(),
+        ];
+
+        return view('client.public-profile', compact('clientUser', 'clientStats'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
