@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UpdateProfileRequest;
+use App\Models\FavoriteJob;
 use App\Models\ProfileView;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -49,20 +50,50 @@ class ProfileController extends Controller
 
     public function publicShow(Request $request, string $id)
     {
-        $clientUser = User::with(['client', 'jobs'])
+        $clientUser = User::with(['client'])
             ->where('role', 'client')
             ->findOrFail($id);
 
         ProfileView::logView($request, $clientUser);
 
+        $clientJobs = $clientUser->jobs()
+            ->withCount(['proposals', 'views'])
+            ->orderByDesc('posted_at')
+            ->get();
+
+        $savedJobIds = FavoriteJob::where('user_id', Auth::id())
+            ->whereIn('job_id', $clientJobs->pluck('id'))
+            ->pluck('job_id')
+            ->all();
+
+        $savedLookup = array_flip($savedJobIds);
+        $clientJobs->each(function ($job) use ($savedLookup) {
+            $job->is_saved = isset($savedLookup[$job->id]);
+        });
+
         $clientStats = [
-            'total_jobs' => $clientUser->jobs()->count(),
-            'open_jobs' => $clientUser->jobs()->where('status', 'open')->count(),
-            'in_progress_jobs' => $clientUser->jobs()->where('status', 'in_progress')->count(),
-            'completed_jobs' => $clientUser->jobs()->where('status', 'completed')->count(),
+            'total_jobs' => $clientJobs->count(),
+            'open_jobs' => $clientJobs->where('status', 'open')->count(),
+            'in_progress_jobs' => $clientJobs->where('status', 'in_progress')->count(),
+            'completed_jobs' => $clientJobs->where('status', 'completed')->count(),
         ];
 
-        return view('client.public-profile', compact('clientUser', 'clientStats'));
+        $modalJobsData = $clientJobs->map(function ($job) {
+            return [
+                'id' => $job->id,
+                'title' => $job->title,
+                'description' => $job->description,
+                'status' => $job->status,
+                'created_at' => optional($job->created_at)->toIso8601String(),
+                'budget_display' => $job->budget_display,
+                'type' => $job->type,
+                'duration' => $job->duration,
+                'experience_level' => $job->experience_level,
+                'skills_required' => is_array($job->skills_required) ? $job->skills_required : [],
+            ];
+        })->values()->all();
+
+        return view('client.public-profile', compact('clientUser', 'clientJobs', 'clientStats', 'modalJobsData'));
     }
 
     /**
