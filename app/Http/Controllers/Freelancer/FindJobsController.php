@@ -104,9 +104,11 @@ class FindJobsController extends Controller
             ->withCount(['proposals', 'views'])
             ->get();
 
+        $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
+
         return response()->json([
             'success' => true,
-            'jobs' => $this->transformJobs($jobs, true)
+            'jobs' => $this->transformJobs($jobs, false, $savedJobIds)
         ]);
     }
 
@@ -129,9 +131,11 @@ class FindJobsController extends Controller
             ->withCount(['proposals', 'views'])
             ->get();
 
+        $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
+
         return response()->json([
             'success' => true,
-            'jobs' => $this->transformJobs($jobs, true)
+            'jobs' => $this->transformJobs($jobs, false, $savedJobIds)
         ]);
     }
 
@@ -422,14 +426,16 @@ class FindJobsController extends Controller
         }
     }
 
-    private function transformJobs(Collection $jobs, bool $isSaved = false): Collection
+    private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = []): Collection
     {
-        return $jobs->map(function ($job) use ($isSaved) {
+        $savedSet = array_flip($savedJobIds);
+
+        return $jobs->map(function ($job) use ($isSaved, $savedSet) {
             $jobData = $job->toArray();
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
 
-            $jobData['is_saved'] = $isSaved;
+            $jobData['is_saved'] = $savedSet[$job->id] ?? $isSaved;
             $jobData['client_profile'] = [
                 'id' => $clientUser?->id,
                 'name' => $clientName,

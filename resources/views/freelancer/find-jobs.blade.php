@@ -2412,6 +2412,12 @@
             if (inProgressIndex !== -1) {
                 inProgressJobsData[inProgressIndex].is_saved = isSaved;
             }
+
+            // Also update in appliedJobsData if the job is there
+            const appliedIndex = appliedJobsData.findIndex(job => job.id === jobId);
+            if (appliedIndex !== -1) {
+                appliedJobsData[appliedIndex].is_saved = isSaved;
+            }
         }
 
         // Utility functions
