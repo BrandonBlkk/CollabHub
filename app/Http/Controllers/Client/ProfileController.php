@@ -61,6 +61,56 @@ class ProfileController extends Controller
             ->orderByDesc('posted_at')
             ->get();
 
+        $peopleAlsoViewed = collect();
+        $maxSuggestions = 5;
+        if (Auth::check()) {
+            $recentlyViewedClientIds = ProfileView::query()
+                ->where('viewer_id', Auth::id())
+                ->where('profile_user_id', '!=', $clientUser->id)
+                ->latest('created_at')
+                ->pluck('profile_user_id')
+                ->unique()
+                ->take($maxSuggestions)
+                ->values();
+
+            if ($recentlyViewedClientIds->isNotEmpty()) {
+                $recentlyViewedClients = User::query()
+                    ->with('client')
+                    ->withCount(['jobs', 'profileViews'])
+                    ->where('role', 'client')
+                    ->whereIn('id', $recentlyViewedClientIds)
+                    ->get()
+                    ->keyBy('id');
+
+                $peopleAlsoViewed = $recentlyViewedClientIds
+                    ->map(fn($id) => $recentlyViewedClients->get($id))
+                    ->filter()
+                    ->values();
+            }
+        }
+
+        if ($peopleAlsoViewed->count() < $maxSuggestions) {
+            $excludeIds = $peopleAlsoViewed->pluck('id')
+                ->push($clientUser->id)
+                ->unique()
+                ->values();
+
+            $fillClients = User::query()
+                ->with('client')
+                ->withCount(['jobs', 'profileViews'])
+                ->where('role', 'client')
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('profile_views_count')
+                ->orderByDesc('jobs_count')
+                ->limit($maxSuggestions - $peopleAlsoViewed->count())
+                ->get();
+
+            $peopleAlsoViewed = $peopleAlsoViewed
+                ->concat($fillClients)
+                ->take($maxSuggestions)
+                ->values();
+        }
+
         $savedJobIds = FavoriteJob::where('user_id', Auth::id())
             ->whereIn('job_id', $clientJobs->pluck('id'))
             ->pluck('job_id')
@@ -93,7 +143,7 @@ class ProfileController extends Controller
             ];
         })->values()->all();
 
-        return view('client.public-profile', compact('clientUser', 'clientJobs', 'clientStats', 'modalJobsData'));
+        return view('client.public-profile', compact('clientUser', 'clientJobs', 'clientStats', 'modalJobsData', 'peopleAlsoViewed'));
     }
 
     /**
