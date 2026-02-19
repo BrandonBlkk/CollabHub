@@ -14,9 +14,9 @@
                                     alt="{{ $clientUser->name }}" class="w-32 h-32 rounded-full object-cover">
                             @else
                                 <div
-                                    class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
+                                    class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
                                     <span
-                                        class="text-white text-4xl font-bold">{{ strtoupper(substr($clientUser->name, 0, 1)) }}</span>
+                                        class="text-white font-bold text-4xl">{{ strtoupper(substr($clientUser->name, 0, 1)) }}</span>
                                 </div>
                             @endif
                             <div>

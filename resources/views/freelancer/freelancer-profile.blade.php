@@ -624,7 +624,7 @@
 
     <!-- Main Content Area -->
     <form action="{{ route('freelancer-profile.update', $freelancer->id) }}" method="POST"
-        class="flex-1 overflow-y-auto p-3">
+        class="flex-1 overflow-y-auto">
         @csrf
         @method('PUT')
 

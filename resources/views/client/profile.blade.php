@@ -51,9 +51,11 @@
                                         src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}"
                                         alt="Profile Photo" class="w-full h-full object-cover">
                                 @else
-                                    <span id="profileInitials" class="text-white text-4xl font-bold">
-                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                    </span>
+                                    <div
+                                        class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
+                                        <span
+                                            class="text-white font-bold text-4xl">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                                    </div>
                                 @endif
                             </div>
                             <label for="profile_photo"
