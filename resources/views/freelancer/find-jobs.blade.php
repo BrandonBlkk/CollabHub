@@ -718,6 +718,9 @@
         let isInitialLoad = true;
         let jobViewsRealtimeInterval = null;
         let dismissedJobIds = new Set();
+        const queryParams = new URLSearchParams(window.location.search);
+        const deepLinkJobId = queryParams.get('job');
+        let hasHandledDeepLinkJob = false;
 
         try {
             const dismissed = JSON.parse(localStorage.getItem('dismissed_job_ids') || '[]');
@@ -737,6 +740,28 @@
             };
 
             return routes[type] || routes.all;
+        }
+
+        function removeJobQueryParam() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has('job')) {
+                return;
+            }
+
+            params.delete('job');
+            const query = params.toString();
+            const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+            window.history.replaceState({}, '', nextUrl);
+        }
+
+        function maybeAutoOpenDeepLinkedJob(type) {
+            if (type !== 'all' || hasHandledDeepLinkJob || !deepLinkJobId) {
+                return;
+            }
+
+            hasHandledDeepLinkJob = true;
+            fetchJobDetails(deepLinkJobId);
+            removeJobQueryParam();
         }
 
         async function refreshJobViewsRealtime() {
@@ -1773,6 +1798,7 @@
 
                     displayJobs(data.jobs);
                     refreshJobViewsRealtime();
+                    maybeAutoOpenDeepLinkedJob(type);
                 } else {
                     throw new Error(data.message || `Failed to fetch ${type} jobs`);
                 }
@@ -2411,6 +2437,12 @@
             const inProgressIndex = inProgressJobsData.findIndex(job => job.id === jobId);
             if (inProgressIndex !== -1) {
                 inProgressJobsData[inProgressIndex].is_saved = isSaved;
+            }
+
+            // Also update in appliedJobsData if the job is there
+            const appliedIndex = appliedJobsData.findIndex(job => job.id === jobId);
+            if (appliedIndex !== -1) {
+                appliedJobsData[appliedIndex].is_saved = isSaved;
             }
         }
 
