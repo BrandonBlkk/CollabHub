@@ -414,6 +414,7 @@ class FindJobsController extends Controller
                         'company' => $job->client?->company,
                         'location' => $clientUser?->location,
                         'profile_photo_path' => $clientUser?->profile_photo_path,
+                        'profile_photo_url' => $clientUser?->profile_photo_url,
                         'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
                     ],
                 ]
@@ -443,6 +444,7 @@ class FindJobsController extends Controller
                 'company' => $job->client?->company,
                 'location' => $clientUser?->location,
                 'profile_photo_path' => $clientUser?->profile_photo_path,
+                'profile_photo_url' => $clientUser?->profile_photo_url,
                 'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
             ];
 

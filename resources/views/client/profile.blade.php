@@ -43,12 +43,12 @@
 
                     <!-- Profile Photo Section -->
                     <div class="flex items-center space-x-6">
-                        <div class="relative">
-                            <div
+                        <div class="relative z-40 overflow-visible" id="clientPhotoActionsWrap">
+                            <div id="clientProfilePhotoContainer"
                                 class="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
                                 @if (auth()->user()->profile_photo_path)
                                     <img id="profileImagePreview"
-                                        src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}"
+                                        src="{{ auth()->user()->profile_photo_url }}"
                                         alt="Profile Photo" class="w-full h-full object-cover">
                                 @else
                                     <div
@@ -58,21 +58,34 @@
                                     </div>
                                 @endif
                             </div>
-                            <label for="profile_photo"
-                                class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full cursor-pointer hover:bg-black transition duration-300">
+                            <button type="button" id="clientPhotoActionsToggle" onclick="toggleClientPhotoMenu()"
+                                class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full hover:bg-black transition duration-300">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                            </label>
+                            </button>
+                            <div id="clientPhotoActionsMenu"
+                                class="absolute bottom-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-40 p-2 space-y-2 origin-bottom-right transition ease-out duration-100 transform opacity-0 scale-95 invisible pointer-events-none">
+                                <button type="button" onclick="document.getElementById('profile_photo').click(); toggleClientPhotoMenu(false);"
+                                    class="w-full text-left px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                                    Update Photo
+                                </button>
+                                <button type="button" id="removeProfilePhotoBtn" onclick="removeClientProfilePhoto(); toggleClientPhotoMenu(false);"
+                                    class="w-full text-left px-3 py-2 text-sm text-red-600 rounded hover:bg-red-50 {{ auth()->user()->profile_photo_path ? '' : 'hidden' }}">
+                                    Remove Photo
+                                </button>
+                            </div>
                             <input type="file" id="profile_photo" name="profile_photo" accept="image/*" class="hidden"
                                 onchange="previewImage(event)">
+                            <input type="hidden" id="remove_profile_photo" name="remove_profile_photo" value="0">
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">{{ auth()->user()->name }}</h3>
-                            <p class="text-gray-600">{{ auth()->user()->email }}</p>
+                            <h3 id="clientProfileDisplayName" class="text-lg font-semibold text-gray-900">
+                                {{ auth()->user()->name }}</h3>
+                            <p id="clientProfileDisplayEmail" class="text-gray-600">{{ auth()->user()->email }}</p>
                             <div class="flex items-center mt-2 select-none">
                                 <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
                                     {{ ucfirst(auth()->user()->role) }}
@@ -521,12 +534,170 @@
 
 @push('scripts')
     <script>
+        function setClientPhotoMenuOpen(isOpen) {
+            const menu = document.getElementById('clientPhotoActionsMenu');
+            if (!menu) return;
+
+            if (menu._hideTimeout) {
+                clearTimeout(menu._hideTimeout);
+                menu._hideTimeout = null;
+            }
+
+            if (isOpen) {
+                menu.classList.remove('invisible', 'pointer-events-none');
+                requestAnimationFrame(() => {
+                    menu.classList.remove('opacity-0', 'scale-95');
+                    menu.classList.add('opacity-100', 'scale-100');
+                });
+                return;
+            }
+
+            menu.classList.remove('opacity-100', 'scale-100');
+            menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            menu._hideTimeout = setTimeout(() => {
+                menu.classList.add('invisible');
+                menu._hideTimeout = null;
+            }, 75);
+        }
+
+        function toggleClientPhotoMenu(forceState = null) {
+            const menu = document.getElementById('clientPhotoActionsMenu');
+            if (!menu) return;
+
+            if (forceState === true) {
+                setClientPhotoMenuOpen(true);
+                return;
+            }
+
+            if (forceState === false) {
+                setClientPhotoMenuOpen(false);
+                return;
+            }
+
+            const isOpen = !menu.classList.contains('invisible') && !menu.classList.contains('opacity-0');
+            setClientPhotoMenuOpen(!isOpen);
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('clientPhotoActionsWrap');
+            if (!wrap) return;
+            if (!wrap.contains(e.target)) {
+                toggleClientPhotoMenu(false);
+            }
+        });
+
+        function setSidebarProfilePhoto(photoUrl) {
+            const sidebarButton = document.querySelector('.sidebar button');
+            if (!sidebarButton || !photoUrl) return;
+
+            const existingImage = sidebarButton.querySelector('img[alt="Profile Image"]');
+            if (existingImage) {
+                existingImage.src = photoUrl;
+                return;
+            }
+
+            const fallback = sidebarButton.querySelector(
+                '.w-10.h-10.rounded-full.bg-gradient-to-r.from-blue-500.to-teal-400'
+            );
+            if (!fallback) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'w-10 h-10 rounded-full overflow-hidden';
+            wrapper.innerHTML = `<img src="${photoUrl}" alt="Profile Image" class="w-full h-full object-cover">`;
+            fallback.replaceWith(wrapper);
+        }
+
+        function setSidebarProfileInitial(userName) {
+            const sidebarButton = document.querySelector('.sidebar button');
+            if (!sidebarButton) return;
+
+            const initial = (userName || 'U').trim().charAt(0).toUpperCase();
+            const existingImageWrapper = sidebarButton.querySelector('div.w-10.h-10.rounded-full.overflow-hidden');
+            const fallbackHtml =
+                `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none"><span class="text-white font-bold text-sm">${initial}</span></div>`;
+
+            if (existingImageWrapper) {
+                existingImageWrapper.outerHTML = fallbackHtml;
+                return;
+            }
+
+            const img = sidebarButton.querySelector('img[alt="Profile Image"]');
+            if (img && img.parentElement) {
+                img.parentElement.outerHTML = fallbackHtml;
+            }
+        }
+
+        function setMainProfilePhoto(photoUrl) {
+            if (!photoUrl) return;
+
+            const container = document.getElementById('clientProfilePhotoContainer');
+            if (!container) return;
+
+            let preview = document.getElementById('profileImagePreview');
+            if (!preview) {
+                container.innerHTML =
+                    `<img id="profileImagePreview" src="${photoUrl}" alt="Profile Photo" class="w-full h-full object-cover">`;
+                return;
+            }
+
+            preview.src = photoUrl;
+        }
+
+        function setMainProfileInitial(userName) {
+            const container = document.getElementById('clientProfilePhotoContainer');
+            if (!container) return;
+
+            const initial = (userName || 'U').trim().charAt(0).toUpperCase();
+            container.innerHTML =
+                `<div class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow"><span class="text-white font-bold text-4xl">${initial}</span></div>`;
+        }
+
+        function previewImage(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            toggleClientPhotoMenu(false);
+            const removeInput = document.getElementById('remove_profile_photo');
+            if (removeInput) removeInput.value = '0';
+            const removeBtn = document.getElementById('removeProfilePhotoBtn');
+            if (removeBtn) removeBtn.classList.remove('hidden');
+            const localUrl = URL.createObjectURL(file);
+            setMainProfilePhoto(localUrl);
+        }
+
+        function removeClientProfilePhoto() {
+            const form = document.getElementById('profileForm');
+            if (!form) return;
+            toggleClientPhotoMenu(false);
+
+            const userName = form.querySelector('input[name="name"]')?.value || document.getElementById(
+                'clientProfileDisplayName')?.textContent || 'U';
+
+            const removeInput = document.getElementById('remove_profile_photo');
+            if (removeInput) removeInput.value = '1';
+
+            const photoInput = document.getElementById('profile_photo');
+            if (photoInput) photoInput.value = '';
+
+            setMainProfileInitial(userName);
+            setSidebarProfileInitial(userName);
+
+            const removeBtn = document.getElementById('removeProfilePhotoBtn');
+            if (removeBtn) removeBtn.classList.add('hidden');
+        }
+
         // Toggle edit mode
         function toggleEditMode(formId) {
-            const inputs = form.querySelectorAll('input, select, textarea');
+            const formElement = document.getElementById(`${formId}Form`) || document.getElementById('profileForm');
+            if (!formElement) return;
 
-            inputs.forEach(input => {
-                input.disabled = !input.disabled;
+            const editableFields = formElement.querySelectorAll(
+                'input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea'
+            );
+
+            // Keep profile fields editable and never disable hidden method/token inputs.
+            editableFields.forEach((input) => {
+                input.disabled = false;
+                input.readOnly = false;
             });
         }
 
@@ -579,8 +750,34 @@
 
                 if (response.ok) {
                     if (data.status === 'success') {
+                        const updatedName = data.name || formData.get('name') || '';
+                        const updatedEmail = data.email || formData.get('email') || '';
+
                         // Update name in sidebar
-                        document.getElementById('name').textContent = formData.get('name');
+                        const sidebarName = document.getElementById('name');
+                        if (sidebarName) sidebarName.textContent = updatedName;
+
+                        // Update profile card name/email
+                        const displayName = document.getElementById('clientProfileDisplayName');
+                        const displayEmail = document.getElementById('clientProfileDisplayEmail');
+                        if (displayName) displayName.textContent = updatedName;
+                        if (displayEmail) displayEmail.textContent = updatedEmail;
+
+                        // Update photo instantly without reloading
+                        const removeBtn = document.getElementById('removeProfilePhotoBtn');
+                        const removeInput = document.getElementById('remove_profile_photo');
+
+                        if (data.profile_photo_url) {
+                            setMainProfilePhoto(data.profile_photo_url);
+                            setSidebarProfilePhoto(data.profile_photo_url);
+                            if (removeBtn) removeBtn.classList.remove('hidden');
+                            if (removeInput) removeInput.value = '0';
+                        } else {
+                            setMainProfileInitial(updatedName);
+                            setSidebarProfileInitial(updatedName);
+                            if (removeBtn) removeBtn.classList.add('hidden');
+                            if (removeInput) removeInput.value = '0';
+                        }
 
                         // Update the "Last updated" timestamp at the top of the page
                         const lastUpdatedElement = document.querySelector('.text-sm.text-gray-500');
@@ -607,7 +804,8 @@
                         alert(data.message);
                     }
                 } else {
-                    alert(data.message);
+                    const validationError = data?.errors ? Object.values(data.errors)[0]?.[0] : null;
+                    alert(validationError || data.message || 'Failed to update profile.');
                 }
             } catch (error) {
                 alert(error);

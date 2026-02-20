@@ -10,7 +10,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="flex items-center gap-4">
                             @if ($clientUser->profile_photo_path)
-                                <img src="{{ asset('storage/' . $clientUser->profile_photo_path) }}"
+                                <img src="{{ $clientUser->profile_photo_url }}"
                                     alt="{{ $clientUser->name }}" class="w-32 h-32 rounded-full object-cover">
                             @else
                                 <div
@@ -97,7 +97,7 @@
                                                             <div
                                                                 class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
                                                                 @if ($clientUser->profile_photo_path)
-                                                                    <img src="{{ asset('storage/' . $clientUser->profile_photo_path) }}"
+                                                                    <img src="{{ $clientUser->profile_photo_url }}"
                                                                         alt="{{ $clientUser->name }}"
                                                                         class="w-full h-full object-cover">
                                                                 @else
@@ -271,7 +271,7 @@
                                 <div
                                     class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
                                     @if ($person->profile_photo_path)
-                                        <img src="{{ asset('storage/' . $person->profile_photo_path) }}"
+                                        <img src="{{ $person->profile_photo_url }}"
                                             alt="{{ $person->name }}" class="w-full h-full object-cover">
                                     @else
                                         <span

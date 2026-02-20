@@ -634,24 +634,27 @@
                 <!-- Profile Info -->
                 <div class="flex items-start space-x-4 flex-1 min-w-0">
                     <!-- Avatar with Verification Badge -->
-                    <div class="relative">
-                        @if ($freelancer->profile_photo_path)
-                            <div class="w-32 h-32 rounded-full flex-shrink-0 select-none">
-                                <img src="{{ $freelancer->profile_photo_path }}" alt="Profile Image"
-                                    class="w-full h-full rounded-full object-cover border-4 border-white shadow">
-                            </div>
-                        @else
-                            <div
-                                class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
-                                <span
-                                    class="text-white font-bold text-4xl">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
-                            </div>
-                        @endif
+                    <div class="relative z-40 overflow-visible" id="freelancerPhotoActionsWrap">
+                        <div id="freelancerProfileAvatarContainer">
+                            @if ($freelancer->profile_photo_path)
+                                <div class="w-32 h-32 rounded-full flex-shrink-0 select-none">
+                                    <img src="{{ $freelancer->profile_photo_url }}" alt="Profile Image"
+                                        class="w-full h-full rounded-full object-cover border-4 border-white shadow">
+                                </div>
+                            @else
+                                <div
+                                    class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
+                                    <span
+                                        class="text-white font-bold text-4xl">{{ strtoupper(substr($freelancer->name, 0, 1)) }}</span>
+                                </div>
+                            @endif
+                        </div>
 
                         <!-- Edit Photo Button (Only for freelancer viewing their own profile) -->
                         @auth
                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
-                                <button type="button" onclick="document.getElementById('profile-photo-upload').click()"
+                                <button type="button" id="freelancerPhotoActionsToggle"
+                                    onclick="toggleFreelancerPhotoMenu()"
                                     class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full hover:bg-black transition shadow-lg"
                                     title="Change profile photo">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -661,7 +664,20 @@
                                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                 </button>
-                                <input type="file" id="profile-photo-upload" class="hidden" accept="image/*">
+                                <div id="freelancerPhotoActionsMenu"
+                                    class="absolute bottom-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-40 p-2 space-y-2 origin-bottom-right transition ease-out duration-100 transform opacity-0 scale-95 invisible pointer-events-none">
+                                    <button type="button"
+                                        onclick="document.getElementById('profile-photo-upload').click(); toggleFreelancerPhotoMenu(false);"
+                                        class="w-full text-left px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                                        Update Photo
+                                    </button>
+                                    <button type="button" id="remove-freelancer-photo"
+                                        class="w-full text-left px-3 py-2 text-sm text-red-600 rounded hover:bg-red-50 {{ $freelancer->profile_photo_path ? '' : 'hidden' }}">
+                                        Remove Photo
+                                    </button>
+                                </div>
+                                <input type="file" id="profile-photo-upload" class="hidden" accept="image/*"
+                                    name="profile_photo">
                             @endif
                         @endauth
                     </div>
@@ -671,7 +687,8 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h1 class="text-2xl font-bold text-gray-900">{{ $freelancer->name }}</h1>
+                                    <h1 id="freelancerProfileDisplayName" class="text-2xl font-bold text-gray-900">
+                                        {{ $freelancer->name }}</h1>
                                 </div>
                                 <div class="flex items-center flex-wrap gap-2 mt-1">
                                     <span
@@ -4863,12 +4880,200 @@
             alert('Social links saved successfully!');
         }
 
+        function setFreelancerPhotoMenuOpen(isOpen) {
+            const menu = document.getElementById('freelancerPhotoActionsMenu');
+            if (!menu) return;
+
+            if (menu._hideTimeout) {
+                clearTimeout(menu._hideTimeout);
+                menu._hideTimeout = null;
+            }
+
+            if (isOpen) {
+                menu.classList.remove('invisible', 'pointer-events-none');
+                requestAnimationFrame(() => {
+                    menu.classList.remove('opacity-0', 'scale-95');
+                    menu.classList.add('opacity-100', 'scale-100');
+                });
+                return;
+            }
+
+            menu.classList.remove('opacity-100', 'scale-100');
+            menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            menu._hideTimeout = setTimeout(() => {
+                menu.classList.add('invisible');
+                menu._hideTimeout = null;
+            }, 75);
+        }
+
+        function toggleFreelancerPhotoMenu(forceState = null) {
+            const menu = document.getElementById('freelancerPhotoActionsMenu');
+            if (!menu) return;
+
+            if (forceState === true) {
+                setFreelancerPhotoMenuOpen(true);
+                return;
+            }
+
+            if (forceState === false) {
+                setFreelancerPhotoMenuOpen(false);
+                return;
+            }
+
+            const isOpen = !menu.classList.contains('invisible') && !menu.classList.contains('opacity-0');
+            setFreelancerPhotoMenuOpen(!isOpen);
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('freelancerPhotoActionsWrap');
+            if (!wrap) return;
+            if (!wrap.contains(e.target)) {
+                toggleFreelancerPhotoMenu(false);
+            }
+        });
+
+        function setFreelancerMainAvatar(photoUrl, userName) {
+            const avatarContainer = document.getElementById('freelancerProfileAvatarContainer');
+            if (!avatarContainer) return;
+
+            if (photoUrl) {
+                avatarContainer.innerHTML = `
+                    <div class="w-32 h-32 rounded-full flex-shrink-0 select-none">
+                        <img src="${photoUrl}" alt="Profile Image"
+                            class="w-full h-full rounded-full object-cover border-4 border-white shadow">
+                    </div>
+                `;
+                return;
+            }
+
+            const initial = (userName || 'F').trim().charAt(0).toUpperCase();
+            avatarContainer.innerHTML = `
+                <div class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
+                    <span class="text-white font-bold text-4xl">${initial}</span>
+                </div>
+            `;
+        }
+
+        function setFreelancerSidebarAvatar(photoUrl, userName) {
+            const sidebarButton = document.querySelector('.sidebar button');
+            if (!sidebarButton) return;
+
+            const initial = (userName || 'F').trim().charAt(0).toUpperCase();
+            const existingImage = sidebarButton.querySelector('img[alt="Profile Image"]');
+
+            if (photoUrl) {
+                if (existingImage) {
+                    existingImage.src = photoUrl;
+                    return;
+                }
+
+                const fallback = sidebarButton.querySelector(
+                    '.w-10.h-10.rounded-full.bg-gradient-to-r.from-blue-500.to-teal-400'
+                );
+                if (fallback) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'w-10 h-10 rounded-full overflow-hidden';
+                    wrapper.innerHTML =
+                        `<img src="${photoUrl}" alt="Profile Image" class="w-full h-full object-cover">`;
+                    fallback.replaceWith(wrapper);
+                }
+                return;
+            }
+
+            const fallbackHtml =
+                `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none"><span class="text-white font-bold text-sm">${initial}</span></div>`;
+            const existingWrapper = sidebarButton.querySelector('div.w-10.h-10.rounded-full.overflow-hidden');
+            if (existingWrapper) {
+                existingWrapper.outerHTML = fallbackHtml;
+            } else if (existingImage?.parentElement) {
+                existingImage.parentElement.outerHTML = fallbackHtml;
+            }
+        }
+
         // Profile photo upload
-        document.getElementById('profile-photo-upload')?.addEventListener('change', function(e) {
+        document.getElementById('profile-photo-upload')?.addEventListener('change', async function(e) {
             const file = e.target.files[0];
-            if (file) {
-                // Here you would upload the file to your server
-                alert('Profile photo uploaded successfully!');
+            if (!file) return;
+            toggleFreelancerPhotoMenu(false);
+
+            try {
+                const formData = new FormData();
+                formData.append('profile_photo', file);
+                formData.append('_method', 'PUT');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const response = await fetch("{{ route('freelancer-profile.update', $freelancer->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to upload profile photo.');
+                }
+
+                const updatedName = data.name || document.getElementById('freelancerProfileDisplayName')
+                    ?.textContent ||
+                    'F';
+                const photoUrl = data.profile_photo_url;
+
+                setFreelancerMainAvatar(photoUrl, updatedName);
+                setFreelancerSidebarAvatar(photoUrl, updatedName);
+
+                const removeBtn = document.getElementById('remove-freelancer-photo');
+                if (removeBtn) {
+                    if (photoUrl) removeBtn.classList.remove('hidden');
+                    else removeBtn.classList.add('hidden');
+                }
+
+                const sidebarName = document.getElementById('name');
+                if (sidebarName && updatedName) {
+                    sidebarName.textContent = updatedName;
+                }
+            } catch (error) {
+                alert(error.message || 'Failed to upload profile photo.');
+            }
+        });
+
+        document.getElementById('remove-freelancer-photo')?.addEventListener('click', async function() {
+            try {
+                toggleFreelancerPhotoMenu(false);
+                const formData = new FormData();
+                formData.append('remove_profile_photo', '1');
+                formData.append('_method', 'PUT');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const response = await fetch("{{ route('freelancer-profile.update', $freelancer->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to remove profile photo.');
+                }
+
+                const updatedName = data.name || document.getElementById('freelancerProfileDisplayName')
+                    ?.textContent ||
+                    'F';
+                setFreelancerMainAvatar(null, updatedName);
+                setFreelancerSidebarAvatar(null, updatedName);
+
+                const removeBtn = document.getElementById('remove-freelancer-photo');
+                if (removeBtn) removeBtn.classList.add('hidden');
+
+                const fileInput = document.getElementById('profile-photo-upload');
+                if (fileInput) fileInput.value = '';
+            } catch (error) {
+                alert(error.message || 'Failed to remove profile photo.');
             }
         });
     </script>

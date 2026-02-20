@@ -1606,8 +1606,8 @@
                     clientProfileLink.href = '#';
                 }
 
-                if (clientProfile.profile_photo_path) {
-                    clientAvatarImage.src = `/storage/${clientProfile.profile_photo_path}`;
+                if (clientProfile.profile_photo_url || clientProfile.profile_photo_path) {
+                    clientAvatarImage.src = clientProfile.profile_photo_url || `/storage/${clientProfile.profile_photo_path}`;
                     clientAvatarImage.classList.remove('hidden');
                     clientAvatarInitial.classList.add('hidden');
                 } else {

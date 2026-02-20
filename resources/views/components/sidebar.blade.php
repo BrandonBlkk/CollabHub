@@ -74,7 +74,7 @@
                 {{-- Profile Photo --}}
                 @if (auth()->user()->profile_photo_path)
                     <div class="w-10 h-10 rounded-full overflow-hidden">
-                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile Image"
+                        <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile Image"
                             class="w-full h-full object-cover">
                     </div>
                 @else
