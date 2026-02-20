@@ -9,6 +9,7 @@ use App\Models\ProfileView;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -170,7 +171,7 @@ class ProfileController extends Controller
 
         $user = User::findOrFail($id);
 
-        $user->update([
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -179,7 +180,25 @@ class ProfileController extends Controller
             'location' => $request->location,
             'timezone' => $request->timezone,
             'updated_at' => now(),
-        ]);
+        ];
+
+        if ($request->hasFile('profile_photo')) {
+            $newPhotoPath = $request->file('profile_photo')->store('profile-photos', 'public');
+
+            if ($user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path)) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            $updateData['profile_photo_path'] = $newPhotoPath;
+        } elseif ($request->boolean('remove_profile_photo')) {
+            if ($user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path)) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            $updateData['profile_photo_path'] = null;
+        }
+
+        $user->update($updateData);
 
         // Check if the user is a client
         if ($user->role === 'client') {
@@ -196,6 +215,9 @@ class ProfileController extends Controller
         $response = [
             'status' => 'success',
             'message' => 'Profile updated successfully.',
+            'name' => $user->name,
+            'email' => $user->email,
+            'profile_photo_url' => $user->profile_photo_url,
         ];
 
         return response()->json($response);

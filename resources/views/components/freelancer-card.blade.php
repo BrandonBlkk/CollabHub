@@ -9,7 +9,7 @@
         <!-- Avatar -->
         @if ($freelancer->profile_photo_path)
             <div class="w-14 h-14 rounded-full select-none">
-                <img src="{{ $freelancer->profile_photo_path }}" alt="Profile Image"
+                <img src="{{ $freelancer->profile_photo_url }}" alt="Profile Image"
                     class="w-full h-full rounded-full object-cover">
             </div>
         @else

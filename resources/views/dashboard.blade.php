@@ -280,7 +280,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Active Jobs</h2>
-                        <a href="{{ route('find-jobs') }}"
+                        <a href="{{ route('freelancer.active-jobs') }}"
                             class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all &rarr;</a>
                     </div>
 
