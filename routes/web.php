@@ -84,6 +84,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Find Jobs
         Route::get('/find-jobs', [FindJobsController::class, 'index'])->name('find-jobs');
+        Route::get('/find-jobs/exchange-rates', [FindJobsController::class, 'getExchangeRates'])->name('find-jobs.exchange-rates');
         Route::get('/find-jobs/jobs', [FindJobsController::class, 'getJobs'])->name('find-jobs.jobs');
         Route::get('/find-jobs/jobs/{id}', [FindJobsController::class, 'getJob'])->name('jobs.show');
         Route::get('/jobs/saved', [FindJobsController::class, 'getSavedJobs'])->name('find-jobs.saved');
