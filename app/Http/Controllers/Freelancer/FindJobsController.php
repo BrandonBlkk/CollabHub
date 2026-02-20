@@ -46,35 +46,39 @@ class FindJobsController extends Controller
 
         $cachedRates = Cache::get($cacheKey);
         $rates = is_array($cachedRates) && !empty($cachedRates) ? $cachedRates : null;
+        $exchangeApiKey = (string) config('services.exchange_rate_api.key', '');
+        $exchangeApiBaseUrl = rtrim((string) config('services.exchange_rate_api.url', 'https://v6.exchangerate-api.com/v6'), '/');
 
-        try {
-            $response = Http::timeout(10)->get('https://v6.exchangerate-api.com/v6/8d0785fb073942dda7adf207/latest/USD');
-            if ($response->ok()) {
-                $data = $response->json();
-                $apiRates = $data['conversion_rates'] ?? $data['rates'] ?? [];
+        if ($exchangeApiKey !== '') {
+            try {
+                $response = Http::timeout(10)->get("{$exchangeApiBaseUrl}/{$exchangeApiKey}/latest/USD");
+                if ($response->ok()) {
+                    $data = $response->json();
+                    $apiRates = $data['conversion_rates'] ?? $data['rates'] ?? [];
 
-                if (is_array($apiRates) && !empty($apiRates)) {
-                    $filteredRates = ['USD' => 1.0];
+                    if (is_array($apiRates) && !empty($apiRates)) {
+                        $filteredRates = ['USD' => 1.0];
 
-                    foreach ($allowedCurrencies as $currency) {
-                        if ($currency === 'USD') {
-                            continue;
+                        foreach ($allowedCurrencies as $currency) {
+                            if ($currency === 'USD') {
+                                continue;
+                            }
+
+                            if (isset($apiRates[$currency]) && is_numeric($apiRates[$currency])) {
+                                $filteredRates[$currency] = (float) $apiRates[$currency];
+                            }
                         }
 
-                        if (isset($apiRates[$currency]) && is_numeric($apiRates[$currency])) {
-                            $filteredRates[$currency] = (float) $apiRates[$currency];
+                        // Cache only when we have at least one non-USD rate from the provider.
+                        if (count($filteredRates) > 1) {
+                            Cache::put($cacheKey, $filteredRates, now()->addHours(6));
+                            $rates = $filteredRates;
                         }
-                    }
-
-                    // Cache only when we have at least one non-USD rate from the provider.
-                    if (count($filteredRates) > 1) {
-                        Cache::put($cacheKey, $filteredRates, now()->addHours(6));
-                        $rates = $filteredRates;
                     }
                 }
+            } catch (\Throwable $e) {
+                // Do nothing
             }
-        } catch (\Throwable $e) {
-            // Do nothing
         }
 
         if (is_array($rates)) {
