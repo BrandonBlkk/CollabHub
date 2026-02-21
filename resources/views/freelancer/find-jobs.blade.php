@@ -561,16 +561,18 @@
                         </div>
                     </div>
                     <div class="mt-auto pt-4 border-t border-gray-100">
-                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0">
-                                <div class="flex items-center">
+                        <div class="flex flex-col lg:flex-row lg:items-start xl:items-center justify-between gap-4">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0 min-w-0 flex-1">
+                                <div class="flex items-center min-w-0 flex-wrap">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    <span class="font-semibold text-gray-900 budget-amount">Budget not specified</span>
-                                    <span class="text-gray-500 text-sm ml-2 job-type">Not specified</span>
+                                    <span class="font-semibold text-gray-900 budget-amount break-words">Budget not
+                                        specified</span>
+                                    <span class="text-gray-500 text-sm ml-2 job-type whitespace-nowrap">Not specified</span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
@@ -582,10 +584,10 @@
                                 </div>
                             </div>
                             <button
-                                class="flex-1 xs:flex-none px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-job-btn">
-                                <span>View Job</span>
+                                class="w-full sm:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-job-btn shrink-0 min-w-[130px]">
+                                <span class="whitespace-nowrap">View Job</span>
                                 <span
-                                    class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full views-count">0</span>
+                                    class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full views-count shrink-0">0</span>
                             </button>
                         </div>
                     </div>
@@ -639,7 +641,7 @@
                                 </div>
                             </div>
                             <!-- View Job Button Skeleton -->
-                            <div class="flex-1 xs:flex-none">
+                            <div class="w-full sm:w-40 shrink-0">
                                 <div class="w-full h-10 bg-gray-200 rounded-lg animate-pulse"></div>
                             </div>
                         </div>
@@ -1300,8 +1302,8 @@
 
             // Set budget and type
             const budgetElement = document.getElementById('modal-budget');
-            if (job.budget_min && job.budget_max) {
-                budgetElement.textContent = `$${job.budget_min} - $${job.budget_max}`;
+            if (job.budget_min !== null && job.budget_max !== null) {
+                budgetElement.textContent = formatBudgetRange(job.budget_min, job.budget_max);
             } else {
                 budgetElement.textContent = 'Budget not specified';
             }
@@ -1607,7 +1609,8 @@
                 }
 
                 if (clientProfile.profile_photo_url || clientProfile.profile_photo_path) {
-                    clientAvatarImage.src = clientProfile.profile_photo_url || `/storage/${clientProfile.profile_photo_path}`;
+                    clientAvatarImage.src = clientProfile.profile_photo_url ||
+                        `/storage/${clientProfile.profile_photo_path}`;
                     clientAvatarImage.classList.remove('hidden');
                     clientAvatarInitial.classList.add('hidden');
                 } else {
@@ -1667,8 +1670,8 @@
                 const budgetAmount = cardElement.querySelector('.budget-amount');
                 const jobType = cardElement.querySelector('.job-type');
 
-                if (job.budget_min && job.budget_max) {
-                    budgetAmount.textContent = `$${job.budget_min} - $${job.budget_max}`;
+                if (job.budget_min !== null && job.budget_max !== null) {
+                    budgetAmount.textContent = formatBudgetRange(job.budget_min, job.budget_max);
                 } else {
                     budgetAmount.textContent = 'Budget not specified';
                 }
@@ -1918,7 +1921,7 @@
             bid_amount.min = job.budget_min;
             bid_amount.max = job.budget_max;
             bid_amount.value = job.budget_min;
-            min_max_budget.textContent = `${job.budget_min} - ${job.budget_max}`;
+            min_max_budget.textContent = formatBudgetRange(job.budget_min, job.budget_max);
 
             // Initialize character counter
             updateCharCounter.call(proposalText);
@@ -1992,7 +1995,7 @@
             const updateBidAmount = document.getElementById('update-bid-amount');
             updateBidAmount.min = job.budget_min;
             updateBidAmount.max = job.budget_max;
-            updateMinMaxBudget.textContent = `${job.budget_min} - ${job.budget_max}`;
+            updateMinMaxBudget.textContent = formatBudgetRange(job.budget_min, job.budget_max);
 
             // Clear any errors
             hideUpdateProposalError();
@@ -2484,6 +2487,17 @@
             };
 
             return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
+        }
+
+        function formatBudgetRange(minUsd, maxUsd) {
+            const minAmount = parseFloat(minUsd);
+            const maxAmount = parseFloat(maxUsd);
+
+            if (!Number.isFinite(minAmount) || !Number.isFinite(maxAmount)) {
+                return 'Budget not specified';
+            }
+
+            return `$${minAmount.toLocaleString()} - $${maxAmount.toLocaleString()}`;
         }
 
         // Toast notification function

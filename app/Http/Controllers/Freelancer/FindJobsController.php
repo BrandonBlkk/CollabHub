@@ -12,6 +12,8 @@ use App\Models\JobView;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Collection;
 
 class FindJobsController extends Controller
@@ -19,6 +21,80 @@ class FindJobsController extends Controller
     public function index()
     {
         return view('freelancer.find-jobs');
+    }
+
+    public function getExchangeRates()
+    {
+        $allowedCurrencies = ['USD', 'MMK', 'EUR', 'GBP', 'CAD', 'AUD'];
+        $preferredCurrency = strtoupper((string) (Auth::user()?->settings?->currency ?? 'USD'));
+        if (!in_array($preferredCurrency, $allowedCurrencies, true)) {
+            $preferredCurrency = 'USD';
+        }
+        $cacheKey = 'find_jobs_usd_exchange_rates';
+        $fallbackRates = [
+            'USD' => 1.0,
+            'MMK' => 3959.10,
+            'EUR' => 0.93,
+            'GBP' => 0.79,
+            'CAD' => 1.35,
+            'AUD' => 1.53,
+        ];
+
+        $cachedRates = Cache::get($cacheKey);
+        $rates = is_array($cachedRates) && !empty($cachedRates) ? $cachedRates : null;
+        $exchangeApiKey = (string) config('services.exchange_rate_api.key', '');
+        $exchangeApiBaseUrl = rtrim((string) config('services.exchange_rate_api.url', 'https://v6.exchangerate-api.com/v6'), '/');
+
+        if ($exchangeApiKey !== '') {
+            try {
+                $response = Http::timeout(10)->get("{$exchangeApiBaseUrl}/{$exchangeApiKey}/latest/USD");
+                if ($response->ok()) {
+                    $data = $response->json();
+                    $apiRates = $data['conversion_rates'] ?? $data['rates'] ?? [];
+
+                    if (is_array($apiRates) && !empty($apiRates)) {
+                        $filteredRates = ['USD' => 1.0];
+
+                        foreach ($allowedCurrencies as $currency) {
+                            if ($currency === 'USD') {
+                                continue;
+                            }
+
+                            if (isset($apiRates[$currency]) && is_numeric($apiRates[$currency])) {
+                                $filteredRates[$currency] = (float) $apiRates[$currency];
+                            }
+                        }
+
+                        // Cache only when we have at least one non-USD rate from the provider.
+                        if (count($filteredRates) > 1) {
+                            Cache::put($cacheKey, $filteredRates, now()->addHours(6));
+                            $rates = $filteredRates;
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Do nothing
+            }
+        }
+
+        if (is_array($rates)) {
+            foreach ($allowedCurrencies as $currency) {
+                if ($currency === 'USD') {
+                    continue;
+                }
+
+                if (isset($rates[$currency]) && (!is_numeric($rates[$currency]) || (float) $rates[$currency] <= 1)) {
+                    unset($rates[$currency]);
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'base' => 'USD',
+            'preferred_currency' => $preferredCurrency,
+            'rates' => is_array($rates) && !empty($rates) ? array_merge($fallbackRates, $rates) : $fallbackRates,
+        ]);
     }
 
     // Get all jobs
