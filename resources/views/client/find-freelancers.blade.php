@@ -288,9 +288,13 @@
                         'space-y-3': viewType === 'list'
                     }">
                     <!-- Using Freelancer Card Component -->
-                    @foreach ($freelancers as $freelancer)
+                    @forelse ($freelancers as $freelancer)
                         <x-freelancer-card :freelancer="$freelancer" :view-type="$viewType" />
-                    @endforeach
+                    @empty
+                        <div class="col-span-full bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
+                            <p class="text-sm text-gray-600">No freelancers are visible with current privacy settings.</p>
+                        </div>
+                    @endforelse
                 </div>
 
                 <!-- Pagination -->
