@@ -42,12 +42,11 @@ class ProfileController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $viewer = $request->user();
+        $user = User::findOrFail($id);
 
         $freelancer = User::with([
             'freelancer',
             'skills',
-            'settings',
             'freelancer.experiences',
             'freelancer.educations.university',
             'freelancer.educations.major',
@@ -57,22 +56,15 @@ class ProfileController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        if (!$freelancer->canBeViewedBy($viewer)) {
-            abort(403, 'This profile is not available.');
-        }
-
-        ProfileView::logView($request, $freelancer);
+        ProfileView::logView($request, $user);
 
         // Similar freelancers
-        $similarFreelancers = User::with(['freelancer', 'settings'])
+        $similarFreelancers = User::with('freelancer')
             ->where('role', 'freelancer')
             ->where('id', '!=', $id)
             ->inRandomOrder()
-            ->limit(20)
-            ->get()
-            ->filter(fn($person) => $person->canBeViewedBy($viewer))
-            ->take(4)
-            ->values();
+            ->limit(4)
+            ->get();
 
         // Get active job roles
         $jobRoles = JobRole::where('is_active', true)
@@ -81,14 +73,14 @@ class ProfileController extends Controller
             ->get();
 
         // Get freelancer experiences with jobRole
-        $experiences = $freelancer->freelancer->experiences()
+        $experiences = $user->freelancer->experiences()
             ->with('jobRole')
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_date', 'desc')
             ->get();
 
         // Get freelancer educations with university and major
-        $educations = $freelancer->freelancer->educations()
+        $educations = $user->freelancer->educations()
             ->with(['university', 'major'])
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_year', 'desc')
@@ -98,13 +90,10 @@ class ProfileController extends Controller
         $majors = Major::all();
         $skills = Skill::all();
 
-        $languages = UserLanguage::where('user_id', $freelancer->id)->get();
+        $languages = UserLanguage::where('user_id', $user->id)->get();
 
         // Get freelancer certificates
-        $certificates = $freelancer->freelancer->certificates;
-
-        $showOnlineStatus = $freelancer->showsOnlineStatusTo($viewer);
-        $isOnline = $showOnlineStatus ? $freelancer->isCurrentlyOnline() : false;
+        $certificates = $user->freelancer->certificates;
 
         return view(
             'freelancer.freelancer-profile',
@@ -118,9 +107,7 @@ class ProfileController extends Controller
                 "majors",
                 "skills",
                 "languages",
-                "certificates",
-                "showOnlineStatus",
-                "isOnline"
+                "certificates"
             )
         );
     }

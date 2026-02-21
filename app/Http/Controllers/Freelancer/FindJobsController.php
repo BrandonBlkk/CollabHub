@@ -103,7 +103,6 @@ class FindJobsController extends Controller
         $jobs = Job::with([
             'category:id,name',
             'client.user:id,name,profile_photo_path,location',
-            'client.user.settings:user_id,profile_visibility,show_online_status',
         ])
             ->withCount(['proposals', 'views'])
             ->latest()
@@ -124,7 +123,6 @@ class FindJobsController extends Controller
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
-                'client.user.settings:user_id,profile_visibility,show_online_status',
             ])
             ->withCount(['proposals', 'views'])
             ->where('status', 'open')
@@ -154,7 +152,6 @@ class FindJobsController extends Controller
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
-                'client.user.settings:user_id,profile_visibility,show_online_status',
             ])
             ->withCount(['proposals', 'views'])
             ->get();
@@ -179,7 +176,6 @@ class FindJobsController extends Controller
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
-                'client.user.settings:user_id,profile_visibility,show_online_status',
             ])
             ->withCount(['proposals', 'views'])
             ->get();
@@ -207,7 +203,6 @@ class FindJobsController extends Controller
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
-                'client.user.settings:user_id,profile_visibility,show_online_status',
             ])
             ->withCount(['proposals', 'views'])
             ->get();
@@ -450,10 +445,7 @@ class FindJobsController extends Controller
     public function getJob(Request $request, $id)
     {
         try {
-            $job = Job::with([
-                'client.user:id,name,profile_photo_path,location',
-                'client.user.settings:user_id,profile_visibility,show_online_status',
-            ])
+            $job = Job::with('client.user:id,name,profile_photo_path,location')
                 ->withCount(['proposals', 'views'])
                 ->findOrFail($id);
 
@@ -470,10 +462,6 @@ class FindJobsController extends Controller
 
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
-            $viewer = $request->user();
-            $clientProfileUrl = ($clientUser && $viewer && $clientUser->canBeViewedBy($viewer))
-                ? route('clients.profile.show', $clientUser->id)
-                : null;
 
             return response()->json([
                 'success' => true,
@@ -503,7 +491,7 @@ class FindJobsController extends Controller
                         'location' => $clientUser?->location,
                         'profile_photo_path' => $clientUser?->profile_photo_path,
                         'profile_photo_url' => $clientUser?->profile_photo_url,
-                        'profile_url' => $clientProfileUrl,
+                        'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
                     ],
                 ]
             ]);
@@ -518,15 +506,11 @@ class FindJobsController extends Controller
     private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = []): Collection
     {
         $savedSet = array_flip($savedJobIds);
-        $viewer = Auth::user();
 
-        return $jobs->map(function ($job) use ($isSaved, $savedSet, $viewer) {
+        return $jobs->map(function ($job) use ($isSaved, $savedSet) {
             $jobData = $job->toArray();
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
-            $clientProfileUrl = ($clientUser && $viewer && $clientUser->canBeViewedBy($viewer))
-                ? route('clients.profile.show', $clientUser->id)
-                : null;
 
             $jobData['is_saved'] = $savedSet[$job->id] ?? $isSaved;
             $jobData['client_profile'] = [
@@ -537,7 +521,7 @@ class FindJobsController extends Controller
                 'location' => $clientUser?->location,
                 'profile_photo_path' => $clientUser?->profile_photo_path,
                 'profile_photo_url' => $clientUser?->profile_photo_url,
-                'profile_url' => $clientProfileUrl,
+                'profile_url' => $clientUser ? route('clients.profile.show', $clientUser->id) : null,
             ];
 
             return $jobData;

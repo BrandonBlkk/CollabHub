@@ -51,15 +51,9 @@ class ProfileController extends Controller
 
     public function publicShow(Request $request, string $id)
     {
-        $viewer = $request->user();
-
-        $clientUser = User::with(['client', 'settings'])
+        $clientUser = User::with(['client'])
             ->where('role', 'client')
             ->findOrFail($id);
-
-        if (!$clientUser->canBeViewedBy($viewer)) {
-            abort(403, 'This profile is not available.');
-        }
 
         ProfileView::logView($request, $clientUser);
 
@@ -82,7 +76,7 @@ class ProfileController extends Controller
 
             if ($recentlyViewedClientIds->isNotEmpty()) {
                 $recentlyViewedClients = User::query()
-                    ->with(['client', 'settings'])
+                    ->with('client')
                     ->withCount(['jobs', 'profileViews'])
                     ->where('role', 'client')
                     ->whereIn('id', $recentlyViewedClientIds)
@@ -91,7 +85,7 @@ class ProfileController extends Controller
 
                 $peopleAlsoViewed = $recentlyViewedClientIds
                     ->map(fn($id) => $recentlyViewedClients->get($id))
-                    ->filter(fn($person) => $person && $person->canBeViewedBy($viewer))
+                    ->filter()
                     ->values();
             }
         }
@@ -103,17 +97,14 @@ class ProfileController extends Controller
                 ->values();
 
             $fillClients = User::query()
-                ->with(['client', 'settings'])
+                ->with('client')
                 ->withCount(['jobs', 'profileViews'])
                 ->where('role', 'client')
                 ->whereNotIn('id', $excludeIds)
                 ->orderByDesc('profile_views_count')
                 ->orderByDesc('jobs_count')
-                ->limit($maxSuggestions * 3)
-                ->get()
-                ->filter(fn($person) => $person->canBeViewedBy($viewer))
-                ->take($maxSuggestions - $peopleAlsoViewed->count())
-                ->values();
+                ->limit($maxSuggestions - $peopleAlsoViewed->count())
+                ->get();
 
             $peopleAlsoViewed = $peopleAlsoViewed
                 ->concat($fillClients)
@@ -153,18 +144,7 @@ class ProfileController extends Controller
             ];
         })->values()->all();
 
-        $showOnlineStatus = $clientUser->showsOnlineStatusTo($viewer);
-        $isOnline = $showOnlineStatus ? $clientUser->isCurrentlyOnline() : false;
-
-        return view('client.public-profile', compact(
-            'clientUser',
-            'clientJobs',
-            'clientStats',
-            'modalJobsData',
-            'peopleAlsoViewed',
-            'showOnlineStatus',
-            'isOnline'
-        ));
+        return view('client.public-profile', compact('clientUser', 'clientJobs', 'clientStats', 'modalJobsData', 'peopleAlsoViewed'));
     }
 
     /**
