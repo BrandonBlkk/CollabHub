@@ -30,8 +30,7 @@
                 Find Jobs
             </x-sidebar-item>
 
-            <x-sidebar-item href="{{ route('freelancer.active-jobs') }}"
-                :active="request()->routeIs('freelancer.active-jobs')"
+            <x-sidebar-item href="{{ route('freelancer.active-jobs') }}" :active="request()->routeIs('freelancer.active-jobs')"
                 icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                 Active Jobs
             </x-sidebar-item>
@@ -75,7 +74,7 @@
                 @if (auth()->user()->profile_photo_path)
                     <div class="w-10 h-10 rounded-full overflow-hidden">
                         <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile Image"
-                            class="w-full h-full object-cover">
+                            class="w-full h-full object-cover select-none">
                     </div>
                 @else
                     <div
