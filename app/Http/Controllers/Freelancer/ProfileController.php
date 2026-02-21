@@ -10,6 +10,9 @@ use App\Models\University;
 use App\Models\User;
 use App\Models\UserLanguage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -37,13 +40,12 @@ class ProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
-
         $freelancer = User::with([
             'freelancer',
             'skills',
+            'settings',
             'freelancer.experiences',
             'freelancer.educations.university',
             'freelancer.educations.major',
@@ -68,14 +70,14 @@ class ProfileController extends Controller
             ->get();
 
         // Get freelancer experiences with jobRole
-        $experiences = $user->freelancer->experiences()
+        $experiences = $freelancer->freelancer->experiences()
             ->with('jobRole')
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_date', 'desc')
             ->get();
 
         // Get freelancer educations with university and major
-        $educations = $user->freelancer->educations()
+        $educations = $freelancer->freelancer->educations()
             ->with(['university', 'major'])
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_year', 'desc')
@@ -85,10 +87,20 @@ class ProfileController extends Controller
         $majors = Major::all();
         $skills = Skill::all();
 
-        $languages = UserLanguage::where('user_id', $user->id)->get();
+        $languages = UserLanguage::where('user_id', $freelancer->id)->get();
 
         // Get freelancer certificates
-        $certificates = $user->freelancer->certificates;
+        $certificates = $freelancer->freelancer->certificates;
+
+        $showOnlineStatus = (bool) ($freelancer->settings?->show_online_status ?? true);
+        $isOnline = false;
+        if ($showOnlineStatus) {
+            $threshold = now()->subMinutes(5)->timestamp;
+            $isOnline = DB::table('sessions')
+                ->where('user_id', $freelancer->id)
+                ->where('last_activity', '>=', $threshold)
+                ->exists();
+        }
 
         return view(
             'freelancer.freelancer-profile',
@@ -102,7 +114,9 @@ class ProfileController extends Controller
                 "majors",
                 "skills",
                 "languages",
-                "certificates"
+                "certificates",
+                "showOnlineStatus",
+                "isOnline"
             )
         );
     }
@@ -122,21 +136,80 @@ class ProfileController extends Controller
     {
         $freelancer = User::findOrFail($id);
 
-        $freelancer->update([
-            'phone' => $request->phone,
-            'location' => $request->location,
-            'updated_at' => now(),
+        if (Auth::id() !== (int) $id) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to update this profile.',
+                ], 403);
+            }
+
+            abort(403, 'You are not authorized to update this profile.');
+        }
+
+        $validated = $request->validate([
+            'phone' => ['nullable', 'string', 'max:20'],
+            'location' => ['nullable', 'string', 'max:100'],
+            'bio' => ['nullable', 'string'],
+            'hourly_rate' => ['nullable', 'numeric', 'min:0'],
+            'availability' => ['nullable', 'in:available,busy,unavailable'],
+            'portfolio_url' => ['nullable', 'url', 'max:255'],
+            'response_time' => ['nullable', 'string', 'max:100'],
+            'response_time_hours' => ['nullable', 'string', 'max:100'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'remove_profile_photo' => ['nullable', 'boolean'],
         ]);
+
+        $updatedAvailability = $validated['availability'] ?? $freelancer->freelancer->availability;
+
+        $userUpdateData = [
+            'phone' => $validated['phone'] ?? $freelancer->phone,
+            'location' => $validated['location'] ?? $freelancer->location,
+            'updated_at' => now(),
+        ];
+
+        if ($request->hasFile('profile_photo')) {
+            $newPhotoPath = $request->file('profile_photo')->store('profile-photos', 'public');
+
+            if ($freelancer->profile_photo_path && Storage::disk('public')->exists($freelancer->profile_photo_path)) {
+                Storage::disk('public')->delete($freelancer->profile_photo_path);
+            }
+
+            $userUpdateData['profile_photo_path'] = $newPhotoPath;
+        } elseif ($request->boolean('remove_profile_photo')) {
+            if ($freelancer->profile_photo_path && Storage::disk('public')->exists($freelancer->profile_photo_path)) {
+                Storage::disk('public')->delete($freelancer->profile_photo_path);
+            }
+
+            $userUpdateData['profile_photo_path'] = null;
+        }
+
+        $freelancer->update($userUpdateData);
 
         $freelancer->freelancer()->update([
-            'bio' => $request->bio,
-            'hourly_rate' => $request->hourly_rate,
-            'portfolio_url' => $request->portfolio_url,
-            'response_time' => $request->response_time,
+            'bio' => $validated['bio'] ?? $freelancer->freelancer->bio,
+            'hourly_rate' => $validated['hourly_rate'] ?? $freelancer->freelancer->hourly_rate,
+            'availability' => $updatedAvailability,
+            'portfolio_url' => $validated['portfolio_url'] ?? $freelancer->freelancer->portfolio_url,
+            'response_time' => $validated['response_time'] ?? ($validated['response_time_hours'] ?? $freelancer->freelancer->response_time),
             'updated_at' => now(),
         ]);
 
-        return back();
+        if ($request->expectsJson()) {
+            $photoUrl = $freelancer->profile_photo_path
+                ? asset('storage/' . ltrim($freelancer->profile_photo_path, '/'))
+                : null;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+                'name' => $freelancer->name,
+                'profile_photo_url' => $photoUrl,
+                'availability' => $updatedAvailability,
+            ]);
+        }
+
+        return back()->with('status', 'profile-updated');
     }
 
     /**
