@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -120,6 +121,58 @@ class User extends Authenticatable
     public function settings()
     {
         return $this->hasOne(Setting::class);
+    }
+
+    public function canBeViewedBy(?self $viewer): bool
+    {
+        if (!$viewer) {
+            return false;
+        }
+
+        if ($viewer->id === $this->id) {
+            return true;
+        }
+
+        if (in_array($viewer->role, ['admin', 'super_admin'], true)) {
+            return true;
+        }
+
+        $visibility = $this->settings?->profile_visibility ?? 'public';
+
+        return match ($visibility) {
+            'public' => true,
+            'clients_only' => $viewer->role === 'client',
+            'freelancers_only' => $viewer->role === 'freelancer',
+            'private' => false,
+            default => true,
+        };
+    }
+
+    public function showsOnlineStatusTo(?self $viewer): bool
+    {
+        if (!$viewer) {
+            return false;
+        }
+
+        if ($viewer->id === $this->id) {
+            return true;
+        }
+
+        if (in_array($viewer->role, ['admin', 'super_admin'], true)) {
+            return true;
+        }
+
+        return (bool) ($this->settings?->show_online_status ?? true);
+    }
+
+    public function isCurrentlyOnline(int $windowMinutes = 5): bool
+    {
+        $threshold = now()->subMinutes($windowMinutes)->timestamp;
+
+        return DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->where('last_activity', '>=', $threshold)
+            ->exists();
     }
 
     public function getProfilePhotoUrlAttribute(): ?string

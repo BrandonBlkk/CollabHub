@@ -736,6 +736,16 @@
                                         </div>
                                     @break
                                 @endswitch
+
+                                @if ($showOnlineStatus)
+                                    <div
+                                        class="flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $isOnline ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-100' }}">
+                                        <div
+                                            class="w-2 h-2 rounded-full mr-2 {{ $isOnline ? 'bg-green-500' : 'bg-gray-400' }}">
+                                        </div>
+                                        {{ $isOnline ? 'Online now' : 'Offline' }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
 

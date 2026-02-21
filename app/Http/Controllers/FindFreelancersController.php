@@ -32,8 +32,12 @@ class FindFreelancersController extends Controller
             return redirect()->route('dashboard')->with('error', 'Only clients can access this page.');
         }
 
-        // Get all freelancers
-        $freelancers = User::where('role', 'freelancer')->get();
+        // Get freelancers visible to this client based on privacy settings
+        $freelancers = User::with(['freelancer', 'skills', 'reviewsReceived', 'settings'])
+            ->where('role', 'freelancer')
+            ->get()
+            ->filter(fn($freelancer) => $freelancer->canBeViewedBy($user))
+            ->values();
 
         // Default view type
         $viewType = 'grid';
@@ -46,20 +50,29 @@ class FindFreelancersController extends Controller
 
     public function freelancerProfile(Request $request, $id)
     {
-        $freelancer = User::with(['freelancer', 'skills'])
+        $viewer = $request->user();
+
+        $freelancer = User::with(['freelancer', 'skills', 'settings'])
             ->where('role', 'freelancer')
             ->where('id', $id)
             ->firstOrFail();
 
+        if (!$freelancer->canBeViewedBy($viewer)) {
+            abort(403, 'This profile is not available.');
+        }
+
         ProfileView::logView($request, $freelancer);
 
         // Similar freelancers
-        $similarFreelancers = User::with('freelancer')
+        $similarFreelancers = User::with(['freelancer', 'settings'])
             ->where('role', 'freelancer')
             ->where('id', '!=', $id)
             ->inRandomOrder()
-            ->limit(4)
-            ->get();
+            ->limit(20)
+            ->get()
+            ->filter(fn($person) => $person->canBeViewedBy($viewer))
+            ->take(4)
+            ->values();
 
         // Get active job roles
         $jobRoles = JobRole::where('is_active', true)
@@ -89,6 +102,9 @@ class FindFreelancersController extends Controller
         // Get freelancer certificates
         $certificates = $freelancer->freelancer->certificates;
 
+        $showOnlineStatus = $freelancer->showsOnlineStatusTo($viewer);
+        $isOnline = $showOnlineStatus ? $freelancer->isCurrentlyOnline() : false;
+
         return view('freelancer.freelancer-profile', compact(
             'freelancer',
             'similarFreelancers',
@@ -99,7 +115,9 @@ class FindFreelancersController extends Controller
             'languages',
             'experiences',
             'educations',
-            'certificates'
+            'certificates',
+            'showOnlineStatus',
+            'isOnline'
         ));
     }
 }

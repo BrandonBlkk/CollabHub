@@ -10,8 +10,8 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="flex items-center gap-4">
                             @if ($clientUser->profile_photo_path)
-                                <img src="{{ $clientUser->profile_photo_url }}"
-                                    alt="{{ $clientUser->name }}" class="w-32 h-32 rounded-full object-cover">
+                                <img src="{{ $clientUser->profile_photo_url }}" alt="{{ $clientUser->name }}"
+                                    class="w-32 h-32 rounded-full object-cover">
                             @else
                                 <div
                                     class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none border-4 border-white shadow">
@@ -23,6 +23,14 @@
                                 <h1 class="text-2xl font-bold text-gray-900">{{ $clientUser->name }}</h1>
                                 <p class="text-sm text-gray-600">{{ $clientUser->client->company ?? 'Independent client' }}
                                 </p>
+                                @if ($showOnlineStatus)
+                                    <div
+                                        class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $isOnline ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
+                                        <span
+                                            class="w-2 h-2 rounded-full mr-1.5 {{ $isOnline ? 'bg-green-500' : 'bg-gray-400' }}"></span>
+                                        {{ $isOnline ? 'Online now' : 'Offline' }}
+                                    </div>
+                                @endif
                                 @if ($clientUser->location)
                                     <p class="text-xs text-gray-500 mt-1">{{ $clientUser->location }}</p>
                                 @endif
@@ -271,8 +279,8 @@
                                 <div
                                     class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
                                     @if ($person->profile_photo_path)
-                                        <img src="{{ $person->profile_photo_url }}"
-                                            alt="{{ $person->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ $person->profile_photo_url }}" alt="{{ $person->name }}"
+                                            class="w-full h-full object-cover">
                                     @else
                                         <span
                                             class="text-white text-sm font-bold">{{ strtoupper(substr($person->name, 0, 1)) }}</span>

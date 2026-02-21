@@ -30,6 +30,7 @@ class SettingController extends Controller
             'email_marketing' => 'sometimes|boolean',
             'profile_visibility' => 'sometimes|in:public,clients_only,freelancers_only,private',
             'show_online_status' => 'sometimes|boolean',
+            'show_earnings' => 'sometimes|boolean',
         ]);
 
         // Convert string boolean values to actual booleans
@@ -40,7 +41,8 @@ class SettingController extends Controller
                 'email_new_messages',
                 'email_payments',
                 'email_marketing',
-                'show_online_status'
+                'show_online_status',
+                'show_earnings'
             ])) {
                 $validated[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
