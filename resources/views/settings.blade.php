@@ -1218,12 +1218,9 @@
 
         // Toggle switch functionality
         function initializeToggleSwitches() {
-            document.querySelectorAll('.toggle-label').forEach(label => {
-                // Set initial state from checkbox
-                const checkbox = label.previousElementSibling;
-                const span = label.querySelector('.toggle-span');
+            const updateToggleState = (checkbox, label, span) => {
+                checkbox.setAttribute('value', checkbox.checked ? '1' : '0');
 
-                // Ensure proper initial state
                 if (checkbox.checked) {
                     label.classList.remove('bg-gray-300');
                     label.classList.add('bg-green-500');
@@ -1235,34 +1232,23 @@
                     span.classList.remove('translate-x-7');
                     span.classList.add('translate-x-1');
                 }
+            };
 
-                // Add click handler
-                label.addEventListener('click', function() {
-                    const checkbox = this.previousElementSibling;
-                    const span = this.querySelector('.toggle-span');
+            document.querySelectorAll('.toggle-label').forEach(label => {
+                // Set initial state from checkbox
+                const checkbox = label.previousElementSibling;
+                const span = label.querySelector('.toggle-span');
 
-                    // Toggle checkbox state
-                    checkbox.checked = !checkbox.checked;
+                if (!checkbox || !span) {
+                    return;
+                }
 
-                    // Update checkbox value for form submission
-                    if (checkbox.checked) {
-                        checkbox.setAttribute('value', '1');
-                    } else {
-                        checkbox.setAttribute('value', '0');
-                    }
+                // Set initial UI state
+                updateToggleState(checkbox, label, span);
 
-                    // Update visual state
-                    if (checkbox.checked) {
-                        this.classList.remove('bg-gray-300');
-                        this.classList.add('bg-green-500');
-                        span.classList.remove('translate-x-1');
-                        span.classList.add('translate-x-7');
-                    } else {
-                        this.classList.remove('bg-green-500');
-                        this.classList.add('bg-gray-300');
-                        span.classList.remove('translate-x-7');
-                        span.classList.add('translate-x-1');
-                    }
+                // Keep UI synchronized with the checkbox state (label click, keyboard, etc.)
+                checkbox.addEventListener('change', function() {
+                    updateToggleState(checkbox, label, span);
                 });
             });
         }

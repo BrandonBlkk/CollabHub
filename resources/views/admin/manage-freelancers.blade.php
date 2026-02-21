@@ -233,7 +233,7 @@
                                             class="rounded border-gray-300">
                                         @if ($freelancer->user->profile_photo_path)
                                             <div class="w-8 h-8 rounded-full select-none">
-                                                <img src="{{ $freelancer->user->profile_photo_path }}"
+                                                <img src="{{ $freelancer->user->profile_photo_url }}"
                                                     alt="Profile Image">
                                             </div>
                                         @else
@@ -392,13 +392,13 @@
                         <div class="flex items-center gap-3">
                             @if ($freelancer->user->profile_photo_path)
                                 <div class="w-8 h-8 rounded-full select-none">
-                                    <img src="{{ $freelancer->user->profile_photo_path }}" alt="Profile Image">
+                                    <img src="{{ $freelancer->user->profile_photo_url }}" alt="Profile Image">
                                 </div>
                             @else
                                 <div
                                     class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center select-none">
                                     <span
-                                        class="text-white font-bold text-sm">{{ $freelancer->user->profile_photo_path }}</span>
+                                        class="text-white font-bold text-sm">{{ Str::substr($freelancer->user->name, 0, 1) }}</span>
                                 </div>
                             @endif
                             <div>
@@ -498,7 +498,7 @@
                                 <div class="flex items-center gap-3">
                                     @if ($freelancer->user->profile_photo_path)
                                         <div class="w-10 h-10 rounded-full select-none">
-                                            <img src="{{ $freelancer->user->profile_photo_path }}" alt="Profile Image">
+                                            <img src="{{ $freelancer->user->profile_photo_url }}" alt="Profile Image">
                                         </div>
                                     @else
                                         <div

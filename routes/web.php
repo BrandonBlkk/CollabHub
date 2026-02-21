@@ -35,10 +35,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
 
+    // Public client profile (for authenticated users, including freelancers)
+    Route::get('/clients/{id}/profile', [ProfileController::class, 'publicShow'])->name('clients.profile.show');
+
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
+    Route::get('/currency/exchange-rates', [FindJobsController::class, 'getExchangeRates'])->name('currency.exchange-rates');
 
     // User Languages Routes
     Route::apiResource('freelancer-profile/languages', LanguageController::class)

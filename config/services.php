@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'exchange_rate_api' => [
+        'url' => env('EXCHANGE_RATE_API_URL', 'https://v6.exchangerate-api.com/v6'),
+        'key' => env('EXCHANGE_RATE_API_KEY'),
+    ],
+
 ];

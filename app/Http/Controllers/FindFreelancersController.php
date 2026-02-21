@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobRole;
+use App\Models\Major;
+use App\Models\ProfileView;
+use App\Models\Skill;
+use App\Models\University;
 use App\Models\User;
+use App\Models\UserLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,12 +44,14 @@ class FindFreelancersController extends Controller
         ));
     }
 
-    public function freelancerProfile($id)
+    public function freelancerProfile(Request $request, $id)
     {
         $freelancer = User::with(['freelancer', 'skills'])
             ->where('role', 'freelancer')
             ->where('id', $id)
             ->firstOrFail();
+
+        ProfileView::logView($request, $freelancer);
 
         // Similar freelancers
         $similarFreelancers = User::with('freelancer')
@@ -60,11 +67,23 @@ class FindFreelancersController extends Controller
             ->orderBy('title')
             ->get();
 
+        $universities = University::all();
+        $majors = Major::all();
+        $skills = Skill::all();
+        $languages = UserLanguage::where('user_id', $freelancer->id)->get();
+
         // Get freelancer experiences with jobRole, ordered by present first, then by start_date descending
         $experiences = $freelancer->freelancer->experiences()
             ->with('jobRole')
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END') // Present experiences first
             ->orderBy('start_date', 'desc') // Then by start date descending
+            ->get();
+
+        // Get freelancer educations with university and major
+        $educations = $freelancer->freelancer->educations()
+            ->with(['university', 'major'])
+            ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
+            ->orderBy('start_year', 'desc')
             ->get();
 
         // Get freelancer certificates
@@ -74,7 +93,12 @@ class FindFreelancersController extends Controller
             'freelancer',
             'similarFreelancers',
             'jobRoles',
+            'universities',
+            'majors',
+            'skills',
+            'languages',
             'experiences',
+            'educations',
             'certificates'
         ));
     }

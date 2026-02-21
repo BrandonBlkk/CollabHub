@@ -23,7 +23,7 @@
             <div class="flex items-center gap-3">
                 @if (Auth::user()->profile_photo_path)
                     <div class="w-8 h-8 rounded-full select-none">
-                        <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile Image"
+                        <img src="{{ Auth::user()->profile_photo_url }}" alt="Profile Image"
                             class="w-full h-full object-cover rounded-full">
                     </div>
                 @else

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -43,7 +44,18 @@ class User extends Authenticatable
 
     public function profileViews()
     {
-        return $this->hasMany(ProfileView::class);
+        return $this->hasMany(ProfileView::class, 'profile_user_id');
+    }
+
+    public function jobViews()
+    {
+        return $this->hasMany(JobView::class, 'viewer_id');
+    }
+
+    public function viewedJobs()
+    {
+        return $this->belongsToMany(Job::class, 'job_views', 'viewer_id', 'job_id')
+            ->withTimestamps();
     }
 
     public function friends()
@@ -108,6 +120,29 @@ class User extends Authenticatable
     public function settings()
     {
         return $this->hasOne(Setting::class);
+    }
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        $path = $this->profile_photo_path;
+
+        if (!$path) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', 'data:'])) {
+            return $path;
+        }
+
+        if (Str::startsWith($path, '/storage/')) {
+            return asset(ltrim($path, '/'));
+        }
+
+        if (Str::startsWith($path, 'storage/')) {
+            return asset($path);
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
     }
 
     // Helper methods

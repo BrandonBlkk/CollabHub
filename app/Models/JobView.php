@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ProfileView extends Model
+class JobView extends Model
 {
-    protected $table = 'profile_views';
+    protected $table = 'job_views';
 
     protected $fillable = [
-        'profile_user_id',
+        'job_id',
         'viewer_id',
         'viewer_ip',
         'user_agent',
@@ -19,9 +19,9 @@ class ProfileView extends Model
         'is_logged_in',
     ];
 
-    public function profileUser()
+    public function job()
     {
-        return $this->belongsTo(User::class, 'profile_user_id');
+        return $this->belongsTo(Job::class);
     }
 
     public function viewer()
@@ -29,9 +29,12 @@ class ProfileView extends Model
         return $this->belongsTo(User::class, 'viewer_id');
     }
 
-    public static function logView(Request $request, User $profileUser): void
+    public static function logView(Request $request, Job $job): void
     {
-        if (Auth::id() === $profileUser->id) {
+        $viewer = Auth::user();
+
+        // Do not count owner's own views.
+        if ($viewer?->client?->id === $job->client_id) {
             return;
         }
 
@@ -41,7 +44,7 @@ class ProfileView extends Model
         $todayEnd = now()->endOfDay();
 
         $existingQuery = static::query()
-            ->where('profile_user_id', $profileUser->id)
+            ->where('job_id', $job->id)
             ->whereBetween('created_at', [$todayStart, $todayEnd]);
 
         if ($viewerId) {
@@ -56,7 +59,7 @@ class ProfileView extends Model
         }
 
         static::create([
-            'profile_user_id' => $profileUser->id,
+            'job_id' => $job->id,
             'viewer_id' => $viewerId,
             'viewer_ip' => $viewerIp,
             'user_agent' => $request->userAgent(),
