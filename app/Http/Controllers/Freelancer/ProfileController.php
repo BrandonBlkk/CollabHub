@@ -12,10 +12,7 @@ use App\Models\User;
 use App\Models\UserLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\DB;
-=======
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -59,7 +56,7 @@ class ProfileController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        ProfileView::logView($request, $user);
+        ProfileView::logView($request, $freelancer);
 
         // Similar freelancers
         $similarFreelancers = User::with('freelancer')
@@ -111,18 +108,18 @@ class ProfileController extends Controller
         return view(
             'freelancer.freelancer-profile',
             compact(
-                "freelancer",
-                "similarFreelancers",
-                "jobRoles",
-                "experiences",
-                "educations",
-                "universities",
-                "majors",
-                "skills",
-                "languages",
-                "certificates",
-                "showOnlineStatus",
-                "isOnline"
+                'freelancer',
+                'similarFreelancers',
+                'jobRoles',
+                'experiences',
+                'educations',
+                'universities',
+                'majors',
+                'skills',
+                'languages',
+                'certificates',
+                'showOnlineStatus',
+                'isOnline'
             )
         );
     }
@@ -158,10 +155,7 @@ class ProfileController extends Controller
             'location' => ['nullable', 'string', 'max:100'],
             'bio' => ['nullable', 'string'],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
-<<<<<<< HEAD
             'availability' => ['nullable', 'in:available,busy,unavailable'],
-=======
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
             'portfolio_url' => ['nullable', 'url', 'max:255'],
             'response_time' => ['nullable', 'string', 'max:100'],
             'response_time_hours' => ['nullable', 'string', 'max:100'],
@@ -169,11 +163,8 @@ class ProfileController extends Controller
             'remove_profile_photo' => ['nullable', 'boolean'],
         ]);
 
-<<<<<<< HEAD
         $updatedAvailability = $validated['availability'] ?? $freelancer->freelancer->availability;
 
-=======
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
         $userUpdateData = [
             'phone' => $validated['phone'] ?? $freelancer->phone,
             'location' => $validated['location'] ?? $freelancer->location,
@@ -201,33 +192,19 @@ class ProfileController extends Controller
         $freelancer->freelancer()->update([
             'bio' => $validated['bio'] ?? $freelancer->freelancer->bio,
             'hourly_rate' => $validated['hourly_rate'] ?? $freelancer->freelancer->hourly_rate,
-<<<<<<< HEAD
             'availability' => $updatedAvailability,
-=======
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
             'portfolio_url' => $validated['portfolio_url'] ?? $freelancer->freelancer->portfolio_url,
             'response_time' => $validated['response_time'] ?? ($validated['response_time_hours'] ?? $freelancer->freelancer->response_time),
             'updated_at' => now(),
         ]);
 
         if ($request->expectsJson()) {
-<<<<<<< HEAD
-            $photoUrl = $freelancer->profile_photo_path
-                ? asset('storage/' . ltrim($freelancer->profile_photo_path, '/'))
-                : null;
-
-=======
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
             return response()->json([
                 'success' => true,
                 'message' => 'Profile updated successfully.',
                 'name' => $freelancer->name,
-<<<<<<< HEAD
-                'profile_photo_url' => $photoUrl,
-                'availability' => $updatedAvailability,
-=======
                 'profile_photo_url' => $freelancer->profile_photo_url,
->>>>>>> 8adf52f0dc65a3dfbf1373c9b3ac159fc1fabd51
+                'availability' => $updatedAvailability,
             ]);
         }
 
