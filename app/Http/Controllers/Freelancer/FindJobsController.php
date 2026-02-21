@@ -20,11 +20,7 @@ class FindJobsController extends Controller
 {
     public function index()
     {
-        $preferredCurrency = Auth::user()?->settings?->currency ?? 'USD';
-
-        return view('freelancer.find-jobs', [
-            'preferredCurrency' => $preferredCurrency,
-        ]);
+        return view('freelancer.find-jobs');
     }
 
     public function getExchangeRates()

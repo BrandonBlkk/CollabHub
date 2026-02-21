@@ -721,18 +721,6 @@
         const queryParams = new URLSearchParams(window.location.search);
         const deepLinkJobId = queryParams.get('job');
         let hasHandledDeepLinkJob = false;
-        let activeModalJob = null;
-
-        let preferredCurrency = @json($preferredCurrency ?? 'USD');
-        const exchangeRatesUrl = @json(route('find-jobs.exchange-rates'));
-        let exchangeRates = {
-            USD: 1,
-            MMK: 3959.10,
-            EUR: 0.93,
-            GBP: 0.79,
-            CAD: 1.35,
-            AUD: 1.53
-        };
 
         try {
             const dismissed = JSON.parse(localStorage.getItem('dismissed_job_ids') || '[]');
@@ -1153,52 +1141,9 @@
         // Initialize counts
         document.addEventListener('DOMContentLoaded', function() {
             // Initial fetch will update counts
-            loadExchangeRates();
             fetchJobs('all');
             startJobViewsRealtimePolling();
         });
-
-        async function loadExchangeRates() {
-            try {
-                const response = await fetch(exchangeRatesUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    return;
-                }
-
-                const data = await response.json();
-                if (!data.success || !data.rates || typeof data.rates !== 'object') {
-                    return;
-                }
-
-                if (typeof data.preferred_currency === 'string' && data.preferred_currency.trim() !== '') {
-                    preferredCurrency = data.preferred_currency.toUpperCase();
-                }
-
-                exchangeRates = {
-                    ...exchangeRates,
-                    ...data.rates
-                };
-
-                const currentData = currentTab === 'saved' ? savedJobsData : currentTab === 'in_progress' ? inProgressJobsData :
-                    currentTab === 'applied' ? appliedJobsData : allJobsData;
-                if (Array.isArray(currentData) && currentData.length > 0) {
-                    displayJobs(currentData);
-                    applyCurrentFilters();
-                }
-
-                if (activeModalJob && !jobDetailsModal.classList.contains('hidden')) {
-                    displayJobDetails(activeModalJob);
-                }
-            } catch (error) {
-                // Fallback to USD values when exchange API is unavailable.
-            }
-        }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(event) {
@@ -1326,8 +1271,6 @@
         }
 
         function displayJobDetails(job) {
-            activeModalJob = job;
-
             // Set job ID for save button
             const modalJobTitle = document.getElementById('modal-job-title');
             modalJobTitle.setAttribute('data-job-id', job.id);
@@ -1664,7 +1607,8 @@
                 }
 
                 if (clientProfile.profile_photo_url || clientProfile.profile_photo_path) {
-                    clientAvatarImage.src = clientProfile.profile_photo_url || `/storage/${clientProfile.profile_photo_path}`;
+                    clientAvatarImage.src = clientProfile.profile_photo_url ||
+                        `/storage/${clientProfile.profile_photo_path}`;
                     clientAvatarImage.classList.remove('hidden');
                     clientAvatarInitial.classList.add('hidden');
                 } else {
@@ -2543,37 +2487,15 @@
             return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
         }
 
-        function getUsdToPreferredRate() {
-            const currencyCode = (preferredCurrency || 'USD').toUpperCase();
-            const rawRate = exchangeRates[currencyCode];
-            const rate = parseFloat(rawRate);
-            return Number.isFinite(rate) && rate > 0 ? rate : 1;
-        }
-
-        function formatCurrencyFromUsd(valueInUsd) {
-            const numericValue = parseFloat(valueInUsd);
-            if (!Number.isFinite(numericValue)) {
-                return null;
-            }
-
-            const convertedAmount = numericValue * getUsdToPreferredRate();
-            const currencyCode = (preferredCurrency || 'USD').toUpperCase();
-            return new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: currencyCode,
-                maximumFractionDigits: currencyCode === 'MMK' ? 0 : 2
-            }).format(convertedAmount);
-        }
-
         function formatBudgetRange(minUsd, maxUsd) {
-            const minFormatted = formatCurrencyFromUsd(minUsd);
-            const maxFormatted = formatCurrencyFromUsd(maxUsd);
+            const minAmount = parseFloat(minUsd);
+            const maxAmount = parseFloat(maxUsd);
 
-            if (!minFormatted || !maxFormatted) {
+            if (!Number.isFinite(minAmount) || !Number.isFinite(maxAmount)) {
                 return 'Budget not specified';
             }
 
-            return `${minFormatted} - ${maxFormatted}`;
+            return `$${minAmount.toLocaleString()} - $${maxAmount.toLocaleString()}`;
         }
 
         // Toast notification function

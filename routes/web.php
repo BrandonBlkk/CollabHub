@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::put('/settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
+    Route::get('/currency/exchange-rates', [FindJobsController::class, 'getExchangeRates'])->name('currency.exchange-rates');
 
     // User Languages Routes
     Route::apiResource('freelancer-profile/languages', LanguageController::class)
@@ -84,7 +85,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Find Jobs
         Route::get('/find-jobs', [FindJobsController::class, 'index'])->name('find-jobs');
-        Route::get('/find-jobs/exchange-rates', [FindJobsController::class, 'getExchangeRates'])->name('find-jobs.exchange-rates');
         Route::get('/find-jobs/jobs', [FindJobsController::class, 'getJobs'])->name('find-jobs.jobs');
         Route::get('/find-jobs/jobs/{id}', [FindJobsController::class, 'getJob'])->name('jobs.show');
         Route::get('/jobs/saved', [FindJobsController::class, 'getSavedJobs'])->name('find-jobs.saved');
