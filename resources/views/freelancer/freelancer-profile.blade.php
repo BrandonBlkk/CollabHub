@@ -4147,7 +4147,8 @@
                             <div class="flex items-center gap-2">
                                 <select id="availability-select"
                                     class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
-                                    <option value="available" {{ $currentAvailability === 'available' ? 'selected' : '' }}>
+                                    <option value="available"
+                                        {{ $currentAvailability === 'available' ? 'selected' : '' }}>
                                         Available
                                     </option>
                                     <option value="busy" {{ $currentAvailability === 'busy' ? 'selected' : '' }}>Busy
@@ -4318,10 +4319,6 @@
                                     },
                                     credentials: 'same-origin'
                                 });
-
-                                if (!response.ok) {
-                                    
-                                }
 
                                 if (!response.ok) {
                                     throw new Error(`Failed to fetch languages: ${response.status} ${response.statusText}`);
@@ -4927,27 +4924,27 @@
                 case 'busy':
                     return {
                         shortLabel: 'Busy',
-                        headerLabel: 'Busy',
-                        badgeClasses: ['bg-amber-100', 'text-amber-800'],
-                        headerClasses: ['text-amber-600', 'bg-amber-50'],
-                        dotClass: 'bg-amber-500'
+                            headerLabel: 'Busy',
+                            badgeClasses: ['bg-amber-100', 'text-amber-800'],
+                            headerClasses: ['text-amber-600', 'bg-amber-50'],
+                            dotClass: 'bg-amber-500'
                     };
                 case 'unavailable':
                     return {
                         shortLabel: 'Unavailable',
-                        headerLabel: 'Unavailable',
-                        badgeClasses: ['bg-red-100', 'text-red-800'],
-                        headerClasses: ['text-red-600', 'bg-red-50'],
-                        dotClass: 'bg-red-500'
+                            headerLabel: 'Unavailable',
+                            badgeClasses: ['bg-red-100', 'text-red-800'],
+                            headerClasses: ['text-red-600', 'bg-red-50'],
+                            dotClass: 'bg-red-500'
                     };
                 case 'available':
                 default:
                     return {
                         shortLabel: 'Available',
-                        headerLabel: 'Available Now',
-                        badgeClasses: ['bg-green-100', 'text-green-800'],
-                        headerClasses: ['text-green-600', 'bg-green-50'],
-                        dotClass: 'bg-green-500'
+                            headerLabel: 'Available Now',
+                            badgeClasses: ['bg-green-100', 'text-green-800'],
+                            headerClasses: ['text-green-600', 'bg-green-50'],
+                            dotClass: 'bg-green-500'
                     };
             }
         }
@@ -4957,8 +4954,8 @@
 
             const badge = document.getElementById('availability-current-badge');
             if (badge) {
-                badge.classList.remove('bg-green-100', 'text-green-800', 'bg-amber-100', 'text-amber-800',
-                    'bg-red-100', 'text-red-800');
+                badge.classList.remove('bg-green-100', 'text-green-800', 'bg-amber-100', 'text-amber-800', 'bg-red-100',
+                    'text-red-800');
                 badge.classList.add(...config.badgeClasses);
                 badge.textContent = config.shortLabel;
             }
@@ -4966,7 +4963,8 @@
             const headerChip = document.getElementById('profile-header-availability-chip');
             if (headerChip) {
                 headerChip.classList.remove('text-green-600', 'bg-green-50', 'text-amber-600', 'bg-amber-50',
-                    'text-red-600', 'bg-red-50');
+                    'text-red-600',
+                    'bg-red-50');
                 headerChip.classList.add(...config.headerClasses);
             }
 

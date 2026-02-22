@@ -587,7 +587,7 @@
         });
 
         function setSidebarProfilePhoto(photoUrl) {
-            const sidebarButton = document.querySelector('.sidebar button');
+            const sidebarButton = document.querySelector('.sidebar .sidebar-profile-trigger');
             if (!sidebarButton || !photoUrl) return;
 
             const existingImage = sidebarButton.querySelector('img[alt="Profile Image"]');
@@ -608,7 +608,7 @@
         }
 
         function setSidebarProfileInitial(userName) {
-            const sidebarButton = document.querySelector('.sidebar button');
+            const sidebarButton = document.querySelector('.sidebar .sidebar-profile-trigger');
             if (!sidebarButton) return;
 
             const initial = (userName || 'U').trim().charAt(0).toUpperCase();
