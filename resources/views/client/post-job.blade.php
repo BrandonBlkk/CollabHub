@@ -744,6 +744,14 @@
             }
         });
 
+        // Close preview modal when clicking the dark overlay
+        const previewModal = document.getElementById('previewModal');
+        previewModal?.addEventListener('click', function(e) {
+            if (e.target === previewModal) {
+                closePreview();
+            }
+        });
+
         // Toggle sidebar on mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
             document.querySelector('.sidebar')?.classList.toggle('active');

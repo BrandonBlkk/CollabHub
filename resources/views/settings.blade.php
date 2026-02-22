@@ -7,9 +7,6 @@
 @endauth
 
 @section('content')
-    {{-- Dark overlay --}}
-    <div id="darkoverlay" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10"></div>
-
     <!-- Page Header -->
     <div class="flex items-center justify-between">
         <div>
@@ -385,8 +382,11 @@
 
             <!-- Trash Modal -->
             <div id="trashModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
-                <div class="flex items-center justify-center min-h-screen p-4">
-                    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                <div id="trash-modal-backdrop"
+                    class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out opacity-0"></div>
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div id="trash-modal-content"
+                        class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-4xl w-full max-h-[90vh] flex flex-col translate-y-4 opacity-0">
                         <!-- Modal Header -->
                         <div class="flex items-center justify-between p-6">
                             <div>
@@ -652,16 +652,27 @@
         }
 
         // Modal functions
+        const trashModalElement = document.getElementById('trashModal');
+        const trashModalBackdrop = document.getElementById('trash-modal-backdrop');
+        const trashModalContent = document.getElementById('trash-modal-content');
+
         function openTrashModal() {
-            const modal = document.getElementById('trashModal');
-            const darkoverlay = document.getElementById('darkoverlay');
-            modal.classList.remove('hidden');
-            if (darkoverlay) {
-                darkoverlay.classList.remove('hidden');
+            if (!trashModalElement || !trashModalBackdrop || !trashModalContent) {
+                return;
             }
 
+            trashModalElement.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            void trashModalElement.offsetWidth;
+
             setTimeout(() => {
-                modal.style.opacity = '1';
+                trashModalBackdrop.classList.remove('opacity-0');
+                trashModalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                trashModalContent.classList.remove('translate-y-4', 'opacity-0');
+                trashModalContent.classList.add('translate-y-0', 'opacity-100');
             }, 10);
 
             // Render modal content
@@ -669,15 +680,19 @@
         }
 
         function closeTrashModal() {
-            const modal = document.getElementById('trashModal');
-            modal.style.opacity = '0';
-            const darkoverlay = document.getElementById('darkoverlay');
-            if (darkoverlay) {
-                darkoverlay.classList.add('hidden');
+            if (!trashModalElement || !trashModalBackdrop || !trashModalContent) {
+                return;
             }
 
+            trashModalContent.classList.remove('translate-y-0', 'opacity-100');
+            trashModalContent.classList.add('translate-y-4', 'opacity-0');
+
+            trashModalBackdrop.classList.remove('opacity-100');
+            trashModalBackdrop.classList.add('opacity-0');
+
             setTimeout(() => {
-                modal.classList.add('hidden');
+                trashModalElement.classList.add('hidden');
+                document.body.style.overflow = 'auto';
             }, 300);
         }
 
@@ -1194,13 +1209,8 @@
         }
 
         // Close modal on outside click
-        const trashModal = document.getElementById('trashModal');
-        if (trashModal) {
-            trashModal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeTrashModal();
-                }
-            });
+        if (trashModalBackdrop) {
+            trashModalBackdrop.addEventListener('click', closeTrashModal);
         }
 
         // Close modal with Escape key
