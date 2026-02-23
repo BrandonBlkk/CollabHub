@@ -714,28 +714,44 @@
                                 <div class="text-2xl font-bold text-gray-900">
                                     ${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr</div>
 
-                                @switch($freelancer->freelancer->availability)
-                                    @case('available')
-                                        <div class="flex items-center text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                                            <span class="font-medium text-sm">Available Now</span>
-                                        </div>
-                                    @break
+                                @php
+                                    $headerAvailability = $freelancer->freelancer->availability ?? 'available';
+                                    $headerAvailabilityLabel = match ($headerAvailability) {
+                                        'available' => 'Available Now',
+                                        'busy' => 'Busy',
+                                        'unavailable' => 'Unavailable',
+                                        default => 'Available Now',
+                                    };
+                                    $headerAvailabilityClasses = match ($headerAvailability) {
+                                        'available' => 'text-green-600 bg-green-50',
+                                        'busy' => 'text-amber-600 bg-amber-50',
+                                        'unavailable' => 'text-red-600 bg-red-50',
+                                        default => 'text-green-600 bg-green-50',
+                                    };
+                                    $headerAvailabilityDotClasses = match ($headerAvailability) {
+                                        'available' => 'bg-green-500',
+                                        'busy' => 'bg-amber-500',
+                                        'unavailable' => 'bg-red-500',
+                                        default => 'bg-green-500',
+                                    };
+                                @endphp
+                                <div id="profile-header-availability-chip"
+                                    class="flex items-center px-3 py-1 rounded-full {{ $headerAvailabilityClasses }}">
+                                    <div id="profile-header-availability-dot"
+                                        class="w-2 h-2 rounded-full mr-2 {{ $headerAvailabilityDotClasses }}"></div>
+                                    <span id="profile-header-availability-label"
+                                        class="font-medium text-sm">{{ $headerAvailabilityLabel }}</span>
+                                </div>
 
-                                    @case('busy')
-                                        <div class="flex items-center text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
-                                            <div class="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
-                                            <span class="font-medium text-sm">Busy</span>
+                                @if ($showOnlineStatus)
+                                    <div
+                                        class="flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $isOnline ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-100' }}">
+                                        <div
+                                            class="w-2 h-2 rounded-full mr-2 {{ $isOnline ? 'bg-green-500' : 'bg-gray-400' }}">
                                         </div>
-                                    @break
-
-                                    @case('unavailable')
-                                        <div class="flex items-center text-red-600 bg-red-50 px-3 py-1 rounded-full">
-                                            <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
-                                            <span class="font-medium text-sm">Unavailable</span>
-                                        </div>
-                                    @break
-                                @endswitch
+                                        {{ $isOnline ? 'Online now' : 'Offline' }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -4101,25 +4117,56 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Availability</h3>
                     <div class="space-y-4">
+                        @php
+                            $isOwnerFreelancer =
+                                auth()->check() &&
+                                auth()->user()->id === $freelancer->id &&
+                                auth()->user()->role === 'freelancer';
+                            $currentAvailability = $freelancer->freelancer->availability ?? 'available';
+                            $currentAvailabilityLabel = match ($currentAvailability) {
+                                'available' => 'Available',
+                                'busy' => 'Busy',
+                                'unavailable' => 'Unavailable',
+                                default => 'Available',
+                            };
+                            $currentAvailabilityClasses = match ($currentAvailability) {
+                                'available' => 'bg-green-100 text-green-800',
+                                'busy' => 'bg-amber-100 text-amber-800',
+                                'unavailable' => 'bg-red-100 text-red-800',
+                                default => 'bg-green-100 text-green-800',
+                            };
+                        @endphp
                         <div class="flex items-center justify-between">
                             <span class="text-gray-600 text-sm">Current Status:</span>
-                            @switch($freelancer->freelancer->availability)
-                                @case('available')
-                                    <span
-                                        class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium select-none">Available</span>
-                                @break
-
-                                @case('busy')
-                                    <span
-                                        class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium select-none">Busy</span>
-                                @break
-
-                                @case('unavailable')
-                                    <span
-                                        class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium select-none">Unavailable</span>
-                                @break
-                            @endswitch
+                            <span id="availability-current-badge"
+                                class="px-3 py-1 rounded-full text-sm font-medium select-none {{ $currentAvailabilityClasses }}">
+                                {{ $currentAvailabilityLabel }}
+                            </span>
                         </div>
+                        @if ($isOwnerFreelancer)
+                            <div class="flex items-center gap-2">
+                                <select id="availability-select"
+                                    class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
+                                    <option value="available"
+                                        {{ $currentAvailability === 'available' ? 'selected' : '' }}>
+                                        Available
+                                    </option>
+                                    <option value="busy" {{ $currentAvailability === 'busy' ? 'selected' : '' }}>Busy
+                                    </option>
+                                    <option value="unavailable"
+                                        {{ $currentAvailability === 'unavailable' ? 'selected' : '' }}>
+                                        Unavailable
+                                    </option>
+                                </select>
+                                <button type="button" id="save-availability-btn" onclick="saveAvailabilityStatus()"
+                                    class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm whitespace-nowrap flex items-center justify-center">
+                                    <div id="availabilitySubmitSpinner"
+                                        class="hidden w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2">
+                                    </div>
+                                    <span id="availabilitySubmitText">Update</span>
+                                </button>
+                            </div>
+                        @endif
                         <div class="pt-4 border-t border-gray-100">
                             <h4 class="font-medium text-gray-900 text-sm mb-2">Response Time</h4>
                             <div class="flex items-center text-gray-600 text-sm">
@@ -4870,6 +4917,122 @@
         function cancelEditContactInfo() {
             document.getElementById('contact-info-edit').classList.add('hidden');
             document.getElementById('contact-info-view').classList.remove('hidden');
+        }
+
+        function getAvailabilityConfig(status) {
+            switch (status) {
+                case 'busy':
+                    return {
+                        shortLabel: 'Busy',
+                            headerLabel: 'Busy',
+                            badgeClasses: ['bg-amber-100', 'text-amber-800'],
+                            headerClasses: ['text-amber-600', 'bg-amber-50'],
+                            dotClass: 'bg-amber-500'
+                    };
+                case 'unavailable':
+                    return {
+                        shortLabel: 'Unavailable',
+                            headerLabel: 'Unavailable',
+                            badgeClasses: ['bg-red-100', 'text-red-800'],
+                            headerClasses: ['text-red-600', 'bg-red-50'],
+                            dotClass: 'bg-red-500'
+                    };
+                case 'available':
+                default:
+                    return {
+                        shortLabel: 'Available',
+                            headerLabel: 'Available Now',
+                            badgeClasses: ['bg-green-100', 'text-green-800'],
+                            headerClasses: ['text-green-600', 'bg-green-50'],
+                            dotClass: 'bg-green-500'
+                    };
+            }
+        }
+
+        function applyAvailabilityStatus(status) {
+            const config = getAvailabilityConfig(status);
+
+            const badge = document.getElementById('availability-current-badge');
+            if (badge) {
+                badge.classList.remove('bg-green-100', 'text-green-800', 'bg-amber-100', 'text-amber-800', 'bg-red-100',
+                    'text-red-800');
+                badge.classList.add(...config.badgeClasses);
+                badge.textContent = config.shortLabel;
+            }
+
+            const headerChip = document.getElementById('profile-header-availability-chip');
+            if (headerChip) {
+                headerChip.classList.remove('text-green-600', 'bg-green-50', 'text-amber-600', 'bg-amber-50',
+                    'text-red-600',
+                    'bg-red-50');
+                headerChip.classList.add(...config.headerClasses);
+            }
+
+            const headerDot = document.getElementById('profile-header-availability-dot');
+            if (headerDot) {
+                headerDot.classList.remove('bg-green-500', 'bg-amber-500', 'bg-red-500');
+                headerDot.classList.add(config.dotClass);
+            }
+
+            const headerLabel = document.getElementById('profile-header-availability-label');
+            if (headerLabel) {
+                headerLabel.textContent = config.headerLabel;
+            }
+        }
+
+        async function saveAvailabilityStatus() {
+            const select = document.getElementById('availability-select');
+            const button = document.getElementById('save-availability-btn');
+            const submitText = document.getElementById('availabilitySubmitText');
+            const submitSpinner = document.getElementById('availabilitySubmitSpinner');
+            if (!select || !button) return;
+
+            const originalText = submitText ? submitText.textContent : 'Update';
+            if (submitText) {
+                submitText.textContent = 'Updating...';
+            }
+            if (submitSpinner) {
+                submitSpinner.classList.remove('hidden');
+                submitSpinner.classList.add('block');
+            }
+            button.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('availability', select.value);
+                formData.append('_method', 'PUT');
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const response = await fetch("{{ route('freelancer-profile.update', $freelancer->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to update availability.');
+                }
+
+                const updatedStatus = data.availability || select.value;
+                select.value = updatedStatus;
+                applyAvailabilityStatus(updatedStatus);
+                showSuccessToast('Availability updated successfully!');
+            } catch (error) {
+                showSuccessToast(error.message || 'Failed to update availability.');
+            } finally {
+                if (submitText) {
+                    submitText.textContent = originalText;
+                }
+                if (submitSpinner) {
+                    submitSpinner.classList.remove('block');
+                    submitSpinner.classList.add('hidden');
+                }
+                button.disabled = false;
+            }
         }
 
         function saveSocialLinks() {

@@ -1227,12 +1227,8 @@
         closeModalBtn.addEventListener('click', closeModal);
         cancelModalBtn.addEventListener('click', closeModal);
 
-        // Close modal when clicking outside the modal content
-        jobDetailsModal.addEventListener('click', (e) => {
-            if (e.target === jobDetailsModal) {
-                closeModal();
-            }
-        });
+        // Close modal when clicking the dark backdrop
+        modalBackdrop.addEventListener('click', closeModal);
 
         // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
@@ -2389,19 +2385,11 @@
         // Add event listener for withdraw proposal button
         submitWithdrawProposalBtn.addEventListener('click', withdrawProposal);
 
-        // Close proposal modal when clicking outside
-        proposalModal.addEventListener('click', (e) => {
-            if (e.target === proposalModal) {
-                closeProposalModal();
-            }
-        });
+        // Close proposal modal when clicking the dark backdrop
+        proposalBackdrop.addEventListener('click', closeProposalModal);
 
-        // Close update proposal modal when clicking outside
-        proposalUpdateModal.addEventListener('click', (e) => {
-            if (e.target === proposalUpdateModal) {
-                closeUpdateProposalModal();
-            }
-        });
+        // Close update proposal modal when clicking the dark backdrop
+        updateProposalBackdrop.addEventListener('click', closeUpdateProposalModal);
 
         // Close proposal modal with Escape key
         document.addEventListener('keydown', (e) => {

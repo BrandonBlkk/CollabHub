@@ -1,75 +1,93 @@
 ﻿@props(['role' => auth()->user()->role])
 
-<div class="sidebar bg-white w-64 border-r border-gray-200 flex-col hidden lg:flex" x-data="{ profileMenuOpen: false }">
+<div class="sidebar relative z-50 bg-white border-r border-gray-200 flex-col hidden lg:flex flex-shrink-0"
+    x-data="{ profileMenuOpen: false, isCollapsed: localStorage.getItem('collabhub.sidebar.collapsed') === '1' }" x-init="$watch('isCollapsed', value => localStorage.setItem('collabhub.sidebar.collapsed', value ? '1' : '0'))"
+    :class="isCollapsed ? 'w-20 overflow-visible' : 'w-64 overflow-hidden'">
     <!-- Logo -->
-    <div class="px-6 py-4 border-b border-gray-200">
-        <a href="/" class="flex items-center space-x-3">
-            <div
-                class="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-700 to-teal-600 flex items-center justify-center select-none">
-                <span class="text-white font-bold text-base">C</span>
-            </div>
-            <div>
-                <h1 class="text-lg font-bold text-gray-900">CollabHub</h1>
-                <p class="text-gray-600 text-xs">
-                    {{ $role === 'freelancer' ? 'Freelancer Dashboard' : 'Client Dashboard' }}
-                </p>
-            </div>
-        </a>
+    <div class="py-4 border-b border-gray-200" :class="isCollapsed ? 'px-2' : 'px-4'">
+        <div class="flex items-center gap-2" :class="isCollapsed ? 'flex-col' : 'justify-between'">
+            <a href="/" class="flex items-center min-w-0 space-x-3"
+                :class="{ 'space-x-0 justify-center': isCollapsed }">
+                <div
+                    class="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-700 to-teal-600 flex items-center justify-center select-none">
+                    <span class="text-white font-bold text-base">C</span>
+                </div>
+                <div :class="{ 'hidden': isCollapsed }">
+                    <h1 class="text-lg font-bold text-gray-900 truncate">CollabHub</h1>
+                    <p class="text-gray-600 text-xs">
+                        {{ $role === 'freelancer' ? 'Freelancer Dashboard' : 'Client Dashboard' }}
+                    </p>
+                </div>
+            </a>
+
+            <button type="button" @click="isCollapsed = !isCollapsed; profileMenuOpen = false"
+                class="h-8 w-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors duration-150 flex items-center justify-center"
+                :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+                <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isCollapsed }"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 p-4 space-y-1">
-        <x-sidebar-item :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-            icon="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            Dashboard
-        </x-sidebar-item>
-
-        @if ($role === 'freelancer')
-            <x-sidebar-item href="{{ route('find-jobs') }}" :active="request()->routeIs('find-jobs')"
-                icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                Find Jobs
+    <div class="flex-1" :class="isCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'">
+        <nav class="p-4 space-y-1">
+            <x-sidebar-item :href="route('dashboard')" :active="request()->routeIs('dashboard')"
+                icon="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                Dashboard
             </x-sidebar-item>
 
-            <x-sidebar-item href="{{ route('freelancer.active-jobs') }}" :active="request()->routeIs('freelancer.active-jobs')"
-                icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                Active Jobs
+            @if ($role === 'freelancer')
+                <x-sidebar-item href="{{ route('find-jobs') }}" :active="request()->routeIs('find-jobs')"
+                    icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                    Find Jobs
+                </x-sidebar-item>
+
+                <x-sidebar-item href="{{ route('freelancer.active-jobs') }}" :active="request()->routeIs('freelancer.active-jobs')"
+                    icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                    Active Jobs
+                </x-sidebar-item>
+
+                <x-sidebar-item href="{{ route('freelancer.deadlines') }}" :active="request()->routeIs('freelancer.deadlines')"
+                    icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    Upcoming Deadlines
+                </x-sidebar-item>
+            @else
+                <x-sidebar-item :href="route('my-jobs.index')" :active="request()->routeIs('my-jobs.index')"
+                    icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    badge="5" badgeColor="blue">
+                    My Jobs
+                </x-sidebar-item>
+
+                <x-sidebar-item :href="route('find-freelancers')" :active="request()->routeIs('find-freelancers')"
+                    icon="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 00-9 5.197">
+                    Find Freelancers
+                </x-sidebar-item>
+            @endif
+
+            <x-sidebar-item href="{{ route('messages.index') }}" :active="request()->routeIs('messages.index')"
+                icon="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                badge="2" badgeColor="red">
+                Messages
             </x-sidebar-item>
 
-            <x-sidebar-item href="{{ route('freelancer.deadlines') }}" :active="request()->routeIs('freelancer.deadlines')"
-                icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                Upcoming Deadlines
+            <x-sidebar-item href="{{ route('earnings') }}" :active="request()->routeIs('earnings')"
+                icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                Earnings
             </x-sidebar-item>
-        @else
-            <x-sidebar-item :href="route('my-jobs.index')" :active="request()->routeIs('my-jobs.index')"
-                icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                badge="5" badgeColor="blue">
-                My Jobs
-            </x-sidebar-item>
-
-            <x-sidebar-item :href="route('find-freelancers')" :active="request()->routeIs('find-freelancers')"
-                icon="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a6 6 0 00-9 5.197">
-                Find Freelancers
-            </x-sidebar-item>
-        @endif
-
-        <x-sidebar-item href="{{ route('messages.index') }}" :active="request()->routeIs('messages.index')"
-            icon="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-            badge="2" badgeColor="red">
-            Messages
-        </x-sidebar-item>
-
-        <x-sidebar-item href="{{ route('earnings') }}" :active="request()->routeIs('earnings')"
-            icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-            Earnings
-        </x-sidebar-item>
-    </nav>
+        </nav>
+    </div>
 
     <!-- User Profile Dropdown -->
     <div class="p-4 border-t border-gray-200 relative">
         <div class="flex items-center space-x-3">
             <!-- Profile Trigger Button -->
             <button @click="profileMenuOpen = !profileMenuOpen"
-                class="flex items-center space-x-3 w-full focus:outline-none hover:bg-gray-50 p-2 rounded-lg transition duration-150">
+                class="sidebar-profile-trigger flex items-center space-x-3 focus:outline-none hover:bg-gray-50 transition duration-150"
+                :class="isCollapsed ? 'justify-center space-x-0 rounded-full h-12 w-12 p-0 mx-auto' : 'w-full p-2 rounded-lg'"
+                :title='isCollapsed ? @js(auth()->user()->name) : ""'>
                 {{-- Profile Photo --}}
                 @if (auth()->user()->profile_photo_path)
                     <div class="w-10 h-10 rounded-full overflow-hidden">
@@ -84,7 +102,7 @@
                     </div>
                 @endif
 
-                <div class="flex-1 text-left">
+                <div class="flex-1 text-left" :class="{ 'hidden': isCollapsed }">
                     <h3 id="name" class="font-semibold text-sm text-gray-900">{{ auth()->user()->name }}</h3>
                     <p class="text-gray-500 text-xs">
                         {{ $role === 'freelancer' ? 'Freelancer' : 'Client' }}
@@ -92,7 +110,7 @@
                 </div>
 
                 <!-- Dropdown Arrow -->
-                <svg :class="{ 'transform rotate-180': profileMenuOpen }"
+                <svg :class="{ 'transform rotate-180': profileMenuOpen, 'hidden': isCollapsed }"
                     class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -107,7 +125,7 @@
             x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
-            class="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+            class="absolute bottom-full left-4 w-56 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
 
             @php
                 $current_user_role = auth()->user()->role;
@@ -161,8 +179,8 @@
             @else
                 <!-- For Guest Users -->
                 <a href="{{ route('login') }}" class="flex items-center px-4 py-3 hover:bg-gray-50 text-gray-700 group">
-                    <svg class="w-5 h-5 text-gray-400 mr-3 group-hover:text-blue-600" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 mr-3 group-hover:text-blue-600" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>

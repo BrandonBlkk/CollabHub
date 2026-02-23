@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\UserLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -42,11 +43,10 @@ class ProfileController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
-
         $freelancer = User::with([
             'freelancer',
             'skills',
+            'settings',
             'freelancer.experiences',
             'freelancer.educations.university',
             'freelancer.educations.major',
@@ -56,7 +56,7 @@ class ProfileController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        ProfileView::logView($request, $user);
+        ProfileView::logView($request, $freelancer);
 
         // Similar freelancers
         $similarFreelancers = User::with('freelancer')
@@ -73,14 +73,14 @@ class ProfileController extends Controller
             ->get();
 
         // Get freelancer experiences with jobRole
-        $experiences = $user->freelancer->experiences()
+        $experiences = $freelancer->freelancer->experiences()
             ->with('jobRole')
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_date', 'desc')
             ->get();
 
         // Get freelancer educations with university and major
-        $educations = $user->freelancer->educations()
+        $educations = $freelancer->freelancer->educations()
             ->with(['university', 'major'])
             ->orderByRaw('CASE WHEN is_current = 1 THEN 0 ELSE 1 END')
             ->orderBy('start_year', 'desc')
@@ -90,24 +90,36 @@ class ProfileController extends Controller
         $majors = Major::all();
         $skills = Skill::all();
 
-        $languages = UserLanguage::where('user_id', $user->id)->get();
+        $languages = UserLanguage::where('user_id', $freelancer->id)->get();
 
         // Get freelancer certificates
-        $certificates = $user->freelancer->certificates;
+        $certificates = $freelancer->freelancer->certificates;
+
+        $showOnlineStatus = (bool) ($freelancer->settings?->show_online_status ?? true);
+        $isOnline = false;
+        if ($showOnlineStatus) {
+            $threshold = now()->subMinutes(5)->timestamp;
+            $isOnline = DB::table('sessions')
+                ->where('user_id', $freelancer->id)
+                ->where('last_activity', '>=', $threshold)
+                ->exists();
+        }
 
         return view(
             'freelancer.freelancer-profile',
             compact(
-                "freelancer",
-                "similarFreelancers",
-                "jobRoles",
-                "experiences",
-                "educations",
-                "universities",
-                "majors",
-                "skills",
-                "languages",
-                "certificates"
+                'freelancer',
+                'similarFreelancers',
+                'jobRoles',
+                'experiences',
+                'educations',
+                'universities',
+                'majors',
+                'skills',
+                'languages',
+                'certificates',
+                'showOnlineStatus',
+                'isOnline'
             )
         );
     }
@@ -143,12 +155,15 @@ class ProfileController extends Controller
             'location' => ['nullable', 'string', 'max:100'],
             'bio' => ['nullable', 'string'],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
+            'availability' => ['nullable', 'in:available,busy,unavailable'],
             'portfolio_url' => ['nullable', 'url', 'max:255'],
             'response_time' => ['nullable', 'string', 'max:100'],
             'response_time_hours' => ['nullable', 'string', 'max:100'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
             'remove_profile_photo' => ['nullable', 'boolean'],
         ]);
+
+        $updatedAvailability = $validated['availability'] ?? $freelancer->freelancer->availability;
 
         $userUpdateData = [
             'phone' => $validated['phone'] ?? $freelancer->phone,
@@ -177,6 +192,7 @@ class ProfileController extends Controller
         $freelancer->freelancer()->update([
             'bio' => $validated['bio'] ?? $freelancer->freelancer->bio,
             'hourly_rate' => $validated['hourly_rate'] ?? $freelancer->freelancer->hourly_rate,
+            'availability' => $updatedAvailability,
             'portfolio_url' => $validated['portfolio_url'] ?? $freelancer->freelancer->portfolio_url,
             'response_time' => $validated['response_time'] ?? ($validated['response_time_hours'] ?? $freelancer->freelancer->response_time),
             'updated_at' => now(),
@@ -188,6 +204,7 @@ class ProfileController extends Controller
                 'message' => 'Profile updated successfully.',
                 'name' => $freelancer->name,
                 'profile_photo_url' => $freelancer->profile_photo_url,
+                'availability' => $updatedAvailability,
             ]);
         }
 

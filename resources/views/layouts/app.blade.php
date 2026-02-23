@@ -128,12 +128,256 @@
         });
 
         // Notification bell animation
-        const notificationBell = document.querySelector('button.relative.text-gray-500');
+        const notificationBell = document.getElementById('notificationBell');
         if (notificationBell) {
             notificationBell.addEventListener('click', function() {
                 const notificationDot = this.querySelector('span.bg-red-500');
                 if (notificationDot) {
                     notificationDot.remove();
+                }
+            });
+        }
+
+        // Header currency switcher
+        const currencySwitcher = document.getElementById('headerCurrencySwitcher');
+        const currencyMenuButton = document.getElementById('currencyMenuButton');
+        const currencyMenu = document.getElementById('currencyMenu');
+        const currencyMenuArrow = document.getElementById('currencyMenuArrow');
+        const currencyMenuCode = document.getElementById('currencyMenuCode');
+        const currencyMenuFlag = document.getElementById('currencyMenuFlag');
+        const currencyMenuItems = document.querySelectorAll('.currency-menu-item');
+        const settingsUpdateUrl = @json(route('settings.update'));
+        const exchangeRatesUrl = @json(route('currency.exchange-rates'));
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        let headerExchangeRates = {
+            USD: 1,
+            MMK: 3959.10,
+            EUR: 0.93,
+            GBP: 0.79,
+            CAD: 1.35,
+            AUD: 1.53
+        };
+        let currencyMenuCloseTimer = null;
+        let isCurrencyMenuOpen = false;
+
+        function openCurrencyMenu() {
+            if (!currencyMenu) {
+                return;
+            }
+
+            if (currencyMenuCloseTimer) {
+                clearTimeout(currencyMenuCloseTimer);
+                currencyMenuCloseTimer = null;
+            }
+
+            currencyMenu.classList.remove('hidden', 'pointer-events-none', 'duration-75', 'ease-in', 'opacity-100',
+                'scale-100');
+            currencyMenu.classList.add('ease-out', 'duration-100', 'opacity-0', 'scale-95');
+
+            requestAnimationFrame(() => {
+                currencyMenu.classList.remove('opacity-0', 'scale-95');
+                currencyMenu.classList.add('opacity-100', 'scale-100');
+            });
+
+            if (currencyMenuArrow) {
+                currencyMenuArrow.classList.add('rotate-180');
+            }
+
+            isCurrencyMenuOpen = true;
+        }
+
+        function closeCurrencyMenu() {
+            if (currencyMenu) {
+                if (currencyMenuCloseTimer) {
+                    clearTimeout(currencyMenuCloseTimer);
+                }
+
+                currencyMenu.classList.remove('duration-100', 'ease-out', 'opacity-0', 'scale-95');
+                currencyMenu.classList.add('duration-75', 'ease-in', 'opacity-100', 'scale-100');
+
+                requestAnimationFrame(() => {
+                    currencyMenu.classList.remove('opacity-100', 'scale-100');
+                    currencyMenu.classList.add('opacity-0', 'scale-95');
+                });
+
+                currencyMenuCloseTimer = window.setTimeout(() => {
+                    currencyMenu.classList.add('hidden', 'pointer-events-none');
+                    currencyMenuCloseTimer = null;
+                }, 75);
+            }
+
+            if (currencyMenuArrow) {
+                currencyMenuArrow.classList.remove('rotate-180');
+            }
+
+            isCurrencyMenuOpen = false;
+        }
+
+        function formatHeaderExchangeRate(rateValue, currencyCode) {
+            const parsedRate = parseFloat(rateValue);
+            if (!Number.isFinite(parsedRate) || parsedRate <= 0) {
+                return null;
+            }
+
+            return new Intl.NumberFormat(undefined, {
+                minimumFractionDigits: currencyCode === 'USD' ? 0 : 2,
+                maximumFractionDigits: currencyCode === 'MMK' ? 2 : 4
+            }).format(parsedRate);
+        }
+
+        function syncHeaderCurrencyRates(rates = {}) {
+            currencyMenuItems.forEach((menuItem) => {
+                const code = (menuItem.dataset.currency || '').toUpperCase();
+                const rateLabel = menuItem.querySelector('[data-currency-rate]');
+
+                if (!code || !rateLabel) {
+                    return;
+                }
+
+                const formattedRate = formatHeaderExchangeRate(rates[code], code);
+                rateLabel.textContent = formattedRate ? `1 USD = ${formattedRate} ${code}` : `1 USD = -- ${code}`;
+            });
+        }
+
+        async function loadHeaderCurrencyRates() {
+            try {
+                const response = await fetch(exchangeRatesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                if (!data.success || typeof data.rates !== 'object' || !data.rates) {
+                    return;
+                }
+
+                headerExchangeRates = {
+                    ...headerExchangeRates,
+                    ...data.rates
+                };
+
+                syncHeaderCurrencyRates(headerExchangeRates);
+            } catch (error) {
+                // Keep fallback rates when the exchange API request fails.
+            }
+        }
+
+        function syncHeaderCurrencyUI(selectedCurrency) {
+            if (!selectedCurrency) {
+                return;
+            }
+
+            const normalizedCurrency = String(selectedCurrency).toUpperCase();
+            if (currencyMenuCode) {
+                currencyMenuCode.textContent = normalizedCurrency;
+            }
+
+            let activeMenuItem = null;
+            currencyMenuItems.forEach((menuItem) => {
+                const code = (menuItem.dataset.currency || '').toUpperCase();
+                const isActive = code === normalizedCurrency;
+
+                if (isActive) {
+                    activeMenuItem = menuItem;
+                }
+
+                menuItem.classList.toggle('bg-gray-50', isActive);
+                menuItem.classList.toggle('text-gray-900', isActive);
+                menuItem.classList.toggle('text-gray-700', !isActive);
+                menuItem.classList.toggle('hover:bg-gray-50', !isActive);
+                menuItem.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+
+                const selectedIcon = menuItem.querySelector('[data-selected-icon]');
+                if (selectedIcon) {
+                    selectedIcon.classList.toggle('hidden', !isActive);
+                }
+            });
+
+            if (activeMenuItem && currencyMenuFlag) {
+                const activeFlag = activeMenuItem.querySelector('img');
+                if (activeFlag) {
+                    currencyMenuFlag.src = activeFlag.src;
+                    currencyMenuFlag.alt = activeFlag.alt || normalizedCurrency;
+                }
+            }
+        }
+
+        if (currencySwitcher && currencyMenuButton && currencyMenu) {
+            syncHeaderCurrencyRates(headerExchangeRates);
+            loadHeaderCurrencyRates();
+
+            currencyMenuButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                if (isCurrencyMenuOpen) {
+                    closeCurrencyMenu();
+                } else {
+                    openCurrencyMenu();
+                }
+            });
+
+            currencyMenuItems.forEach((item) => {
+                item.addEventListener('click', async function() {
+                    const selectedCurrency = (this.dataset.currency || '').toUpperCase();
+                    const currentCurrency = (currencyMenuCode?.textContent || '').trim().toUpperCase();
+
+                    if (!selectedCurrency || selectedCurrency === currentCurrency || !csrfToken) {
+                        closeCurrencyMenu();
+                        return;
+                    }
+
+                    currencyMenuButton.disabled = true;
+                    currencyMenuButton.classList.add('opacity-60', 'cursor-not-allowed');
+                    currencyMenuItems.forEach((menuItem) => menuItem.setAttribute('disabled', 'disabled'));
+
+                    try {
+                        const response = await fetch(settingsUpdateUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                currency: selectedCurrency
+                            })
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || 'Failed to update currency');
+                        }
+
+                        syncHeaderCurrencyUI(selectedCurrency);
+                        if (window.AppCurrency?.setCurrency) {
+                            await window.AppCurrency.setCurrency(selectedCurrency);
+                        }
+                    } catch (error) {
+                        window.alert('Failed to update currency. Please try again.');
+                    } finally {
+                        currencyMenuButton.disabled = false;
+                        currencyMenuButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                        currencyMenuItems.forEach((menuItem) => menuItem.removeAttribute('disabled'));
+                        closeCurrencyMenu();
+                    }
+                });
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!currencySwitcher.contains(event.target)) {
+                    closeCurrencyMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeCurrencyMenu();
                 }
             });
         }
@@ -166,6 +410,7 @@
                     AUD: 1.53
                 };
                 let currencyObserver = null;
+                const originalUsdTextMap = new WeakMap();
 
                 function parseUsdAmount(rawValue) {
                     const numericValue = parseFloat(String(rawValue).replace(/,/g, ''));
@@ -205,16 +450,20 @@
                     return sign === '-' || sign === '+' ? `${sign}${formattedAmount}` : formattedAmount;
                 }
 
+                function containsRawUsdAmount(text) {
+                    return typeof text === 'string' && /(^|[^A-Za-z])[+-]?\$\d/.test(text);
+                }
+
                 function convertUsdText(text) {
-                    if (typeof text !== 'string' || !text.includes('$')) {
+                    if (!containsRawUsdAmount(text)) {
                         return text;
                     }
 
                     const rangeRegex =
-                        /([+-]?)\$(\d[\d,]*(?:\.\d+)?)\s*-\s*([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
-                    const singleRegex = /([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
+                        /(^|[^A-Za-z])([+-]?)\$(\d[\d,]*(?:\.\d+)?)\s*-\s*([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
+                    const singleRegex = /(^|[^A-Za-z])([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
 
-                    let convertedText = text.replace(rangeRegex, (match, minSign, minValue, maxSign, maxValue, suffix = '') => {
+                    let convertedText = text.replace(rangeRegex, (match, prefix, minSign, minValue, maxSign, maxValue, suffix = '') => {
                         const parsedMin = parseUsdAmount(minValue);
                         const parsedMax = parseUsdAmount(maxValue);
 
@@ -229,17 +478,17 @@
                             return match;
                         }
 
-                        return `${formattedMin} - ${formattedMax}${suffix || ''}`;
+                        return `${prefix}${formattedMin} - ${formattedMax}${suffix || ''}`;
                     });
 
-                    convertedText = convertedText.replace(singleRegex, (match, sign, value, suffix = '') => {
+                    convertedText = convertedText.replace(singleRegex, (match, prefix, sign, value, suffix = '') => {
                         const parsedValue = parseUsdAmount(value);
                         if (parsedValue === null) {
                             return match;
                         }
 
                         const formattedValue = applySign(formatUsdAmount(parsedValue), sign);
-                        return formattedValue ? `${formattedValue}${suffix || ''}` : match;
+                        return formattedValue ? `${prefix}${formattedValue}${suffix || ''}` : match;
                     });
 
                     return convertedText;
@@ -259,10 +508,25 @@
                         return;
                     }
 
-                    const originalText = textNode.nodeValue;
+                    const currentText = typeof textNode.nodeValue === 'string' ? textNode.nodeValue : '';
+                    const storedText = originalUsdTextMap.get(textNode);
+
+                    if (containsRawUsdAmount(currentText)) {
+                        if (storedText !== currentText) {
+                            originalUsdTextMap.set(textNode, currentText);
+                        }
+                    } else if (typeof storedText !== 'string') {
+                        return;
+                    }
+
+                    const originalText = originalUsdTextMap.get(textNode);
+                    if (typeof originalText !== 'string') {
+                        return;
+                    }
+
                     const convertedText = convertUsdText(originalText);
 
-                    if (convertedText !== originalText) {
+                    if (typeof convertedText === 'string' && convertedText !== currentText) {
                         textNode.nodeValue = convertedText;
                     }
                 }
@@ -313,7 +577,11 @@
                     });
                 }
 
-                async function loadExchangeRates() {
+                async function loadExchangeRates(preferredCurrencyOverride = null) {
+                    if (typeof preferredCurrencyOverride === 'string' && preferredCurrencyOverride.trim() !== '') {
+                        preferredCurrency = preferredCurrencyOverride.toUpperCase();
+                    }
+
                     try {
                         const response = await fetch(exchangeRatesUrl, {
                             method: 'GET',
@@ -346,6 +614,17 @@
 
                 window.AppCurrency = {
                     getCurrency: () => getActiveCurrencyCode(),
+                    setCurrency: async (currencyCode) => {
+                        const normalizedCurrency = String(currencyCode || '').toUpperCase();
+                        if (!normalizedCurrency) {
+                            return getActiveCurrencyCode();
+                        }
+
+                        await loadExchangeRates(normalizedCurrency);
+                        convertSubtree(document.body);
+
+                        return getActiveCurrencyCode();
+                    },
                     formatFromUsd: (amount, suffix = '') => {
                         const numericAmount = parseFloat(amount);
                         if (!Number.isFinite(numericAmount)) {

@@ -7,9 +7,6 @@
 @endauth
 
 @section('content')
-    {{-- Dark overlay --}}
-    <div id="darkoverlay" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10"></div>
-
     <!-- Page Header -->
     <div class="flex items-center justify-between">
         <div>
@@ -81,7 +78,7 @@
                         </div>
 
                         <!-- Currency Settings -->
-                        <div class="pt-6 border-t border-gray-200">
+                        <div id="currency-settings" class="pt-6 border-t border-gray-200">
                             <h3 class="font-semibold text-gray-900 mb-4">Currency Settings</h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -385,8 +382,11 @@
 
             <!-- Trash Modal -->
             <div id="trashModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
-                <div class="flex items-center justify-center min-h-screen p-4">
-                    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                <div id="trash-modal-backdrop"
+                    class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out opacity-0"></div>
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div id="trash-modal-content"
+                        class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-4xl w-full max-h-[90vh] flex flex-col translate-y-4 opacity-0">
                         <!-- Modal Header -->
                         <div class="flex items-center justify-between p-6">
                             <div>
@@ -437,11 +437,52 @@
                                     class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
                                     Close
                                 </button>
-                                <button id="empty-all-trash-btn" onclick="emptyTrash()"
+                                <button id="empty-all-trash-btn" onclick="openEmptyTrashModal()"
                                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium hidden">
                                     Empty All Trash
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Trash Confirmation Modal -->
+            <div id="emptyTrashModal" class="fixed inset-0 z-[70] hidden transition-opacity duration-300">
+                <div id="empty-trash-backdrop"
+                    class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out opacity-0">
+                </div>
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div id="empty-trash-content"
+                        class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
+                        <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Empty Trash</h3>
+                                <p class="text-sm text-gray-600 mt-1">This action cannot be undone.</p>
+                            </div>
+                            <button type="button" onclick="closeEmptyTrashModal()"
+                                class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="px-6 py-4">
+                            <p class="text-sm text-gray-700">
+                                Are you sure you want to permanently delete all items in Trash / Archive?
+                            </p>
+                        </div>
+                        <div
+                            class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
+                            <button type="button" onclick="closeEmptyTrashModal()"
+                                class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                Cancel
+                            </button>
+                            <button type="button" onclick="confirmEmptyTrash()"
+                                class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium">
+                                Yes, Empty All
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -471,18 +512,105 @@
                                 Delete Account
                             </button>
                         @elseif (auth()->user()->role === 'freelancer')
-                            <form action="{{ route('freelancer-profile.destroy', auth()->user()->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
-                                    Delete Account
-                                </button>
-                            </form>
+                            <button type="button" onclick="openFreelancerDeleteModal()"
+                                class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
+                                Delete Account
+                            </button>
                         @endif
                     </div>
                 </div>
             </div>
+
+            @if (auth()->user()->role === 'freelancer')
+                <!-- Freelancer Delete Account Confirmation Modal -->
+                <div id="freelancerDeleteModal" class="fixed inset-0 z-[70] hidden transition-opacity duration-300">
+                    <div id="freelancer-delete-backdrop"
+                        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out opacity-0">
+                    </div>
+                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                        <div id="freelancer-delete-content"
+                            class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
+                            <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Confirm Account Deletion</h3>
+                                    <p class="text-sm text-gray-600 mt-1">This action cannot be undone.</p>
+                                </div>
+                                <button type="button" onclick="closeFreelancerDeleteModal()"
+                                    class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="px-6 py-4">
+                                <p class="text-sm text-gray-700">
+                                    Deleting your freelancer account will permanently remove your profile and related
+                                    data. Are you sure you want to continue?
+                                </p>
+                            </div>
+                            <div
+                                class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
+                                <button type="button" onclick="closeFreelancerDeleteModal()"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                    Cancel
+                                </button>
+                                <form class="w-full sm:w-auto mb-0"
+                                    action="{{ route('freelancer-profile.destroy', auth()->user()->id) }}"
+                                    method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium">
+                                        Yes, Delete Account
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Freelancer Reset Defaults Confirmation Modal -->
+                <div id="freelancerResetModal" class="fixed inset-0 z-[70] hidden transition-opacity duration-300">
+                    <div id="freelancer-reset-backdrop"
+                        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out opacity-0">
+                    </div>
+                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                        <div id="freelancer-reset-content"
+                            class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
+                            <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Reset Settings to Defaults</h3>
+                                    <p class="text-sm text-gray-600 mt-1">This will overwrite your current preferences.</p>
+                                </div>
+                                <button type="button" onclick="closeFreelancerResetModal()"
+                                    class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="px-6 py-4">
+                                <p class="text-sm text-gray-700">
+                                    Are you sure you want to reset all settings to default values?
+                                </p>
+                            </div>
+                            <div
+                                class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
+                                <button type="button" onclick="closeFreelancerResetModal()"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                                    Cancel
+                                </button>
+                                <button type="button" onclick="confirmFreelancerResetDefaults()"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 text-sm font-medium">
+                                    Yes, Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- Save All Changes -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -504,7 +632,9 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-200">
-                        <button onclick="resetToDefaults()" type="button"
+                        <button
+                            onclick="{{ auth()->user()->role === 'freelancer' ? 'openFreelancerResetModal()' : 'resetToDefaults()' }}"
+                            type="button"
                             class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium select-none">
                             Reset to Defaults
                         </button>
@@ -635,7 +765,7 @@
                     class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm font-medium transition duration-300">
                     Manage Items
                 </button>
-                <button onclick="emptyTrash()"
+                <button onclick="openEmptyTrashModal()"
                     class="px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition duration-300">
                     Empty All
                 </button>
@@ -652,16 +782,36 @@
         }
 
         // Modal functions
+        const trashModalElement = document.getElementById('trashModal');
+        const trashModalBackdrop = document.getElementById('trash-modal-backdrop');
+        const trashModalContent = document.getElementById('trash-modal-content');
+        const freelancerDeleteModalElement = document.getElementById('freelancerDeleteModal');
+        const freelancerDeleteModalBackdrop = document.getElementById('freelancer-delete-backdrop');
+        const freelancerDeleteModalContent = document.getElementById('freelancer-delete-content');
+        const freelancerResetModalElement = document.getElementById('freelancerResetModal');
+        const freelancerResetModalBackdrop = document.getElementById('freelancer-reset-backdrop');
+        const freelancerResetModalContent = document.getElementById('freelancer-reset-content');
+        const emptyTrashModalElement = document.getElementById('emptyTrashModal');
+        const emptyTrashModalBackdrop = document.getElementById('empty-trash-backdrop');
+        const emptyTrashModalContent = document.getElementById('empty-trash-content');
+
         function openTrashModal() {
-            const modal = document.getElementById('trashModal');
-            const darkoverlay = document.getElementById('darkoverlay');
-            modal.classList.remove('hidden');
-            if (darkoverlay) {
-                darkoverlay.classList.remove('hidden');
+            if (!trashModalElement || !trashModalBackdrop || !trashModalContent) {
+                return;
             }
 
+            trashModalElement.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            void trashModalElement.offsetWidth;
+
             setTimeout(() => {
-                modal.style.opacity = '1';
+                trashModalBackdrop.classList.remove('opacity-0');
+                trashModalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                trashModalContent.classList.remove('translate-y-4', 'opacity-0');
+                trashModalContent.classList.add('translate-y-0', 'opacity-100');
             }, 10);
 
             // Render modal content
@@ -669,16 +819,148 @@
         }
 
         function closeTrashModal() {
-            const modal = document.getElementById('trashModal');
-            modal.style.opacity = '0';
-            const darkoverlay = document.getElementById('darkoverlay');
-            if (darkoverlay) {
-                darkoverlay.classList.add('hidden');
+            if (!trashModalElement || !trashModalBackdrop || !trashModalContent) {
+                return;
             }
 
+            trashModalContent.classList.remove('translate-y-0', 'opacity-100');
+            trashModalContent.classList.add('translate-y-4', 'opacity-0');
+
+            trashModalBackdrop.classList.remove('opacity-100');
+            trashModalBackdrop.classList.add('opacity-0');
+
             setTimeout(() => {
-                modal.classList.add('hidden');
+                trashModalElement.classList.add('hidden');
+                document.body.style.overflow = 'auto';
             }, 300);
+        }
+
+        function openFreelancerDeleteModal() {
+            if (!freelancerDeleteModalElement || !freelancerDeleteModalBackdrop || !freelancerDeleteModalContent) {
+                return;
+            }
+
+            freelancerDeleteModalElement.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            void freelancerDeleteModalElement.offsetWidth;
+
+            setTimeout(() => {
+                freelancerDeleteModalBackdrop.classList.remove('opacity-0');
+                freelancerDeleteModalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                freelancerDeleteModalContent.classList.remove('translate-y-4', 'opacity-0');
+                freelancerDeleteModalContent.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+        }
+
+        function closeFreelancerDeleteModal() {
+            if (!freelancerDeleteModalElement || !freelancerDeleteModalBackdrop || !freelancerDeleteModalContent) {
+                return;
+            }
+
+            freelancerDeleteModalContent.classList.remove('translate-y-0', 'opacity-100');
+            freelancerDeleteModalContent.classList.add('translate-y-4', 'opacity-0');
+
+            freelancerDeleteModalBackdrop.classList.remove('opacity-100');
+            freelancerDeleteModalBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                freelancerDeleteModalElement.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        function openFreelancerResetModal() {
+            if (!freelancerResetModalElement || !freelancerResetModalBackdrop || !freelancerResetModalContent) {
+                return;
+            }
+
+            freelancerResetModalElement.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            void freelancerResetModalElement.offsetWidth;
+
+            setTimeout(() => {
+                freelancerResetModalBackdrop.classList.remove('opacity-0');
+                freelancerResetModalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                freelancerResetModalContent.classList.remove('translate-y-4', 'opacity-0');
+                freelancerResetModalContent.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+        }
+
+        function closeFreelancerResetModal() {
+            if (!freelancerResetModalElement || !freelancerResetModalBackdrop || !freelancerResetModalContent) {
+                return;
+            }
+
+            freelancerResetModalContent.classList.remove('translate-y-0', 'opacity-100');
+            freelancerResetModalContent.classList.add('translate-y-4', 'opacity-0');
+
+            freelancerResetModalBackdrop.classList.remove('opacity-100');
+            freelancerResetModalBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                freelancerResetModalElement.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        function confirmFreelancerResetDefaults() {
+            closeFreelancerResetModal();
+            performResetToDefaults();
+        }
+
+        function openEmptyTrashModal() {
+            if (!emptyTrashModalElement || !emptyTrashModalBackdrop || !emptyTrashModalContent) {
+                return;
+            }
+
+            emptyTrashModalElement.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            void emptyTrashModalElement.offsetWidth;
+
+            setTimeout(() => {
+                emptyTrashModalBackdrop.classList.remove('opacity-0');
+                emptyTrashModalBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                emptyTrashModalContent.classList.remove('translate-y-4', 'opacity-0');
+                emptyTrashModalContent.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+        }
+
+        function closeEmptyTrashModal() {
+            if (!emptyTrashModalElement || !emptyTrashModalBackdrop || !emptyTrashModalContent) {
+                return;
+            }
+
+            emptyTrashModalContent.classList.remove('translate-y-0', 'opacity-100');
+            emptyTrashModalContent.classList.add('translate-y-4', 'opacity-0');
+
+            emptyTrashModalBackdrop.classList.remove('opacity-100');
+            emptyTrashModalBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                emptyTrashModalElement.classList.add('hidden');
+                const isTrashOpen = trashModalElement && !trashModalElement.classList.contains('hidden');
+                const isDeleteOpen = freelancerDeleteModalElement && !freelancerDeleteModalElement.classList
+                    .contains('hidden');
+                const isResetOpen = freelancerResetModalElement && !freelancerResetModalElement.classList
+                    .contains('hidden');
+                if (!isTrashOpen && !isDeleteOpen && !isResetOpen) {
+                    document.body.style.overflow = 'auto';
+                }
+            }, 300);
+        }
+
+        function confirmEmptyTrash() {
+            closeEmptyTrashModal();
+            emptyTrash();
         }
 
         // Render modal content
@@ -702,28 +984,28 @@
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Work Experience
             ${summary.experiences > 0 ? `
-                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                ${summary.experiences}
-                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                     ` : ''}
+                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                                                ${summary.experiences}
+                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                     ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Education
             ${summary.educations > 0 ? `
-                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                ${summary.educations}
-                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                                                ${summary.educations}
+                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                        ` : ''}
         </button>
         <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
             Certifications
             ${summary.certificates > 0 ? `
-                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                ${summary.certificates}
-                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                                                                                                                                                                                                                                ${summary.certificates}
+                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                        ` : ''}
         </button>
     `;
 
@@ -1034,11 +1316,6 @@
         }
 
         async function emptyTrash() {
-            if (!confirm(
-                    'Are you sure you want to permanently delete ALL items in trash? This action cannot be undone.')) {
-                return;
-            }
-
             try {
                 const response = await fetch('/settings/trash/empty', {
                     method: 'POST',
@@ -1194,20 +1471,37 @@
         }
 
         // Close modal on outside click
-        const trashModal = document.getElementById('trashModal');
-        if (trashModal) {
-            trashModal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeTrashModal();
-                }
-            });
+        if (trashModalBackdrop) {
+            trashModalBackdrop.addEventListener('click', closeTrashModal);
+        }
+        if (freelancerDeleteModalBackdrop) {
+            freelancerDeleteModalBackdrop.addEventListener('click', closeFreelancerDeleteModal);
+        }
+        if (freelancerResetModalBackdrop) {
+            freelancerResetModalBackdrop.addEventListener('click', closeFreelancerResetModal);
+        }
+        if (emptyTrashModalBackdrop) {
+            emptyTrashModalBackdrop.addEventListener('click', closeEmptyTrashModal);
         }
 
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
+            const emptyModal = document.getElementById('emptyTrashModal');
+            if (e.key === 'Escape' && emptyModal && !emptyModal.classList.contains('hidden')) {
+                closeEmptyTrashModal();
+                return;
+            }
             const modal = document.getElementById('trashModal');
             if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
                 closeTrashModal();
+            }
+            const deleteModal = document.getElementById('freelancerDeleteModal');
+            if (e.key === 'Escape' && deleteModal && !deleteModal.classList.contains('hidden')) {
+                closeFreelancerDeleteModal();
+            }
+            const resetModal = document.getElementById('freelancerResetModal');
+            if (e.key === 'Escape' && resetModal && !resetModal.classList.contains('hidden')) {
+                closeFreelancerResetModal();
             }
         });
 
@@ -1328,33 +1622,37 @@
             //
         }
 
+        function performResetToDefaults() {
+            fetch('{{ route('settings.reset') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _method: 'PUT'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Settings reset to defaults!', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message || 'Failed to reset settings', 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast('An error occurred. Please try again.', 'error');
+                });
+        }
+
         function resetToDefaults() {
             if (confirm('Reset all settings to default values?')) {
-                fetch('{{ route('settings.reset') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            _method: 'PUT'
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Settings reset to defaults!', 'success');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            showToast(data.message || 'Failed to reset settings', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        showToast('An error occurred. Please try again.', 'error');
-                    });
+                performResetToDefaults();
             }
         }
 
