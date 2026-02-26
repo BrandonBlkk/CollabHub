@@ -1,18 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', __('dashboard.meta.title'))
 
 @section('content')
     <!-- Welcome Section -->
     <div class="mb-3">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ auth()->user()->name }}! 👋</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.welcome.title') }} {{ auth()->user()->name }}!
+                    👋
+                </h1>
                 <p class="text-gray-600 mt-1">
                     @if (auth()->user()->role === 'freelancer')
-                        Here's what's happening with your freelance work today.
+                        {{ __('dashboard.welcome.subtitle') }}
                     @else
-                        Here's an overview of your hiring activities.
+                        {{ __('dashboard.welcome.client_subtitle') }}
                     @endif
                 </p>
             </div>
@@ -46,7 +48,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">Total Earnings</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.total_earnings') }}</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($totalEarnings ?? 0, 2) }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -61,7 +63,7 @@
                     <div class="flex items-center text-sm">
                         <span class="{{ $earningsUi['color'] }} font-medium">{{ $earningsUi['direction'] }}
                             {{ $earningsUi['percent'] }}%</span>
-                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
+                        <span class="text-gray-500 ml-2">{{ __('dashboard.freelancer.stats.period_last_month') }}</span>
                     </div>
                 </div>
             </div>
@@ -69,7 +71,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">Active Projects</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.active_projects') }}</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $activeProjects ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -84,7 +86,7 @@
                     <div class="flex items-center text-sm">
                         <span class="{{ $activeProjectsUi['color'] }} font-medium">{{ $activeProjectsUi['direction'] }}
                             {{ $activeProjectsUi['percent'] }}%</span>
-                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
+                        <span class="text-gray-500 ml-2">{{ __('dashboard.freelancer.stats.period_last_month') }}</span>
                     </div>
                 </div>
             </div>
@@ -92,7 +94,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">Proposals Sent</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.proposals_sent') }}</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $proposalsSent ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
@@ -107,7 +109,7 @@
                     <div class="flex items-center text-sm">
                         <span class="{{ $proposalsUi['color'] }} font-medium">{{ $proposalsUi['direction'] }}
                             {{ $proposalsUi['percent'] }}%</span>
-                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
+                        <span class="text-gray-500 ml-2">{{ __('dashboard.freelancer.stats.period_last_month') }}</span>
                     </div>
                 </div>
             </div>
@@ -115,7 +117,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">Profile Views</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.profile_views') }}</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $profileViews ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
@@ -132,7 +134,7 @@
                     <div class="flex items-center text-sm">
                         <span class="{{ $profileViewsUi['color'] }} font-medium">{{ $profileViewsUi['direction'] }}
                             {{ $profileViewsUi['percent'] }}%</span>
-                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
+                        <span class="text-gray-500 ml-2">{{ __('dashboard.freelancer.stats.period_last_month') }}</span>
                     </div>
                 </div>
             </div>
@@ -236,9 +238,9 @@
                 <!-- Freelancer: Recommended Jobs -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-active-jobs">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Recommended Jobs</h2>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.recommended_jobs.title') }}</h2>
                         <a href="{{ route('find-jobs') }}"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.recommended_jobs.view_all') }} →</a>
                     </div>
 
                     <div id="recommended-jobs-container" class="space-y-4">
@@ -279,9 +281,9 @@
                 <!-- Freelancer: Active Projects -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Active Jobs</h2>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.active_jobs.title') }}</h2>
                         <a href="{{ route('freelancer.active-jobs') }}"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all &rarr;</a>
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.active_jobs.view_all') }} &rarr;</a>
                     </div>
 
                     <div class="space-y-4">
@@ -289,12 +291,14 @@
                             @php
                                 $job = $contract->job;
                                 $isInProgress = $job?->status === 'in_progress';
-                                $statusLabel = $isInProgress ? 'In Progress' : 'Active';
+                                $statusLabel = $isInProgress
+                                    ? __('dashboard.freelancer.active_jobs.in_progress')
+                                    : __('dashboard.freelancer.active_jobs.active');
                                 $dotColor = $isInProgress ? 'bg-amber-500' : 'bg-green-500';
                                 $progressPercent = $isInProgress ? 65 : 35;
                                 $progressBarColor = $isInProgress ? 'bg-amber-600' : 'bg-green-600';
 
-                                $amountDisplay = 'Negotiable';
+                                $amountDisplay = __('dashboard.freelancer.active_jobs.negotiable');
                                 if ($contract->total_amount) {
                                     $amountDisplay = '$' . number_format((float) $contract->total_amount, 2);
                                 } elseif (!is_null($job?->budget_min) && !is_null($job?->budget_max)) {
@@ -307,12 +311,13 @@
 
                                 $deadlineDisplay = $job?->expires_at
                                     ? $job->expires_at->format('M d, Y')
-                                    : 'No deadline';
+                                    : __('dashboard.freelancer.active_jobs.no_deadline');
                             @endphp
                             <div class="project-card p-4 border border-gray-200 rounded-lg">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
-                                        <h3 class="font-semibold text-gray-900 mb-2">{{ $job?->title ?? 'Untitled Job' }}
+                                        <h3 class="font-semibold text-gray-900 mb-2">
+                                            {{ $job?->title ?? __('dashboard.freelancer.active_jobs.untitled_job') }}
                                         </h3>
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center space-x-2">
@@ -323,7 +328,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                                <span>Progress</span>
+                                                <span>{{ __('dashboard.freelancer.active_jobs.progress') }}</span>
                                                 <span>{{ $progressPercent }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
@@ -332,11 +337,13 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center justify-between text-sm">
-                                            <span class="text-gray-600">Deadline: {{ $deadlineDisplay }}</span>
+                                            <span class="text-gray-600">{{ __('dashboard.freelancer.active_jobs.deadline') }}:
+                                                {{ $deadlineDisplay }}</span>
                                             <div class="flex items-center space-x-3">
                                                 <button
-                                                    class="text-blue-600 hover:text-blue-800 font-medium">Update</button>
-                                                <button class="text-gray-600 hover:text-gray-800">Message</button>
+                                                    class="text-blue-600 hover:text-blue-800 font-medium">{{ __('dashboard.freelancer.active_jobs.update') }}</button>
+                                                <button
+                                                    class="text-gray-600 hover:text-gray-800">{{ __('dashboard.freelancer.active_jobs.message') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -344,7 +351,7 @@
                             </div>
                         @empty
                             <div class="p-4 my-10 text-center text-gray-500 text-sm">
-                                No active jobs found.
+                                {{ __('dashboard.freelancer.active_jobs.no_active_jobs') }}
                             </div>
                         @endforelse
                     </div>
@@ -470,70 +477,27 @@
             <!-- Upcoming Deadlines -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-upcoming-deadlines">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">Upcoming Deadlines</h2>
+                    <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.upcoming_deadlines.title') }}
+                    </h2>
                     <a href="{{ route('freelancer.deadlines') }}"
                         class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        View all &rarr;
+                        {{ __('dashboard.freelancer.upcoming_deadlines.view_all') }} &rarr;
                     </a>
                 </div>
                 @php
-                    $upcomingDeadlines = [
-                        [
-                            'title' => 'Landing Page Final Review',
-                            'days' => 1,
-                            'desc' => 'Approve hero section and CTA updates',
-                            'date' => 'Feb 13, 2026',
-                        ],
-                        [
-                            'title' => 'API Integration Milestone',
-                            'days' => 2,
-                            'desc' => 'Connect payment and invoice endpoints',
-                            'date' => 'Feb 14, 2026',
-                        ],
-                        [
-                            'title' => 'Mobile UI QA Pass',
-                            'days' => 3,
-                            'desc' => 'Resolve responsive issues on iOS and Android',
-                            'date' => 'Feb 15, 2026',
-                        ],
-                        [
-                            'title' => 'Backend Performance Tuning',
-                            'days' => 4,
-                            'desc' => 'Optimize heavy dashboard queries',
-                            'date' => 'Feb 16, 2026',
-                        ],
-                        [
-                            'title' => 'Client Demo Preparation',
-                            'days' => 5,
-                            'desc' => 'Prepare walkthrough and staging data',
-                            'date' => 'Feb 17, 2026',
-                        ],
-                        [
-                            'title' => 'Auth Flow Regression Test',
-                            'days' => 6,
-                            'desc' => 'Validate signup/signin and password reset',
-                            'date' => 'Feb 18, 2026',
-                        ],
-                        [
-                            'title' => 'Messaging Module Update',
-                            'days' => 7,
-                            'desc' => 'Finalize unread badge and thread sorting',
-                            'date' => 'Feb 19, 2026',
-                        ],
-                        [
-                            'title' => 'Contract Page Cleanup',
-                            'days' => 8,
-                            'desc' => 'Update labels and status visibility',
-                            'date' => 'Feb 20, 2026',
-                        ],
-                    ];
+                    $upcomingDeadlines = trans('dashboard.freelancer.upcoming_deadlines.items');
+                    if (!is_array($upcomingDeadlines)) {
+                        $upcomingDeadlines = [];
+                    }
                 @endphp
                 <div class="space-y-4 max-h-[392px] overflow-y-auto pr-1">
                     @foreach ($upcomingDeadlines as $deadline)
                         <div class="p-3 border border-gray-200 rounded-lg">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="font-semibold text-gray-900 text-sm">{{ $deadline['title'] }}</h3>
-                                <span class="text-red-600 text-xs font-medium">Due in {{ $deadline['days'] }} days</span>
+                                <span class="text-red-600 text-xs font-medium">
+                                    {{ __('dashboard.freelancer.upcoming_deadlines.due_in_days', ['count' => $deadline['days']]) }}
+                                </span>
                             </div>
                             <p class="text-gray-600 text-xs mb-2">{{ $deadline['desc'] }}</p>
                             <div class="flex items-center text-gray-500 text-xs">
@@ -555,6 +519,27 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const freelancerI18n = {
+                postedHourAgo: @json(__('dashboard.freelancer.recommended_jobs.posted_hour_ago', ['count' => ':count'])),
+                postedHoursAgo: @json(__('dashboard.freelancer.recommended_jobs.posted_hours_ago', ['count' => ':count'])),
+                postedDayAgo: @json(__('dashboard.freelancer.recommended_jobs.posted_day_ago', ['count' => ':count'])),
+                postedDaysAgo: @json(__('dashboard.freelancer.recommended_jobs.posted_days_ago', ['count' => ':count'])),
+                emptyRecommended: @json(__('dashboard.freelancer.recommended_jobs.empty')),
+                negotiable: @json(__('dashboard.freelancer.recommended_jobs.negotiable')),
+                fixedPrice: @json(__('dashboard.freelancer.recommended_jobs.fixed_price')),
+                hourlyRate: @json(__('dashboard.freelancer.recommended_jobs.hourly_rate')),
+                general: @json(__('dashboard.freelancer.recommended_jobs.general')),
+                untitledJob: @json(__('dashboard.freelancer.recommended_jobs.untitled_job')),
+                noDescription: @json(__('dashboard.freelancer.recommended_jobs.no_description')),
+                reviews: @json(__('dashboard.freelancer.recommended_jobs.reviews')),
+                applyNow: @json(__('dashboard.freelancer.recommended_jobs.apply_now')),
+                networkError: @json(__('dashboard.freelancer.recommended_jobs.network_error')),
+                fetchFailed: @json(__('dashboard.freelancer.recommended_jobs.fetch_failed')),
+                failedLoad: @json(__('dashboard.freelancer.recommended_jobs.failed_load')),
+                retry: @json(__('dashboard.freelancer.recommended_jobs.retry')),
+                applyingForJobId: @json(__('dashboard.freelancer.recommended_jobs.applying_for_job_id', ['id' => ':id'])),
+            };
+
             // Function to format date
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -563,10 +548,12 @@
                 const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
 
                 if (diffHours < 24) {
-                    return `Posted ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+                    const template = diffHours === 1 ? freelancerI18n.postedHourAgo : freelancerI18n.postedHoursAgo;
+                    return template.replace(':count', String(diffHours));
                 } else {
                     const diffDays = Math.floor(diffHours / 24);
-                    return `Posted ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+                    const template = diffDays === 1 ? freelancerI18n.postedDayAgo : freelancerI18n.postedDaysAgo;
+                    return template.replace(':count', String(diffDays));
                 }
             }
 
@@ -586,7 +573,7 @@
                 if (jobs.length === 0) {
                     container.innerHTML = `
                     <div class="text-center py-8">
-                        <p class="text-gray-500">No recommended jobs found at the moment.</p>
+                        <p class="text-gray-500">${freelancerI18n.emptyRecommended}</p>
                     </div>
                 `;
                     return;
@@ -598,7 +585,7 @@
                         'project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200';
 
                     // Format salary range
-                    let salaryRange = 'Negotiable';
+                    let salaryRange = freelancerI18n.negotiable;
                     if (job.type === 'fixed') {
                         salaryRange =
                             `$${parseFloat(job.budget_min).toLocaleString()} - $${parseFloat(job.budget_max).toLocaleString()}`;
@@ -611,13 +598,13 @@
                     }
 
                     // Format job type display
-                    let jobTypeDisplay = 'Fixed Price';
+                    let jobTypeDisplay = freelancerI18n.fixedPrice;
                     if (job.type === 'hourly') {
-                        jobTypeDisplay = 'Hourly Rate';
+                        jobTypeDisplay = freelancerI18n.hourlyRate;
                     }
 
                     // Get category name from server response
-                    const categoryName = job.category?.name || 'General';
+                    const categoryName = job.category?.name || freelancerI18n.general;
 
                     jobCard.innerHTML = `
                     <div class="flex items-start justify-between">
@@ -628,8 +615,8 @@
                                 </span>
                                 <span class="text-gray-500 text-xs">• ${formatDate(job.created_at)}</span>
                             </div>
-                            <h3 class="font-semibold text-gray-900 mb-1">${job.title || 'Untitled Job'}</h3>
-                            <p class="text-gray-600 text-sm mb-3">${job.description ? (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) : 'No description provided.'}</p>
+                            <h3 class="font-semibold text-gray-900 mb-1">${job.title || freelancerI18n.untitledJob}</h3>
+                            <p class="text-gray-600 text-sm mb-3">${job.description ? (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) : freelancerI18n.noDescription}</p>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <span class="text-gray-700 font-medium">${salaryRange}</span>
@@ -640,13 +627,13 @@
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
                                     <span class="text-gray-600 text-sm ml-1">${job.average_rating || '4.5'}</span>
-                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '12'} reviews)</span>
+                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '12'} ${freelancerI18n.reviews})</span>
                                 </div>
                             </div>
                         </div>
                         <button onclick="applyForJob(${job.id})"
                             class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
-                            Apply Now
+                            ${freelancerI18n.applyNow}
                         </button>
                     </div>
                 `;
@@ -669,7 +656,7 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        throw new Error(freelancerI18n.networkError);
                     }
 
                     const data = await response.json();
@@ -678,7 +665,7 @@
                         // Render the job cards with the fetched data
                         renderJobCards(data.jobs);
                     } else {
-                        throw new Error(data.message || 'Failed to fetch job details');
+                        throw new Error(data.message || freelancerI18n.fetchFailed);
                     }
                 } catch (error) {
                     console.error('Error fetching job details:', error);
@@ -690,9 +677,9 @@
                     if (loadingElement) {
                         loadingElement.innerHTML = `
                         <div class="text-center py-8">
-                            <p class="text-red-500">Failed to load recommended jobs. Please try again later.</p>
+                            <p class="text-red-500">${freelancerI18n.failedLoad}</p>
                             <button onclick="fetchRecommendedJobs()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Retry
+                                ${freelancerI18n.retry}
                             </button>
                         </div>
                     `;
@@ -703,7 +690,7 @@
             // Function to handle job application
             window.applyForJob = function(jobId) {
                 // Implement your job application logic here
-                alert(`Applying for job ID: ${jobId}`);
+                alert(freelancerI18n.applyingForJobId.replace(':id', String(jobId)));
                 // You can redirect to application page or open a modal
                 // window.location.href = `/jobs/${jobId}/apply`;
             };
