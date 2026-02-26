@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Your Profile')
+@section('title', __('settings.meta.title'))
 
 @auth
     <meta name="user-role" content="{{ Auth::user()->role }}">
@@ -10,9 +10,9 @@
     <!-- Page Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Account Settings</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ __('settings.header.title') }}</h1>
             <p class="text-gray-600 mt-1">
-                Manage your account preferences and application settings
+                {{ __('settings.header.subtitle') }}
             </p>
         </div>
         <div class="text-sm text-gray-500">
@@ -29,32 +29,32 @@
 
             <!-- Application Preferences -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Application Preferences</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.application.title') }}</h2>
 
                 <div>
                     <div class="space-y-6">
                         <!-- Language & Region -->
                         <div class="space-y-4">
-                            <h3 class="font-semibold text-gray-900">Language & Region</h3>
+                            <h3 class="font-semibold text-gray-900">{{ __('settings.application.language_region') }}</h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Interface
-                                        Language</label>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('settings.application.interface_language') }}</label>
                                     <select name="language"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                         <option value="en"
                                             {{ (auth()->user()->settings->language ?? 'en') == 'en' ? 'selected' : '' }}>
-                                            English</option>
+                                            {{ __('settings.application.language_english') }}</option>
                                         <option value="my"
                                             {{ (auth()->user()->settings->language ?? 'en') == 'my' ? 'selected' : '' }}>
-                                            Burmese</option>
+                                            {{ __('settings.application.language_burmese') }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Time
-                                        Zone</label>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('settings.application.time_zone') }}</label>
                                     <select name="timezone"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                         <option value="UTC"
@@ -79,12 +79,13 @@
 
                         <!-- Currency Settings -->
                         <div id="currency-settings" class="pt-6 border-t border-gray-200">
-                            <h3 class="font-semibold text-gray-900 mb-4">Currency Settings</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">{{ __('settings.application.currency_settings') }}
+                            </h3>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Default
-                                        Currency</label>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('settings.application.default_currency') }}</label>
                                     <select name="currency"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-300 setting-select">
                                         <option value="USD"
@@ -112,14 +113,16 @@
 
                         <!-- Display Preferences -->
                         <div class="pt-6 border-t border-gray-200">
-                            <h3 class="font-semibold text-gray-900 mb-4">Display Preferences</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">
+                                {{ __('settings.application.display_preferences') }}</h3>
 
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <h4 class="font-medium text-gray-900">Dark Mode</h4>
-                                        <p class="text-gray-500 text-sm">Use dark theme across the
-                                            application</p>
+                                        <h4 class="font-medium text-gray-900">{{ __('settings.application.dark_mode') }}
+                                        </h4>
+                                        <p class="text-gray-500 text-sm">{{ __('settings.application.dark_mode_help') }}
+                                        </p>
                                     </div>
                                     <div class="relative">
                                         <input type="checkbox" name="dark_mode" value="1" id="darkModeToggle"
@@ -140,19 +143,20 @@
 
             <!-- Notification Settings -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Notification Settings</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.notifications.title') }}</h2>
 
                 <div class="space-y-6">
                     <!-- Email Notifications -->
                     <div class="space-y-4">
-                        <h3 class="font-semibold text-gray-900">Email Notifications</h3>
+                        <h3 class="font-semibold text-gray-900">{{ __('settings.notifications.email_title') }}</h3>
 
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Project Updates</h4>
-                                    <p class="text-gray-500 text-sm">Get notified about project
-                                        milestones and changes</p>
+                                    <h4 class="font-medium text-gray-900">
+                                        {{ __('settings.notifications.project_updates') }}</h4>
+                                    <p class="text-gray-500 text-sm">
+                                        {{ __('settings.notifications.project_updates_help') }}</p>
                                 </div>
                                 <div class="relative">
                                     <input type="checkbox" name="email_project_updates" value="1"
@@ -168,9 +172,10 @@
 
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">New Messages</h4>
-                                    <p class="text-gray-500 text-sm">Receive email alerts for new
-                                        messages</p>
+                                    <h4 class="font-medium text-gray-900">{{ __('settings.notifications.new_messages') }}
+                                    </h4>
+                                    <p class="text-gray-500 text-sm">{{ __('settings.notifications.new_messages_help') }}
+                                    </p>
                                 </div>
                                 <div class="relative">
                                     <input type="checkbox" name="email_new_messages" value="1" id="emailNewMessages"
@@ -186,11 +191,10 @@
 
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Payment Notifications
-                                    </h4>
-                                    <p class="text-gray-500 text-sm">Get notified about payments
-                                        and
-                                        invoices</p>
+                                    <h4 class="font-medium text-gray-900">
+                                        {{ __('settings.notifications.payment_notifications') }}</h4>
+                                    <p class="text-gray-500 text-sm">
+                                        {{ __('settings.notifications.payment_notifications_help') }}</p>
                                 </div>
                                 <div class="relative">
                                     <input type="checkbox" name="email_payments" value="1" id="emailPayments"
@@ -206,10 +210,10 @@
 
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Marketing Emails</h4>
-                                    <p class="text-gray-500 text-sm">Receive updates about new
-                                        features
-                                        and promotions</p>
+                                    <h4 class="font-medium text-gray-900">
+                                        {{ __('settings.notifications.marketing_emails') }}</h4>
+                                    <p class="text-gray-500 text-sm">
+                                        {{ __('settings.notifications.marketing_emails_help') }}</p>
                                 </div>
                                 <div class="relative">
                                     <input type="checkbox" name="email_marketing" value="1" id="emailMarketing"
@@ -229,41 +233,43 @@
 
             <!-- Privacy & Security -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Privacy & Security</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.privacy.title') }}</h2>
 
                 <div class="space-y-6">
                     <!-- Account Visibility -->
                     <div class="space-y-4">
-                        <h3 class="font-semibold text-gray-900">Account Visibility</h3>
+                        <h3 class="font-semibold text-gray-900">{{ __('settings.privacy.account_visibility') }}</h3>
 
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Profile Visibility</h4>
-                                    <p class="text-gray-500 text-sm">Who can see your profile</p>
+                                    <h4 class="font-medium text-gray-900">{{ __('settings.privacy.profile_visibility') }}
+                                    </h4>
+                                    <p class="text-gray-500 text-sm">{{ __('settings.privacy.profile_visibility_help') }}
+                                    </p>
                                 </div>
                                 <select name="profile_visibility"
                                     class="setting-select px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm">
                                     <option value="public"
                                         {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'public' ? 'selected' : '' }}>
-                                        Public</option>
+                                        {{ __('settings.privacy.public') }}</option>
                                     <option value="clients_only"
                                         {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'clients_only' ? 'selected' : '' }}>
-                                        Only Clients</option>
+                                        {{ __('settings.privacy.clients_only') }}</option>
                                     <option value="freelancers_only"
                                         {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'freelancers_only' ? 'selected' : '' }}>
-                                        Only Freelancers</option>
+                                        {{ __('settings.privacy.freelancers_only') }}</option>
                                     <option value="private"
                                         {{ (auth()->user()->settings->profile_visibility ?? 'public') == 'private' ? 'selected' : '' }}>
-                                        Private</option>
+                                        {{ __('settings.privacy.private') }}</option>
                                 </select>
                             </div>
 
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Show Online Status</h4>
-                                    <p class="text-gray-500 text-sm">Display when you're online to
-                                        others
+                                    <h4 class="font-medium text-gray-900">{{ __('settings.privacy.show_online_status') }}
+                                    </h4>
+                                    <p class="text-gray-500 text-sm">{{ __('settings.privacy.show_online_status_help') }}
                                     </p>
                                 </div>
                                 <div class="relative">
@@ -287,34 +293,34 @@
         <div class="space-y-3 mt-3">
             <!-- Account Status -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Account Status</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.account.title') }}</h2>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-700">Account Type</span>
+                        <span class="text-gray-700">{{ __('settings.account.account_type') }}</span>
                         <span class="font-medium">{{ ucfirst(auth()->user()->role) }}</span>
                     </div>
 
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-700">Member Since</span>
+                        <span class="text-gray-700">{{ __('settings.account.member_since') }}</span>
                         <span class="font-medium">{{ auth()->user()->created_at->format('M d, Y') }}</span>
                     </div>
 
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-700">Account Status</span>
+                        <span class="text-gray-700">{{ __('settings.account.account_status') }}</span>
                         <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
                             {{ ucfirst(auth()->user()->status) }}
                         </span>
                     </div>
 
                     <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-700">Email Verification</span>
+                        <span class="text-gray-700">{{ __('settings.account.email_verification') }}</span>
                         @if (auth()->user()->email_verified_at)
-                            <span class="text-green-600 font-medium">✓ Verified</span>
+                            <span class="text-green-600 font-medium">&#10003; {{ __('settings.account.verified') }}</span>
                         @else
                             <button type="button" onclick="verifyEmail()"
                                 class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Verify Now
+                                {{ __('settings.account.verify_now') }}
                             </button>
                         @endif
                     </div>
@@ -329,8 +335,8 @@
                                     </path>
                                 </svg>
                             </div>
-                            <h3 class="font-medium text-gray-900">Account Secure</h3>
-                            <p class="text-gray-500 text-sm mt-1">All security settings are up to date
+                            <h3 class="font-medium text-gray-900">{{ __('settings.account.secure_title') }}</h3>
+                            <p class="text-gray-500 text-sm mt-1">{{ __('settings.account.secure_help') }}
                             </p>
                         </div>
                     </div>
@@ -341,8 +347,8 @@
             @if (auth()->user()->role === 'freelancer')
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="mb-6">
-                        <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
-                        <p class="text-gray-600 text-sm mt-1">Manage deleted items</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ __('settings.trash.title') }}</h2>
+                        <p class="text-gray-600 text-sm mt-1">{{ __('settings.trash.manage_deleted') }}</p>
                     </div>
 
                     <!-- Summary Stats - Initially loading -->
@@ -352,19 +358,19 @@
                                 <div class="text-lg font-semibold text-gray-900">
                                     <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
                                 </div>
-                                <div class="text-xs text-gray-600">Experiences</div>
+                                <div class="text-xs text-gray-600">{{ __('settings.trash.experiences') }}</div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-3 text-center">
                                 <div class="text-lg font-semibold text-gray-900">
                                     <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
                                 </div>
-                                <div class="text-xs text-gray-600">Education</div>
+                                <div class="text-xs text-gray-600">{{ __('settings.trash.education') }}</div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-3 text-center">
                                 <div class="text-lg font-semibold text-gray-900">
                                     <div class="animate-pulse bg-gray-200 h-6 w-8 mx-auto rounded"></div>
                                 </div>
-                                <div class="text-xs text-gray-600">Certificates</div>
+                                <div class="text-xs text-gray-600">{{ __('settings.trash.certificates') }}</div>
                             </div>
                         </div>
 
@@ -390,8 +396,8 @@
                         <!-- Modal Header -->
                         <div class="flex items-center justify-between p-6">
                             <div>
-                                <h2 class="text-lg font-bold text-gray-900">Trash / Archive</h2>
-                                <p class="text-gray-600 text-sm mt-1">Restore or permanently delete items</p>
+                                <h2 class="text-lg font-bold text-gray-900">{{ __('settings.trash.title') }}</h2>
+                                <p class="text-gray-600 text-sm mt-1">{{ __('settings.trash.manage_deleted') }}</p>
                             </div>
                             <button onclick="closeTrashModal()"
                                 class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
@@ -417,7 +423,7 @@
                                     <div
                                         class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4">
                                     </div>
-                                    <p class="text-gray-500 text-sm">Loading trash data...</p>
+                                    <p class="text-gray-500 text-sm">{{ __('settings.trash.loading') }}</p>
                                 </div>
 
                                 <!-- Tab contents will be populated by JavaScript -->
@@ -428,18 +434,19 @@
                         </div>
 
                         <!-- Modal Footer -->
-                        <div class="p-6 border-t border-gray-200 flex justify-between items-center">
+                        <div
+                            class="p-6 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                             <div class="text-sm text-gray-600" id="modal-footer-count">
-                                Loading...
+                                {{ __('settings.trash.loading') }}
                             </div>
-                            <div class="flex space-x-3 select-none">
+                            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto select-none">
                                 <button onclick="closeTrashModal()"
-                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                                    Close
+                                    class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium text-center leading-tight">
+                                    {{ __('settings.trash.close') }}
                                 </button>
                                 <button id="empty-all-trash-btn" onclick="openEmptyTrashModal()"
-                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium hidden">
-                                    Empty All Trash
+                                    class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium text-center leading-tight hidden">
+                                    {{ __('settings.trash.empty_all') }}
                                 </button>
                             </div>
                         </div>
@@ -457,8 +464,8 @@
                         class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
                         <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Empty Trash</h3>
-                                <p class="text-sm text-gray-600 mt-1">This action cannot be undone.</p>
+                                <h3 class="text-lg font-bold text-gray-900">{{ __('settings.trash.empty_title') }}</h3>
+                                <p class="text-sm text-gray-600 mt-1">{{ __('settings.trash.cannot_undo') }}</p>
                             </div>
                             <button type="button" onclick="closeEmptyTrashModal()"
                                 class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
@@ -470,18 +477,18 @@
                         </div>
                         <div class="px-6 py-4">
                             <p class="text-sm text-gray-700">
-                                Are you sure you want to permanently delete all items in Trash / Archive?
+                                {{ __('settings.trash.empty_confirm') }}
                             </p>
                         </div>
                         <div
                             class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
                             <button type="button" onclick="closeEmptyTrashModal()"
                                 class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                                Cancel
+                                {{ __('settings.trash.cancel') }}
                             </button>
                             <button type="button" onclick="confirmEmptyTrash()"
                                 class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium">
-                                Yes, Empty All
+                                {{ __('settings.trash.yes_empty_all') }}
                             </button>
                         </div>
                     </div>
@@ -490,31 +497,31 @@
 
             <!-- Danger Zone -->
             <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Danger Zone</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.danger.title') }}</h2>
 
                 <div class="space-y-4">
                     <div>
-                        <h3 class="font-medium text-gray-900 mb-2">Deactivate Account</h3>
-                        <p class="text-gray-500 text-sm mb-3">Temporarily disable your account</p>
+                        <h3 class="font-medium text-gray-900 mb-2">{{ __('settings.danger.deactivate_title') }}</h3>
+                        <p class="text-gray-500 text-sm mb-3">{{ __('settings.danger.deactivate_help') }}</p>
                         <button onclick="deactivateAccount()"
                             class="w-full px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 transition duration-300 text-sm font-medium select-none">
-                            Deactivate Account
+                            {{ __('settings.danger.deactivate_button') }}
                         </button>
                     </div>
 
                     <div class="pt-4 border-t border-red-100">
-                        <h3 class="font-medium text-gray-900 mb-2">Delete Account</h3>
-                        <p class="text-gray-500 text-sm mb-3">Permanently delete your account and data
+                        <h3 class="font-medium text-gray-900 mb-2">{{ __('settings.danger.delete_title') }}</h3>
+                        <p class="text-gray-500 text-sm mb-3">{{ __('settings.danger.delete_help') }}
                         </p>
                         @if (auth()->user()->role === 'client')
                             <button onclick="deleteAccount()"
                                 class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
-                                Delete Account
+                                {{ __('settings.danger.delete_button') }}
                             </button>
                         @elseif (auth()->user()->role === 'freelancer')
                             <button type="button" onclick="openFreelancerDeleteModal()"
                                 class="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition duration-300 text-sm font-medium select-none">
-                                Delete Account
+                                {{ __('settings.danger.delete_button') }}
                             </button>
                         @endif
                     </div>
@@ -532,8 +539,10 @@
                             class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
                             <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
                                 <div>
-                                    <h3 class="text-lg font-bold text-gray-900">Confirm Account Deletion</h3>
-                                    <p class="text-sm text-gray-600 mt-1">This action cannot be undone.</p>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        {{ __('settings.danger.confirm_delete_title') }}</h3>
+                                    <p class="text-sm text-gray-600 mt-1">{{ __('settings.danger.confirm_delete_help') }}
+                                    </p>
                                 </div>
                                 <button type="button" onclick="closeFreelancerDeleteModal()"
                                     class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
@@ -545,15 +554,14 @@
                             </div>
                             <div class="px-6 py-4">
                                 <p class="text-sm text-gray-700">
-                                    Deleting your freelancer account will permanently remove your profile and related
-                                    data. Are you sure you want to continue?
+                                    {{ __('settings.danger.confirm_delete_body') }}
                                 </p>
                             </div>
                             <div
                                 class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
                                 <button type="button" onclick="closeFreelancerDeleteModal()"
                                     class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                                    Cancel
+                                    {{ __('settings.trash.cancel') }}
                                 </button>
                                 <form class="w-full sm:w-auto mb-0"
                                     action="{{ route('freelancer-profile.destroy', auth()->user()->id) }}"
@@ -562,7 +570,7 @@
                                     @method('DELETE')
                                     <button type="submit"
                                         class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 text-sm font-medium">
-                                        Yes, Delete Account
+                                        {{ __('settings.danger.yes_delete') }}
                                     </button>
                                 </form>
                             </div>
@@ -580,8 +588,9 @@
                             class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-md w-full translate-y-4 opacity-0">
                             <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-200">
                                 <div>
-                                    <h3 class="text-lg font-bold text-gray-900">Reset Settings to Defaults</h3>
-                                    <p class="text-sm text-gray-600 mt-1">This will overwrite your current preferences.</p>
+                                    <h3 class="text-lg font-bold text-gray-900">{{ __('settings.danger.reset_title') }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">{{ __('settings.danger.reset_help') }}</p>
                                 </div>
                                 <button type="button" onclick="closeFreelancerResetModal()"
                                     class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition duration-300">
@@ -593,18 +602,18 @@
                             </div>
                             <div class="px-6 py-4">
                                 <p class="text-sm text-gray-700">
-                                    Are you sure you want to reset all settings to default values?
+                                    {{ __('settings.danger.reset_body') }}
                                 </p>
                             </div>
                             <div
                                 class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-3 select-none">
                                 <button type="button" onclick="closeFreelancerResetModal()"
                                     class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                                    Cancel
+                                    {{ __('settings.trash.cancel') }}
                                 </button>
                                 <button type="button" onclick="confirmFreelancerResetDefaults()"
                                     class="inline-flex w-full sm:w-auto items-center justify-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 text-sm font-medium">
-                                    Yes, Reset
+                                    {{ __('settings.danger.yes_reset') }}
                                 </button>
                             </div>
                         </div>
@@ -614,20 +623,20 @@
 
             <!-- Save All Changes -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Save Changes</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">{{ __('settings.save.panel_title') }}</h2>
 
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-medium text-gray-900">Apply Settings</h3>
-                            <p class="text-gray-500 text-sm mt-1">Save all your preferences</p>
+                    <div class="flex flex-col gap-3">
+                        <div class="min-w-0">
+                            <h3 class="font-medium text-gray-900">{{ __('settings.save.apply_title') }}</h3>
+                            <p class="text-gray-500 text-sm mt-1">{{ __('settings.save.apply_help') }}</p>
                         </div>
                         <button id="saveAllSettings" type="button"
-                            class="flex items-center px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 font-medium select-none">
+                            class="inline-flex w-full items-center justify-center px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition duration-300 font-medium select-none text-center leading-tight whitespace-normal">
                             <div id="submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submitText">Save Changes</span>
+                            <span id="submitText">{{ __('settings.save.button') }}</span>
                         </button>
                     </div>
 
@@ -636,7 +645,7 @@
                             onclick="{{ auth()->user()->role === 'freelancer' ? 'openFreelancerResetModal()' : 'resetToDefaults()' }}"
                             type="button"
                             class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium select-none">
-                            Reset to Defaults
+                            {{ __('settings.save.reset_button') }}
                         </button>
                     </div>
                 </div>
@@ -647,6 +656,55 @@
 
 @push('scripts')
     <script>
+        const currentInterfaceLanguage = String(@json(auth()->user()->settings->language ?? 'en')).toLowerCase();
+        const trashI18n = {
+            workExperience: @json(__('settings.trash.work_experience')),
+            experiences: @json(__('settings.trash.experiences')),
+            education: @json(__('settings.trash.education')),
+            certificates: @json(__('settings.trash.certificates')),
+            loadFailed: @json(__('settings.trash.load_failed')),
+            loadError: @json(__('settings.trash.load_error')),
+            retry: @json(__('settings.trash.retry')),
+            summaryOne: @json(__('settings.trash.summary_one', ['count' => ':count'])),
+            summaryMany: @json(__('settings.trash.summary_many', ['count' => ':count'])),
+            manageItems: @json(__('settings.trash.manage_items')),
+            emptyAllShort: @json(__('settings.trash.empty_all_short')),
+            emptyStateTitle: @json(__('settings.trash.empty_state_title')),
+            emptyStateHelp: @json(__('settings.trash.empty_state_help')),
+            restore: @json(__('settings.trash.restore')),
+            deleteForever: @json(__('settings.trash.delete_forever')),
+            noDeletedExperiences: @json(__('settings.trash.no_deleted_experiences')),
+            noDeletedEducation: @json(__('settings.trash.no_deleted_education')),
+            noDeletedCertificates: @json(__('settings.trash.no_deleted_certificates')),
+            deletedExperiencesHelp: @json(__('settings.trash.deleted_experiences_help')),
+            deletedEducationHelp: @json(__('settings.trash.deleted_education_help')),
+            deletedCertificatesHelp: @json(__('settings.trash.deleted_certificates_help')),
+            footerCountOne: @json(__('settings.trash.footer_count_one', ['count' => ':count'])),
+            footerCountMany: @json(__('settings.trash.footer_count_many', ['count' => ':count'])),
+            restoreConfirm: @json(__('settings.trash.restore_confirm')),
+            deleteConfirm: @json(__('settings.trash.delete_confirm')),
+            restoredSuccess: @json(__('settings.trash.restored_success')),
+            restoreFailed: @json(__('settings.trash.restore_failed')),
+            deletedSuccess: @json(__('settings.trash.deleted_success')),
+            deleteFailed: @json(__('settings.trash.delete_failed')),
+            emptySuccess: @json(__('settings.trash.empty_success')),
+            emptyFailed: @json(__('settings.trash.empty_failed')),
+            errorPrefix: @json(__('settings.trash.error_prefix')),
+            noTitle: @json(__('settings.trash.no_title')),
+            noCompany: @json(__('settings.trash.no_company')),
+            noDegree: @json(__('settings.trash.no_degree')),
+            noUniversity: @json(__('settings.trash.no_university')),
+            noName: @json(__('settings.trash.no_name')),
+            noIssuer: @json(__('settings.trash.no_issuer')),
+            notAvailable: @json(__('settings.trash.not_available')),
+            present: @json(__('settings.trash.present')),
+            noExpiry: @json(__('settings.trash.no_expiry')),
+            unknown: @json(__('settings.trash.unknown')),
+            deletedLabel: @json(__('settings.trash.deleted_label')),
+            issuedLabel: @json(__('settings.trash.issued_label')),
+            expiresLabel: @json(__('settings.trash.expires_label')),
+        };
+
         // Global variables to store trash data
         let trashData = {
             summary: {
@@ -662,6 +720,14 @@
 
         // Track current active tab in modal
         let currentActiveTab = 'experiences';
+
+        function renderTabButtonLabel(label, count) {
+            if (count > 0) {
+                return `${label} <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${count}</span>`;
+            }
+
+            return label;
+        }
 
         // Load trash data on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -706,11 +772,11 @@
                     };
                     renderTrashSummary();
                 } else {
-                    showToast('Failed to load trash data: ' + data.message, 'error');
+                    showToast(`${trashI18n.loadFailed}: ${data.message}`, 'error');
                 }
             } catch (error) {
                 console.error('Load trash data error:', error);
-                showToast('Error loading trash data', 'error');
+                showToast(trashI18n.loadError, 'error');
             }
         }
 
@@ -732,9 +798,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <p class="text-gray-500 text-sm">Failed to load trash data</p>
+                <p class="text-gray-500 text-sm">${trashI18n.loadFailed}</p>
                 <button onclick="loadTrashData()" class="mt-2 text-blue-600 text-sm hover:text-blue-800">
-                    Retry
+                    ${trashI18n.retry}
                 </button>
             </div>
         `;
@@ -742,40 +808,44 @@
             }
 
             if (summary.total > 0) {
+                const summaryTotal = summary.total || 0;
+                const summaryTemplate = summaryTotal === 1 ? trashI18n.summaryOne : trashI18n.summaryMany;
+                const summaryText = summaryTemplate.replace(':count', String(summaryTotal));
+
                 container.innerHTML = `
             <div class="grid grid-cols-3 gap-3 mb-4">
                 <div class="bg-gray-50 rounded-lg p-3 text-center">
                     <div class="text-lg font-semibold text-gray-900">${summary.experiences || 0}</div>
-                    <div class="text-xs text-gray-600">Experiences</div>
+                    <div class="text-xs text-gray-600">${trashI18n.experiences}</div>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3 text-center">
                     <div class="text-lg font-semibold text-gray-900">${summary.educations || 0}</div>
-                    <div class="text-xs text-gray-600">Education</div>
+                    <div class="text-xs text-gray-600">${trashI18n.education}</div>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-3 text-center">
                     <div class="text-lg font-semibold text-gray-900">${summary.certificates || 0}</div>
-                    <div class="text-xs text-gray-600">Certificates</div>
+                    <div class="text-xs text-gray-600">${trashI18n.certificates}</div>
                 </div>
             </div>
             <div class="text-sm text-gray-600 mb-3">
-                You have ${summary.total} deleted item${summary.total > 1 ? 's' : ''} in trash
+                ${summaryText}
             </div>
             <div class="flex space-x-2 select-none">
                 <button onclick="openTrashModal()"
                     class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm font-medium transition duration-300">
-                    Manage Items
+                    ${trashI18n.manageItems}
                 </button>
                 <button onclick="openEmptyTrashModal()"
                     class="px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition duration-300">
-                    Empty All
+                    ${trashI18n.emptyAllShort}
                 </button>
             </div>
         `;
             } else {
                 container.innerHTML = `
             <div class="text-center py-6">
-                <p class="text-gray-500 text-sm">Trash is empty</p>
-                <p class="text-gray-400 text-xs mt-1">Deleted items will appear here</p>
+                <p class="text-gray-500 text-sm">${trashI18n.emptyStateTitle}</p>
+                <p class="text-gray-400 text-xs mt-1">${trashI18n.emptyStateHelp}</p>
             </div>
         `;
             }
@@ -982,30 +1052,15 @@
             tabsContainer.innerHTML = `
         <button type="button" onclick="showTrashTab('experiences')" id="tab-experiences"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'experiences' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
-            Work Experience
-            ${summary.experiences > 0 ? `
-                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                                                ${summary.experiences}
-                                                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                                                     ` : ''}
+            ${renderTabButtonLabel(trashI18n.workExperience, summary.experiences)}
         </button>
         <button type="button" onclick="showTrashTab('educations')" id="tab-educations"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'educations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
-            Education
-            ${summary.educations > 0 ? `
-                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                                                ${summary.educations}
-                                                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                                                        ` : ''}
+            ${renderTabButtonLabel(trashI18n.education, summary.educations)}
         </button>
         <button type="button" onclick="showTrashTab('certificates')" id="tab-certificates"
             class="tab-button pb-3 px-1 text-sm font-medium border-b-2 ${currentActiveTab === 'certificates' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500'} hover:text-gray-700 whitespace-nowrap">
-            Certifications
-            ${summary.certificates > 0 ? `
-                                                                                                                                                                                                                                                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                                                                                                                                                                                                                                ${summary.certificates}
-                                                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                                                        ` : ''}
+            ${renderTabButtonLabel(trashI18n.certificates, summary.certificates)}
         </button>
     `;
 
@@ -1049,13 +1104,13 @@
                         data-item-id="${item.id}" data-item-type="experience">
                         <div class="flex justify-between items-start">
                             <div class="flex-1 min-w-0 mr-4">
-                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.job_title || 'No Title'}</h4>
-                                <p class="text-gray-600 text-xs truncate">${item.company || 'No Company'}</p>
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.job_title || trashI18n.noTitle}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.company || trashI18n.noCompany}</p>
                                 <p class="text-gray-500 text-xs mt-1">
-                                    ${item.formatted_dates?.start || 'N/A'} - ${item.formatted_dates?.end || 'Present'}
+                                    ${item.formatted_dates?.start || trashI18n.notAvailable} - ${item.formatted_dates?.end || trashI18n.present}
                                 </p>
                                 <p class="text-red-500 text-xs mt-1">
-                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                    ${trashI18n.deletedLabel}: ${item.deleted_at || trashI18n.unknown}
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2 min-w-[120px] select-none">
@@ -1065,7 +1120,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                                     </svg>
-                                    Restore
+                                    ${trashI18n.restore}
                                 </button>
                                 <button onclick="permanentlyDelete('experience', ${item.id})"
                                     class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
@@ -1073,7 +1128,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Delete Forever
+                                    ${trashI18n.deleteForever}
                                 </button>
                             </div>
                         </div>
@@ -1085,14 +1140,14 @@
                         data-item-id="${item.id}" data-item-type="education">
                         <div class="flex justify-between items-start">
                             <div class="flex-1 min-w-0 mr-4">
-                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.degree || 'No Degree'}</h4>
-                                <p class="text-gray-600 text-xs truncate">${item.university || 'No University'}</p>
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.degree || trashI18n.noDegree}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.university || trashI18n.noUniversity}</p>
                                 ${item.major ? `<p class="text-gray-500 text-xs">${item.major}</p>` : ''}
                                 <p class="text-gray-500 text-xs mt-1">
-                                    ${item.formatted_years?.start || 'N/A'} - ${item.formatted_years?.end || 'Present'}
+                                    ${item.formatted_years?.start || trashI18n.notAvailable} - ${item.formatted_years?.end || trashI18n.present}
                                 </p>
                                 <p class="text-red-500 text-xs mt-1">
-                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                    ${trashI18n.deletedLabel}: ${item.deleted_at || trashI18n.unknown}
                                 </p>
                             </div>
                             <div class="flex flex-col space-y-2 min-w-[120px] select-none">
@@ -1102,7 +1157,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                                     </svg>
-                                    Restore
+                                    ${trashI18n.restore}
                                 </button>
                                 <button onclick="permanentlyDelete('education', ${item.id})"
                                     class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
@@ -1110,7 +1165,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Delete Forever
+                                    ${trashI18n.deleteForever}
                                 </button>
                             </div>
                         </div>
@@ -1122,13 +1177,13 @@
                         data-item-id="${item.id}" data-item-type="certificate">
                         <div class="flex justify-between items-start">
                             <div class="flex-1 min-w-0 mr-4">
-                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.name || 'No Name'}</h4>
-                                <p class="text-gray-600 text-xs truncate">${item.issuer || 'No Issuer'}</p>
+                                <h4 class="font-semibold text-gray-900 text-sm truncate">${item.name || trashI18n.noName}</h4>
+                                <p class="text-gray-600 text-xs truncate">${item.issuer || trashI18n.noIssuer}</p>
                                 <p class="text-gray-500 text-xs mt-1">
-                                    Issued: ${item.formatted_dates?.issued || 'N/A'} | Expires: ${item.formatted_dates?.expires || 'No Expiry'}
+                                    ${trashI18n.issuedLabel}: ${item.formatted_dates?.issued || trashI18n.notAvailable} | ${trashI18n.expiresLabel}: ${item.formatted_dates?.expires || trashI18n.noExpiry}
                                 </p>
                                 <p class="text-red-500 text-xs mt-1">
-                                    Deleted: ${item.deleted_at || 'Unknown'}
+                                    ${trashI18n.deletedLabel}: ${item.deleted_at || trashI18n.unknown}
                                 </p>
                             </div>
                             <div class="flex flex-col space-y-2 min-w-[120px] select-none">
@@ -1138,7 +1193,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                                     </svg>
-                                    Restore
+                                    ${trashI18n.restore}
                                 </button>
                                 <button onclick="permanentlyDelete('certificate', ${item.id})"
                                     class="text-red-600 hover:text-red-800 text-xs p-2 hover:bg-red-50 rounded transition-colors flex items-center justify-center">
@@ -1146,7 +1201,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Delete Forever
+                                    ${trashI18n.deleteForever}
                                 </button>
                             </div>
                         </div>
@@ -1156,19 +1211,23 @@
                 });
                 tabElement.innerHTML = html;
             } else {
-                let emptyMessage = '';
-                if (tabType === 'experiences') {
-                    emptyMessage = 'No deleted experiences';
-                } else if (tabType === 'educations') {
-                    emptyMessage = 'No deleted education';
-                } else if (tabType === 'certificates') {
-                    emptyMessage = 'No deleted certificates';
-                }
+                const emptyMessageMap = {
+                    experiences: trashI18n.noDeletedExperiences,
+                    educations: trashI18n.noDeletedEducation,
+                    certificates: trashI18n.noDeletedCertificates
+                };
+                const emptyHelpMap = {
+                    experiences: trashI18n.deletedExperiencesHelp,
+                    educations: trashI18n.deletedEducationHelp,
+                    certificates: trashI18n.deletedCertificatesHelp
+                };
+                const emptyMessage = emptyMessageMap[tabType] || trashI18n.emptyStateTitle;
+                const emptyHelp = emptyHelpMap[tabType] || trashI18n.emptyStateHelp;
 
                 tabElement.innerHTML = `
             <div class="text-center py-20">
                 <p class="text-gray-500 text-sm">${emptyMessage}</p>
-                <p class="text-gray-400 text-xs mt-1">Deleted ${tabType} will appear here</p>
+                <p class="text-gray-400 text-xs mt-1">${emptyHelp}</p>
             </div>
         `;
             }
@@ -1179,8 +1238,9 @@
             const summary = trashData.summary || {
                 total: 0
             };
-            document.getElementById('modal-footer-count').textContent =
-                `${summary.total || 0} item${summary.total !== 1 ? 's' : ''} in trash`;
+            const count = summary.total || 0;
+            const countTemplate = count === 1 ? trashI18n.footerCountOne : trashI18n.footerCountMany;
+            document.getElementById('modal-footer-count').textContent = countTemplate.replace(':count', String(count));
         }
 
         // Tab switching for modal
@@ -1214,7 +1274,7 @@
 
         // Action functions
         async function restoreItem(type, id) {
-            if (!confirm('Are you sure you want to restore this item?')) {
+            if (!confirm(trashI18n.restoreConfirm)) {
                 return;
             }
 
@@ -1254,18 +1314,18 @@
                         }
                     }
 
-                    showToast(data.message || 'Item restored successfully!', 'success');
+                    showToast(data.message || trashI18n.restoredSuccess, 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to restore item');
+                    throw new Error(data.message || trashI18n.restoreFailed);
                 }
             } catch (error) {
                 console.error('Restore error:', error);
-                showToast('Error: ' + error.message, 'error');
+                showToast(`${trashI18n.errorPrefix}: ${error.message}`, 'error');
             }
         }
 
         async function permanentlyDelete(type, id) {
-            if (!confirm('Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+            if (!confirm(trashI18n.deleteConfirm)) {
                 return;
             }
 
@@ -1305,13 +1365,13 @@
                         }
                     }
 
-                    showToast(data.message || 'Item permanently deleted!', 'success');
+                    showToast(data.message || trashI18n.deletedSuccess, 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to delete item');
+                    throw new Error(data.message || trashI18n.deleteFailed);
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                showToast('Error: ' + error.message, 'error');
+                showToast(`${trashI18n.errorPrefix}: ${error.message}`, 'error');
             }
         }
 
@@ -1360,13 +1420,13 @@
                         emptyBtn.classList.add('hidden');
                     }
 
-                    showToast(data.message || 'All trash emptied successfully!', 'success');
+                    showToast(data.message || trashI18n.emptySuccess, 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to empty trash');
+                    throw new Error(data.message || trashI18n.emptyFailed);
                 }
             } catch (error) {
                 console.error('Empty trash error:', error);
-                showToast('Error: ' + error.message, 'error');
+                showToast(`${trashI18n.errorPrefix}: ${error.message}`, 'error');
             }
         }
 
@@ -1418,56 +1478,33 @@
                 total: 0
             };
 
-            // Update experiences tab
-            const expTab = document.getElementById('tab-experiences');
-            if (expTab) {
-                const span = expTab.querySelector('span');
-                if (span) {
-                    if (summary.experiences > 0) {
-                        span.textContent = summary.experiences;
-                        span.classList.remove('hidden');
-                    } else {
-                        span.remove();
-                    }
-                } else if (summary.experiences > 0) {
-                    expTab.innerHTML =
-                        `Work Experience <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.experiences}</span>`;
+            const tabs = [{
+                    elementId: 'tab-experiences',
+                    label: trashI18n.workExperience,
+                    count: summary.experiences || 0
+                },
+                {
+                    elementId: 'tab-educations',
+                    label: trashI18n.education,
+                    count: summary.educations || 0
+                },
+                {
+                    elementId: 'tab-certificates',
+                    label: trashI18n.certificates,
+                    count: summary.certificates || 0
                 }
-            }
+            ];
 
-            // Update educations tab
-            const eduTab = document.getElementById('tab-educations');
-            if (eduTab) {
-                const span = eduTab.querySelector('span');
-                if (span) {
-                    if (summary.educations > 0) {
-                        span.textContent = summary.educations;
-                        span.classList.remove('hidden');
-                    } else {
-                        span.remove();
-                    }
-                } else if (summary.educations > 0) {
-                    eduTab.innerHTML =
-                        `Education <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.educations}</span>`;
+            tabs.forEach(({
+                elementId,
+                label,
+                count
+            }) => {
+                const tab = document.getElementById(elementId);
+                if (tab) {
+                    tab.innerHTML = renderTabButtonLabel(label, count);
                 }
-            }
-
-            // Update certificates tab
-            const certTab = document.getElementById('tab-certificates');
-            if (certTab) {
-                const span = certTab.querySelector('span');
-                if (span) {
-                    if (summary.certificates > 0) {
-                        span.textContent = summary.certificates;
-                        span.classList.remove('hidden');
-                    } else {
-                        span.remove();
-                    }
-                } else if (summary.certificates > 0) {
-                    certTab.innerHTML =
-                        `Certifications <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">${summary.certificates}</span>`;
-                }
-            }
+            });
         }
 
         // Close modal on outside click
@@ -1557,7 +1594,7 @@
             const originalText = submitText.textContent;
 
             // Show loading state
-            submitText.textContent = 'Saving...';
+            submitText.textContent = @json(__('settings.save.saving'));
             submitSpinner.classList.remove('hidden');
             submitSpinner.classList.add('block');
             saveAllBtn.disabled = true;
@@ -1591,21 +1628,24 @@
 
                 if (response.ok && result.success) {
                     // Show success state
-                    showToast(result.message || 'All settings saved successfully!', 'success');
+                    showToast(result.message || @json(__('settings.messages.all_saved')), 'success');
+
+                    const selectedLanguage = String(formData.get('language') || currentInterfaceLanguage)
+                        .toLowerCase();
+                    if (selectedLanguage && selectedLanguage !== currentInterfaceLanguage) {
+                        window.location.reload();
+                    }
                 } else {
-                    throw new Error(result.message || 'Failed to save settings');
+                    throw new Error(result.message || @json(__('settings.messages.save_failed')));
                 }
             } catch (error) {
                 console.error('Save error:', error);
-                showToast(error.message || 'An error occurred while saving settings', 'error');
+                showToast(error.message || @json(__('settings.messages.save_error')), 'error');
             } finally {
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    submitText.textContent = originalText;
-                    submitSpinner.classList.add('hidden');
-                    submitSpinner.classList.remove('block');
-                    saveAllBtn.disabled = false;
-                }, 2000);
+                submitText.textContent = originalText;
+                submitSpinner.classList.add('hidden');
+                submitSpinner.classList.remove('block');
+                saveAllBtn.disabled = false;
             }
         });
 
@@ -1637,21 +1677,19 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Settings reset to defaults!', 'success');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        showToast(@json(__('settings.messages.reset_success')), 'success');
+                        window.location.reload();
                     } else {
-                        showToast(data.message || 'Failed to reset settings', 'error');
+                        showToast(data.message || @json(__('settings.messages.reset_failed')), 'error');
                     }
                 })
                 .catch(error => {
-                    showToast('An error occurred. Please try again.', 'error');
+                    showToast(@json(__('settings.messages.generic_error')), 'error');
                 });
         }
 
         function resetToDefaults() {
-            if (confirm('Reset all settings to default values?')) {
+            if (confirm(@json(__('settings.messages.confirm_reset')))) {
                 performResetToDefaults();
             }
         }

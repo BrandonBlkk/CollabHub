@@ -24,16 +24,29 @@
             </svg>
         </button>
 
-        <!-- Search Bar -->
-        <div class="flex-1 max-w-2xl">
-            <div class="relative">
-                <input type="search" placeholder="Search freelancers by skills, experience, or location..."
-                    class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 outline-none">
-                <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        <div class="flex items-center w-full gap-3">
+            <!-- Desktop sidebar collapse button -->
+            <button type="button" x-data="{ isCollapsed: localStorage.getItem('collabhub.sidebar.collapsed') === '1' }"
+                @click="isCollapsed = !isCollapsed; window.dispatchEvent(new CustomEvent('toggle-sidebar-collapse'))"
+                class="hidden lg:inline-flex h-8 w-8 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors duration-150 items-center justify-center"
+                :title="isCollapsed ? @js(__('sidebar.actions.expand')) : @js(__('sidebar.actions.collapse'))">
+                <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isCollapsed }"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl">
+                <div class="relative">
+                    <input type="search" placeholder="{{ __('header.placeholder') }}"
+                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 outline-none">
+                    <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
 
