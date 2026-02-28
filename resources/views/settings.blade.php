@@ -16,7 +16,7 @@
             </p>
         </div>
         <div class="text-sm text-gray-500">
-            {{ now()->format('l, F j, Y') }}
+            {{ now()->locale(app()->getLocale())->translatedFormat('l, F j, Y') }}
         </div>
     </div>
 
@@ -303,7 +303,9 @@
 
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-700">{{ __('settings.account.member_since') }}</span>
-                        <span class="font-medium">{{ auth()->user()->created_at->format('M d, Y') }}</span>
+                        <span class="font-medium">
+                            {{ auth()->user()->created_at->locale(app()->getLocale())->translatedFormat('F j, Y') }}
+                        </span>
                     </div>
 
                     <div class="flex items-center justify-between text-sm">

@@ -62,7 +62,8 @@
         <div id="advanced-filters" class="hidden mt-4 pt-4 border-t border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.job_type') }}</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.job_type') }}</label>
                     <select id="filter-type"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="">{{ __('find-jobs.filters.all_types') }}</option>
@@ -71,7 +72,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.experience_level') }}</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.experience_level') }}</label>
                     <select id="filter-experience"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="">{{ __('find-jobs.filters.all_levels') }}</option>
@@ -81,7 +83,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.duration') }}</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.duration') }}</label>
                     <select id="filter-duration"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="">{{ __('find-jobs.filters.any_duration') }}</option>
@@ -92,7 +95,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.sort_by') }}</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.sort_by') }}</label>
                     <select id="filter-sort"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="newest">{{ __('find-jobs.filters.newest_first') }}</option>
@@ -124,7 +128,8 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900" id="modal-title">{{ __('find-jobs.modals.job_details.title') }}</h3>
+                            <h3 class="text-lg font-bold text-gray-900" id="modal-title">
+                                {{ __('find-jobs.modals.job_details.title') }}</h3>
                             <div class="mt-2">
                                 <div class="flex items-center space-x-2">
                                     <span id="modal-status" class="px-2 py-1 rounded-full text-xs font-medium"></span>
@@ -176,20 +181,23 @@
 
                         <!-- Job Description -->
                         <div class="bg-gray-50 rounded-lg p-3">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('find-jobs.modals.job_details.job_description') }}</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                {{ __('find-jobs.modals.job_details.job_description') }}</h3>
                             <div class="text-sm max-w-none text-gray-700" id="modal-description"></div>
                         </div>
 
                         <!-- Skills Required -->
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('find-jobs.modals.job_details.skills_required') }}</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                {{ __('find-jobs.modals.job_details.skills_required') }}</h3>
                             <div class="flex flex-wrap gap-2" id="modal-skills"></div>
                         </div>
 
                         <!-- Job Details Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ __('find-jobs.modals.job_details.job_type') }}</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.job_type') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -200,7 +208,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ __('find-jobs.modals.job_details.experience_level') }}</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.experience_level') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -211,7 +220,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ __('find-jobs.modals.job_details.timeline') }}</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.timeline') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -222,7 +232,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ __('find-jobs.modals.job_details.proposals') }}</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.proposals') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -271,10 +282,11 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">{{ __('find-jobs.modals.proposal.submit_title') }}</h3>
+                            <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">
+                                {{ __('find-jobs.modals.proposal.submit_title') }}</h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span id="proposal-job-title"
-                                        class="font-medium"></span></p>
+                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span
+                                        id="proposal-job-title" class="font-medium"></span></p>
                                 <p class="text-xs text-gray-500 mt-1">{{ __('find-jobs.modals.proposal.help_text') }}</p>
                             </div>
                         </div>
@@ -298,7 +310,8 @@
                             <!-- Proposal Text -->
                             <div>
                                 <label for="proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
-                                    {{ __('find-jobs.modals.proposal.details_label') }} <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.details_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <textarea id="proposal-text" name="proposal_text" rows="6"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
@@ -308,7 +321,8 @@
                             <!-- Bid Amount -->
                             <div>
                                 <label for="bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
-                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -319,8 +333,10 @@
                                         class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
                                         placeholder="{{ __('find-jobs.common.amount_placeholder') }}">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ __('find-jobs.modals.proposal.bid_amount_help') }}
-                                    <span id="min_max_budget"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_help') }}
+                                    <span id="min_max_budget"></span>
+                                </p>
                             </div>
 
                             <!-- Estimated Timeline (Optional) -->
@@ -334,10 +350,13 @@
                                     <option value="3-4 weeks">{{ __('find-jobs.timeline.three_four_weeks') }}</option>
                                     <option value="1-2 months">{{ __('find-jobs.timeline.one_two_months') }}</option>
                                     <option value="3-6 months">{{ __('find-jobs.timeline.three_six_months') }}</option>
-                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}</option>
+                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}
+                                    </option>
                                     <option value="not sure">{{ __('find-jobs.timeline.not_sure') }}</option>
-                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}</option>
-                                    <option value="to be discussed" selected>{{ __('find-jobs.timeline.to_be_discussed_default') }}</option>
+                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}
+                                    </option>
+                                    <option value="to be discussed" selected>
+                                        {{ __('find-jobs.timeline.to_be_discussed_default') }}</option>
                                 </select>
                             </div>
 
@@ -380,11 +399,13 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900">{{ __('find-jobs.modals.update_proposal.title') }}</h3>
+                            <h3 class="text-lg font-bold text-gray-900">{{ __('find-jobs.modals.update_proposal.title') }}
+                            </h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span id="update-proposal-job-title"
-                                        class="font-medium"></span></p>
-                                <p class="text-xs text-gray-500 mt-1">{{ __('find-jobs.modals.update_proposal.help_text') }}</p>
+                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span
+                                        id="update-proposal-job-title" class="font-medium"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.update_proposal.help_text') }}</p>
                             </div>
                         </div>
                         <button type="button" id="close-update-proposal-modal"
@@ -408,7 +429,8 @@
                             <!-- Proposal Text -->
                             <div>
                                 <label for="update-proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
-                                    {{ __('find-jobs.modals.proposal.details_label') }} <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.details_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <textarea id="update-proposal-text" name="proposal_text" rows="6"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
@@ -418,7 +440,8 @@
                             <!-- Bid Amount -->
                             <div>
                                 <label for="update-bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
-                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -429,8 +452,10 @@
                                         class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
                                         placeholder="{{ __('find-jobs.common.amount_placeholder') }}">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ __('find-jobs.modals.proposal.bid_amount_help') }}
-                                    <span id="update-min_max_budget"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_help') }}
+                                    <span id="update-min_max_budget"></span>
+                                </p>
                             </div>
 
                             <!-- Estimated Timeline (Optional) -->
@@ -445,10 +470,13 @@
                                     <option value="3-4 weeks">{{ __('find-jobs.timeline.three_four_weeks') }}</option>
                                     <option value="1-2 months">{{ __('find-jobs.timeline.one_two_months') }}</option>
                                     <option value="3-6 months">{{ __('find-jobs.timeline.three_six_months') }}</option>
-                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}</option>
+                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}
+                                    </option>
                                     <option value="not sure">{{ __('find-jobs.timeline.not_sure') }}</option>
-                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}</option>
-                                    <option value="to be discussed">{{ __('find-jobs.timeline.to_be_discussed_default') }}</option>
+                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}
+                                    </option>
+                                    <option value="to be discussed">{{ __('find-jobs.timeline.to_be_discussed_default') }}
+                                    </option>
                                 </select>
                             </div>
 
@@ -467,14 +495,16 @@
                             <div id="update-submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submit-update-proposal-text">{{ __('find-jobs.modals.update_proposal.submit_button') }}</span>
+                            <span
+                                id="submit-update-proposal-text">{{ __('find-jobs.modals.update_proposal.submit_button') }}</span>
                         </button>
                         <button type="submit" id="submit-withdraw-proposal-btn"
                             class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             <div id="withdraw-submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submit-withdraw-proposal-text">{{ __('find-jobs.modals.update_proposal.withdraw_button') }}</span>
+                            <span
+                                id="submit-withdraw-proposal-text">{{ __('find-jobs.modals.update_proposal.withdraw_button') }}</span>
                         </button>
                         <button type="button" id="cancel-proposal-update-modal"
                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
@@ -502,13 +532,15 @@
                                         class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
                                         <img src="" alt="{{ __('find-jobs.job_card.client_photo_alt') }}"
                                             class="client-avatar-image w-full h-full object-cover hidden">
-                                        <span class="client-avatar-initial text-white text-sm font-bold">{{ __('find-jobs.job_card.client_initial') }}</span>
+                                        <span
+                                            class="client-avatar-initial text-white text-sm font-bold">{{ __('find-jobs.job_card.client_initial') }}</span>
                                     </div>
                                     <div>
                                         <p
                                             class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 client-name">
                                             {{ __('find-jobs.job_card.client_name') }}</p>
-                                        <p class="text-xs text-gray-500 client-company">{{ __('find-jobs.job_card.client_company') }}</p>
+                                        <p class="text-xs text-gray-500 client-company">
+                                            {{ __('find-jobs.job_card.client_company') }}</p>
                                     </div>
                                 </a>
                                 <div class="flex items-center gap-2">
@@ -546,15 +578,19 @@
                                     {{ __('find-jobs.job_card.status.open') }}
                                 </span>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-xs text-gray-500 posted-time">{{ __('find-jobs.job_card.posted_prefix') }} {{ __('find-jobs.time.just_now') }}</span>
+                                    <span
+                                        class="text-xs text-gray-500 posted-time">{{ __('find-jobs.job_card.posted_prefix') }}
+                                        {{ __('find-jobs.time.just_now') }}</span>
                                 </div>
                             </div>
-                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">{{ __('find-jobs.job_card.untitled_job') }}</h3>
+                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">
+                                {{ __('find-jobs.job_card.untitled_job') }}</h3>
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2 job-description">
                                 {{ __('find-jobs.job_card.no_description') }}
                             </p>
                             <div class="flex flex-wrap gap-2 mb-4 select-none skills-container">
-                                <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">{{ __('find-jobs.job_card.no_skills_required') }}</span>
+                                <span
+                                    class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">{{ __('find-jobs.job_card.no_skills_required') }}</span>
                             </div>
                         </div>
                     </div>
@@ -568,8 +604,10 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    <span class="font-semibold text-gray-900 budget-amount break-words">{{ __('find-jobs.job_card.budget_not_specified') }}</span>
-                                    <span class="text-gray-500 text-sm ml-2 job-type whitespace-nowrap">{{ __('find-jobs.job_card.not_specified') }}</span>
+                                    <span
+                                        class="font-semibold text-gray-900 budget-amount break-words">{{ __('find-jobs.job_card.budget_not_specified') }}</span>
+                                    <span
+                                        class="text-gray-500 text-sm ml-2 job-type whitespace-nowrap">{{ __('find-jobs.job_card.not_specified') }}</span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
@@ -577,7 +615,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span class="text-gray-600 text-sm duration-text">{{ __('find-jobs.job_card.duration_not_specified') }}</span>
+                                    <span
+                                        class="text-gray-600 text-sm duration-text">{{ __('find-jobs.job_card.duration_not_specified') }}</span>
                                 </div>
                             </div>
                             <button
@@ -674,7 +713,8 @@
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
         <div class="text-sm text-gray-700">
-            {{ __('find-jobs.pagination.showing') }} <span id="showing-from">1</span> {{ __('find-jobs.pagination.to') }}
+            {{ __('find-jobs.pagination.showing') }} <span id="showing-from">1</span>
+            {{ __('find-jobs.pagination.to') }}
             <span id="showing-to">6</span> {{ __('find-jobs.pagination.of') }} <span id="total-jobs">12</span>
             {{ __('find-jobs.pagination.jobs') }}
         </div>
@@ -732,7 +772,7 @@
         }
 
         const i18n = {
-            networkResponseNotOk: @json(__('find-jobs.js.network_response_not_ok')),
+            networkResponseNotOk: '@json(__('find-jobs.js.network_response_not_ok'))',
             failedFetchJobDetails: @json(__('find-jobs.js.failed_fetch_job_details')),
             failedLoadJobDetails: @json(__('find-jobs.js.failed_load_job_details')),
             failedFetchProposal: @json(__('find-jobs.js.failed_fetch_proposal')),
@@ -788,6 +828,7 @@
             proposalWithdrawn: @json(__('find-jobs.js.proposal_withdrawn')),
             failedWithdrawProposal: @json(__('find-jobs.js.failed_withdraw_proposal')),
             failedWithdrawProposalRetry: @json(__('find-jobs.js.failed_withdraw_proposal_retry')),
+            timelineDefaultValue: @json(__('find-jobs.timeline.to_be_discussed_value')),
             time: {
                 justNow: @json(__('find-jobs.time.just_now')),
                 minuteAgo: @json(__('find-jobs.time.minute_ago', ['count' => ':count'])),
@@ -1783,7 +1824,8 @@
                 }
 
                 if (job.type) {
-                    jobType.textContent = i18n.jobTypeMap[job.type] || (job.type.charAt(0).toUpperCase() + job.type.slice(1));
+                    jobType.textContent = i18n.jobTypeMap[job.type] || (job.type.charAt(0).toUpperCase() + job.type
+                        .slice(1));
                 } else {
                     jobType.textContent = i18n.notSpecified;
                 }
@@ -2094,7 +2136,7 @@
                 document.getElementById('update-proposal-text').value = proposal.proposal_text || '';
                 document.getElementById('update-bid-amount').value = proposal.bid_amount || job.budget_min;
                 document.getElementById('update-estimated-timeline').value = proposal.estimated_timeline ||
-                    'to be discussed';
+                    i18n.timelineDefaultValue;
             }
 
             // Set budget limits

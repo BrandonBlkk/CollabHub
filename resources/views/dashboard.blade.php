@@ -19,7 +19,7 @@
                 </p>
             </div>
             <div class="text-sm text-gray-500">
-                {{ now()->format('l, F j, Y') }}
+                {{ now()->locale(app()->getLocale())->translatedFormat('l, F j, Y') }}
             </div>
         </div>
     </div>
@@ -492,6 +492,16 @@
                 @endphp
                 <div class="space-y-4 max-h-[392px] overflow-y-auto pr-1">
                     @foreach ($upcomingDeadlines as $deadline)
+                        @php
+                            $deadlineDate = $deadline['date'] ?? '';
+                            try {
+                                $formattedDeadlineDate = $deadlineDate
+                                    ? \Illuminate\Support\Carbon::parse($deadlineDate)->locale(app()->getLocale())->translatedFormat('F j, Y')
+                                    : '';
+                            } catch (\Throwable $e) {
+                                $formattedDeadlineDate = $deadlineDate;
+                            }
+                        @endphp
                         <div class="p-3 border border-gray-200 rounded-lg">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="font-semibold text-gray-900 text-sm">{{ $deadline['title'] }}</h3>
@@ -506,7 +516,7 @@
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                {{ $deadline['date'] }}
+                                {{ $formattedDeadlineDate }}
                             </div>
                         </div>
                     @endforeach

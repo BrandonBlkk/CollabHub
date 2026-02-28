@@ -58,13 +58,13 @@ class SkillController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Skills updated successfully',
+                'message' => __('profile.freelancer.skills.messages.updated'),
                 'skills' => $user->skills->pluck('name', 'id')
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating skills: ' . $e->getMessage()
+                'message' => __('profile.freelancer.skills.errors.update') . ': ' . $e->getMessage()
             ], 500);
         }
     }
@@ -76,7 +76,7 @@ class SkillController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthenticated'
+                'message' => __('profile.freelancer.common.unauthenticated')
             ], 401);
         }
 
@@ -87,7 +87,7 @@ class SkillController extends Controller
         if (!$deleted) {
             return response()->json([
                 'success' => false,
-                'message' => 'Skill not found'
+                'message' => __('profile.freelancer.skills.errors.not_found')
             ], 404);
         }
 
@@ -96,7 +96,7 @@ class SkillController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Skill removed successfully',
+            'message' => __('profile.freelancer.skills.messages.removed'),
             'remaining_skills' => $user->skills
                 ->pluck('name', 'id')
                 ->toArray()

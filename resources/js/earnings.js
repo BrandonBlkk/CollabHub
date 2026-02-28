@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Withdrawal buttons
-    const withdrawButtons = document.querySelectorAll('button:contains("Withdraw")');
+    const withdrawMessage = document.querySelector('[data-withdraw-message]')?.dataset?.withdrawMessage ||
+        'Withdrawal feature would be implemented in a live application.';
+    const withdrawButtons = document.querySelectorAll('[data-withdraw-action]');
     withdrawButtons.forEach(button => {
         button.addEventListener('click', function() {
-            alert('Withdrawal feature would be implemented in a live application.');
+            alert(withdrawMessage);
         });
     });
 });

@@ -81,6 +81,7 @@ return [
         'not_sure' => 'Not sure',
         'ongoing_support' => 'Ongoing support',
         'to_be_discussed_default' => 'To be discussed (default)',
+        'to_be_discussed_value' => 'to be discussed',
     ],
     'job_card' => [
         'menu' => [

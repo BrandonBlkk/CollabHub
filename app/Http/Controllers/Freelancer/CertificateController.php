@@ -33,7 +33,7 @@ class CertificateController extends Controller
                 'expiry_year' => $certificate->expiry_year,
                 'certificate_url' => $certificate->certificate_url,
             ],
-            'message' => 'Certification added successfully!'
+            'message' => __('profile.freelancer.certification.messages.added')
         ]);
     }
 
@@ -47,7 +47,7 @@ class CertificateController extends Controller
         if (Auth::user()->freelancer->id !== $certicate->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ]);
         }
 
@@ -65,7 +65,7 @@ class CertificateController extends Controller
         if (Auth::user()->freelancer->id !== $certificate->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ], 403);
         }
 
@@ -81,7 +81,7 @@ class CertificateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Certification updated successfully',
+            'message' => __('profile.freelancer.certification.messages.updated'),
             'certificate' => $certificate
         ]);
     }
@@ -97,7 +97,7 @@ class CertificateController extends Controller
         if (Auth::user()->freelancer->id !== $certificate->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ], 403);
         }
 
@@ -105,7 +105,7 @@ class CertificateController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Certification deleted successfully'
+            'message' => __('profile.freelancer.certification.messages.deleted')
         ]);
     }
 }

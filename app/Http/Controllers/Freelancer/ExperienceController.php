@@ -35,7 +35,7 @@ class ExperienceController extends Controller
             'experience' => [
                 'id' => $experience->id,
                 'job_role_id' => $experience->job_role_id,
-                'job_role_title' => $experience->jobRole ? $experience->jobRole->title : 'Job Role Not Found',
+                'job_role_title' => $experience->jobRole ? $experience->jobRole->title : __('profile.freelancer.experience.job_role_not_found'),
                 'job_role' => $experience->jobRole,
                 'company' => $experience->company,
                 'location' => $experience->location,
@@ -45,7 +45,7 @@ class ExperienceController extends Controller
                 'end_date' => $experience->end_date,
                 'employment_type' => $experience->employment_type,
             ],
-            'message' => 'Experience added successfully!'
+            'message' => __('profile.freelancer.experience.messages.added')
         ]);
     }
 
@@ -59,7 +59,7 @@ class ExperienceController extends Controller
         if (Auth::user()->freelancer->id !== $experience->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ], 403);
         }
 
@@ -91,7 +91,7 @@ class ExperienceController extends Controller
             if (!$freelancer || Auth::id() !== $freelancer->user_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized action'
+                    'message' => __('profile.freelancer.languages.errors.unauthorized')
                 ], 403);
             }
 
@@ -114,7 +114,7 @@ class ExperienceController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
+                    'message' => __('profile.freelancer.common.validation_failed'),
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -133,11 +133,11 @@ class ExperienceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Experience updated successfully',
+                'message' => __('profile.freelancer.experience.messages.updated'),
                 'experience' => [
                     'id' => $experience->id,
                     'job_role_id' => $experience->job_role_id,
-                    'job_role_title' => $experience->jobRole ? $experience->jobRole->title : 'Unknown',
+                    'job_role_title' => $experience->jobRole ? $experience->jobRole->title : __('profile.freelancer.experience.job_role_not_found'),
                     'company' => $experience->company,
                     'location' => $experience->location,
                     'description' => $experience->description,
@@ -150,7 +150,7 @@ class ExperienceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Server error: ' . $e->getMessage()
+                'message' => __('profile.freelancer.common.server_error') . ': ' . $e->getMessage()
             ], 500);
         }
     }
@@ -165,7 +165,7 @@ class ExperienceController extends Controller
         if (Auth::user()->freelancer->id !== $experience->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ], 403);
         }
 
@@ -173,7 +173,7 @@ class ExperienceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Experience deleted successfully'
+            'message' => __('profile.freelancer.experience.messages.deleted')
         ]);
     }
 }
