@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('find-freelancers');
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
+        Route::get('/my-jobs/jobs', [JobController::class, 'getJobs'])->name('my-jobs.jobs');
         Route::resource('my-jobs', JobController::class);
 
         // Profile

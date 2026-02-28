@@ -3,6 +3,15 @@
 @section('title', 'My Jobs')
 
 @section('content')
+    @php
+        $client = auth()->user()->client;
+        $averageBudget =
+            (float) ($client
+                ->jobs()
+                ->selectRaw('AVG(COALESCE(budget_max, budget_min, 0)) as average_budget')
+                ->value('average_budget') ?? 0);
+    @endphp
+
     <!-- Page Header -->
     <div class="mb-3">
         <div>
@@ -19,9 +28,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Total Jobs</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
-                        {{ auth()->user()->client->all_jobs }}
-                    </h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $client->all_jobs }}</h3>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,8 +39,7 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">↑ 3</span>
-                    <span class="text-gray-500 ml-2">this month</span>
+                    <span class="text-gray-500">Across all statuses</span>
                 </div>
             </div>
         </div>
@@ -42,8 +48,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Active Jobs</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
-                        {{ auth()->user()->client->active_jobs }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $client->active_jobs }}</h3>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,8 +59,7 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">↑ 1</span>
-                    <span class="text-gray-500 ml-2">from last week</span>
+                    <span class="text-gray-500">Open and in progress</span>
                 </div>
             </div>
         </div>
@@ -64,8 +68,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Total Proposals</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">
-                        {{ auth()->user()->client->total_proposals }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $client->total_proposals }}</h3>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +79,11 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">48 avg. per job</span>
+                    <span class="text-gray-500">
+                        {{ $client->all_jobs > 0 ? number_format($client->total_proposals / $client->all_jobs, 1) : 0 }}
+                        avg.
+                        per job
+                    </span>
                 </div>
             </div>
         </div>
@@ -85,10 +92,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Avg. Budget</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">$3,500</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($averageBudget, 2) }}</h3>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-9 h-9 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                     </svg>
@@ -96,8 +103,7 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">↑ 12%</span>
-                    <span class="text-gray-500 ml-2">from last month</span>
+                    <span class="text-gray-500">Based on posted jobs</span>
                 </div>
             </div>
         </div>
@@ -106,31 +112,29 @@
     <!-- Filters and Search -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-3">
         <div class="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-            <!-- Tabs -->
-            <div class="flex space-x-6 overflow-x-auto">
-                <button onclick="filterJobs('all')" id="tab-all"
-                    class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-blue-6000">
-                    All Jobs ({{ auth()->user()->client->all_jobs }})
+            <div class="flex space-x-6 overflow-x-auto select-none">
+                <button type="button" data-tab="all" id="tab-all"
+                    class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-blue-600 text-blue-600">
+                    All Jobs (<span data-tab-count="all">{{ $client->all_jobs }}</span>)
                 </button>
-                <button onclick="filterJobs('open')" id="tab-open"
+                <button type="button" data-tab="open" id="tab-open"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent">
-                    Open ({{ auth()->user()->client->open_jobs }})
+                    Open (<span data-tab-count="open">{{ $client->open_jobs }}</span>)
                 </button>
-                <button onclick="filterJobs('in_progress')" id="tab-in_progress"
+                <button type="button" data-tab="in_progress" id="tab-in_progress"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent">
-                    In Progress ({{ auth()->user()->client->in_progress_jobs }})
+                    In Progress (<span data-tab-count="in_progress">{{ $client->in_progress_jobs }}</span>)
                 </button>
-                <button onclick="filterJobs('completed')" id="tab-completed"
+                <button type="button" data-tab="completed" id="tab-completed"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent">
-                    Completed ({{ auth()->user()->client->completed_jobs }})
+                    Completed (<span data-tab-count="completed">{{ $client->completed_jobs }}</span>)
                 </button>
-                <button onclick="filterJobs('draft')" id="tab-draft"
+                <button type="button" data-tab="draft" id="tab-draft"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent">
-                    Draft ({{ auth()->user()->client->draft_jobs }})
+                    Draft (<span data-tab-count="draft">{{ $client->draft_jobs }}</span>)
                 </button>
             </div>
 
-            <!-- Search and Filter -->
             <div class="flex items-center space-x-4">
                 <div class="relative">
                     <input type="text" placeholder="Search jobs..." id="job-search"
@@ -142,7 +146,7 @@
                     </svg>
                 </div>
                 <button id="filter-toggle"
-                    class="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                    class="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm select-none">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -152,7 +156,6 @@
             </div>
         </div>
 
-        <!-- Advanced Filters (Hidden by default) -->
         <div id="advanced-filters" class="hidden mt-4 pt-4 border-t border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
@@ -196,7 +199,7 @@
                     </select>
                 </div>
             </div>
-            <div class="flex justify-end space-x-3 mt-4">
+            <div class="flex justify-end space-x-3 mt-4 select-none">
                 <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
                     Clear All
                 </button>
@@ -207,475 +210,40 @@
         </div>
     </div>
 
-    <!-- Jobs Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="jobs-container">
-        <!-- Job Card 1 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="open" data-type="fixed" data-experience="expert" data-duration="3_to_6_months">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Open
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Posted: 2 days ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
+    <!-- Loading Skeleton -->
+    <div id="jobs-loading" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        @for ($i = 0; $i < 4; $i++)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-6 bg-gray-200 rounded-full w-20"></div>
+                    <div class="h-4 bg-gray-200 rounded w-24"></div>
+                </div>
+                <div class="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-5/6 mb-4"></div>
+                <div class="flex gap-2 mb-4">
+                    <div class="h-6 bg-gray-200 rounded w-16"></div>
+                    <div class="h-6 bg-gray-200 rounded w-20"></div>
+                    <div class="h-6 bg-gray-200 rounded w-14"></div>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-200 rounded w-32"></div>
+                        <div class="h-4 bg-gray-200 rounded w-24"></div>
                     </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">Senior React Developer with TypeScript
-                    </h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Looking for an experienced React developer with TypeScript expertise to build a
-                        complex dashboard application. Must have experience with Redux, Material-UI, and
-                        modern React patterns.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            React
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            TypeScript
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Redux
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Material-UI
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            GraphQL
-                        </span>
+                    <div class="flex gap-2">
+                        <div class="h-9 bg-gray-200 rounded w-28"></div>
+                        <div class="h-9 bg-gray-200 rounded w-16"></div>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$5,000 - $8,000</span>
-                        <span class="text-gray-500 text-sm ml-2">Fixed Price</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">3-6 months</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                        View Proposals
-                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">24</span>
-                    </button>
-                    <button
-                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
-                        Edit
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Card 2 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="in_progress" data-type="hourly" data-experience="intermediate" data-duration="1_to_3_months">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            In Progress
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Posted: 1 week ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">Full Stack Laravel Developer</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Need a full-stack Laravel developer to build and maintain a SaaS application.
-                        Experience with Vue.js, MySQL, and AWS deployment required.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Laravel
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Vue.js
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            MySQL
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            AWS
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            REST API
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$35 - $50/hr</span>
-                        <span class="text-gray-500 text-sm ml-2">Hourly</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">1-3 months</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="flex items-center mr-4">
-                        <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
-                            <img src="https://ui-avatars.com/api/?name=John+Smith&background=4F46E5&color=fff"
-                                alt="Freelancer" class="w-full h-full object-cover">
-                        </div>
-                        <span class="text-sm text-gray-700">Hired: John Smith</span>
-                    </div>
-                    <button
-                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
-                        Manage
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Card 3 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="completed" data-type="fixed" data-experience="entry" data-duration="less_than_1_month">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                            Completed
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Posted: 2 months ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">UI/UX Design for Mobile App</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Design a modern and user-friendly interface for a fitness tracking mobile
-                        application. Focus on intuitive navigation and engaging visual elements.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Figma
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            UI Design
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            UX Research
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Prototyping
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Mobile Design
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$1,200</span>
-                        <span class="text-gray-500 text-sm ml-2">Fixed Price</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">Completed: Nov 15</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="flex items-center mr-4">
-                        <svg class="w-5 h-5 text-green-600 mr-1" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-sm text-gray-700">Payment: $1,200</span>
-                    </div>
-                    <button
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                        View Details
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Card 4 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="draft" data-type="fixed" data-experience="intermediate" data-duration="more_than_6_months">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Draft
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Last edited: 5 days ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">E-commerce Platform Development</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Build a complete e-commerce solution with product management, shopping cart,
-                        payment integration, and admin dashboard. Looking for a team with e-commerce
-                        experience.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            PHP
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            MySQL
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            JavaScript
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Payment Gateway
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            E-commerce
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$10,000 - $15,000</span>
-                        <span class="text-gray-500 text-sm ml-2">Fixed Price</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">More than 6 months</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                        Continue Editing
-                    </button>
-                    <button
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition duration-200">
-                        Publish
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Card 5 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="open" data-type="hourly" data-experience="intermediate" data-duration="3_to_6_months">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Open
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Posted: 1 day ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">Content Writer for Tech Blog</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Looking for a technical content writer to create articles about web development,
-                        programming, and technology trends. Must have experience writing for tech audiences.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Content Writing
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            SEO
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Technical Writing
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Blogging
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$25 - $40/hr</span>
-                        <span class="text-gray-500 text-sm ml-2">Hourly</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">3-6 months</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                        View Proposals
-                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">8</span>
-                    </button>
-                    <button
-                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
-                        Edit
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Card 6 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
-            data-status="closed" data-type="fixed" data-experience="expert" data-duration="1_to_3_months">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            Closed
-                        </span>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-500">Closed: 3 weeks ago</span>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-gray-900 mb-2 text-lg">DevOps Engineer for AWS Migration</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        Need a DevOps expert to migrate our existing infrastructure to AWS. Must have
-                        experience with Docker, Kubernetes, Terraform, and CI/CD pipelines.
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            AWS
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Docker
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Kubernetes
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            Terraform
-                        </span>
-                        <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                            CI/CD
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                        </svg>
-                        <span class="font-semibold text-gray-900">$8,000</span>
-                        <span class="text-gray-500 text-sm ml-2">Fixed Price</span>
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="text-gray-600 text-sm">No hires</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                        View Archive
-                    </button>
-                    <button
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition duration-200">
-                        Repost
-                    </button>
-                </div>
-            </div>
-        </div>
+        @endfor
     </div>
 
-    <!-- Empty State (Hidden by default) -->
+    <!-- Jobs Grid -->
+    <div id="jobs-container" class="grid grid-cols-1 lg:grid-cols-2 gap-3 hidden"></div>
+
+    <!-- Empty State -->
     <div id="empty-state" class="hidden text-center py-12">
         <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
             <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -688,257 +256,488 @@
             No jobs match your current filters. Try adjusting your search criteria or clear all filters.
         </p>
         <button id="clear-all-filters"
-            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
+            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium select-none">
             Clear All Filters
         </button>
     </div>
 
-    <!-- Pagination -->
-    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+    <div class="mt-4 pt-3 border-t border-gray-200">
         <div class="text-sm text-gray-700">
-            Showing <span id="showing-from">1</span> to <span id="showing-to">6</span> of <span id="total-jobs">12</span>
-            jobs
-        </div>
-        <div class="flex items-center space-x-2">
-            <button
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                id="prev-page" disabled>
-                Previous
-            </button>
-            <div class="flex items-center space-x-1">
-                <button class="w-8 h-8 rounded-lg bg-blue-600 text-white text-sm font-medium">1</button>
-                <button class="w-8 h-8 rounded-lg text-gray-700 hover:bg-gray-100 text-sm font-medium">2</button>
-            </div>
-            <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
-                id="next-page">
-                Next
-            </button>
+            Showing <span id="showing-count">0</span> of <span id="total-jobs">{{ $client->all_jobs }}</span> jobs
         </div>
     </div>
 @endsection
 
 @push('scripts')
     <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar')?.classList.toggle('active');
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const jobsEndpoint = @json(route('my-jobs.jobs'));
 
-        // Filter toggle functionality
-        document.getElementById('filter-toggle')?.addEventListener('click', function() {
-            const filters = document.getElementById('advanced-filters');
-            filters.classList.toggle('hidden');
-        });
-
-        // Tab filtering
-        function filterJobs(status) {
-            // Update active tab
-            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
-                tab.classList.remove('border-blue-600', 'text-blue-600');
-                tab.classList.add('border-transparent');
-            });
-            const activeTab = document.getElementById(`tab-${status}`);
-            activeTab.classList.add('border-blue-600', 'text-blue-600');
-            activeTab.classList.remove('border-transparent');
-
-            // Filter job cards
-            const jobCards = document.querySelectorAll('[data-status]');
-            const emptyState = document.getElementById('empty-state');
+            const tabs = document.querySelectorAll('[data-tab]');
+            const jobsLoading = document.getElementById('jobs-loading');
             const jobsContainer = document.getElementById('jobs-container');
-            let visibleCount = 0;
+            const emptyState = document.getElementById('empty-state');
+            const searchInput = document.getElementById('job-search');
+            const filterType = document.getElementById('filter-type');
+            const filterExperience = document.getElementById('filter-experience');
+            const filterDuration = document.getElementById('filter-duration');
+            const filterSort = document.getElementById('filter-sort');
+            const filterPanel = document.getElementById('advanced-filters');
+            const showingCount = document.getElementById('showing-count');
+            const totalJobsCount = document.getElementById('total-jobs');
 
-            jobCards.forEach(card => {
-                if (status === 'all' || card.dataset.status === status) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
+            let currentTab = 'all';
+            let searchTimer = null;
+            let allJobsData = [];
+            let hasFetchedJobs = false;
+            let isFetchingJobs = false;
+            let totalJobsFromServer = Number(document.querySelector('[data-tab-count="all"]')?.textContent || 0);
 
-            // Show/hide empty state
-            if (visibleCount === 0) {
-                jobsContainer.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                jobsContainer.classList.remove('hidden');
-                emptyState.classList.add('hidden');
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
             }
 
-            // Update showing counts
-            updateShowingCounts(visibleCount);
-        }
-
-        // Search functionality
-        document.getElementById('job-search')?.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const jobCards = document.querySelectorAll('[data-status]');
-            const activeTab = document.querySelector('[id^="tab-"]:not(.border-transparent)')?.id?.replace('tab-',
-                '') || 'all';
-            let visibleCount = 0;
-
-            jobCards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('p').textContent.toLowerCase();
-                const skills = Array.from(card.querySelectorAll('[class*="bg-blue-50"]')).map(tag => tag
-                    .textContent.toLowerCase()).join(' ');
-
-                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm) ||
-                    skills.includes(searchTerm);
-                const matchesTab = activeTab === 'all' || card.dataset.status === activeTab;
-
-                if (matchesSearch && matchesTab) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
+            function truncate(text, max = 180) {
+                if (!text) {
+                    return 'No description provided.';
                 }
-            });
 
-            updateEmptyState(visibleCount);
-            updateShowingCounts(visibleCount);
-        });
-
-        // Advanced filtering
-        document.getElementById('apply-filters')?.addEventListener('click', function() {
-            const type = document.getElementById('filter-type').value;
-            const experience = document.getElementById('filter-experience').value;
-            const duration = document.getElementById('filter-duration').value;
-            const sort = document.getElementById('filter-sort').value;
-            const searchTerm = document.getElementById('job-search').value.toLowerCase();
-            const activeTab = document.querySelector('[id^="tab-"]:not(.border-transparent)')?.id?.replace('tab-',
-                '') || 'all';
-
-            let jobs = Array.from(document.querySelectorAll('[data-status]'));
-            let visibleCount = 0;
-
-            jobs.forEach(card => {
-                const matchesTab = activeTab === 'all' || card.dataset.status === activeTab;
-                const matchesType = !type || card.dataset.type === type;
-                const matchesExperience = !experience || card.dataset.experience === experience;
-                const matchesDuration = !duration || card.dataset.duration === duration;
-                const title = card.querySelector('h3').textContent.toLowerCase();
-
-                const matchesSearch = !searchTerm || title.includes(searchTerm) ||
-                    card.querySelector('p').textContent.toLowerCase().includes(searchTerm);
-
-                if (matchesTab && matchesType && matchesExperience && matchesDuration && matchesSearch) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
+                if (text.length <= max) {
+                    return text;
                 }
-            });
 
-            // Sort jobs
-            if (sort) {
-                const container = document.getElementById('jobs-container');
-                const sortedJobs = jobs
-                    .filter(card => !card.classList.contains('hidden'))
-                    .sort((a, b) => {
-                        switch (sort) {
-                            case 'newest':
-                                return 0; // Would need actual date data
-                            case 'oldest':
-                                return 0; // Would need actual date data
-                            case 'budget_high':
-                                const aBudget = parseFloat(a.querySelector('.font-semibold.text-gray-900')
-                                    .textContent.replace(/[^0-9.-]+/g, ""));
-                                const bBudget = parseFloat(b.querySelector('.font-semibold.text-gray-900')
-                                    .textContent.replace(/[^0-9.-]+/g, ""));
-                                return bBudget - aBudget;
-                            case 'budget_low':
-                                const aBudget2 = parseFloat(a.querySelector('.font-semibold.text-gray-900')
-                                    .textContent.replace(/[^0-9.-]+/g, ""));
-                                const bBudget2 = parseFloat(b.querySelector('.font-semibold.text-gray-900')
-                                    .textContent.replace(/[^0-9.-]+/g, ""));
-                                return aBudget2 - bBudget2;
-                            default:
-                                return 0;
-                        }
-                    });
+                return `${text.substring(0, max)}...`;
+            }
 
-                // Reorder DOM
-                sortedJobs.forEach(job => {
-                    container.appendChild(job);
+            function formatTimeAgo(dateString) {
+                if (!dateString) {
+                    return 'Just now';
+                }
+
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+
+                if (diffInSeconds < 60) return 'Just now';
+
+                if (diffInSeconds < 3600) {
+                    const minutes = Math.floor(diffInSeconds / 60);
+                    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+                }
+
+                if (diffInSeconds < 86400) {
+                    const hours = Math.floor(diffInSeconds / 3600);
+                    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+                }
+
+                if (diffInSeconds < 604800) {
+                    const days = Math.floor(diffInSeconds / 86400);
+                    return `${days} day${days === 1 ? '' : 's'} ago`;
+                }
+
+                if (diffInSeconds < 2592000) {
+                    const weeks = Math.floor(diffInSeconds / 604800);
+                    return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+                }
+
+                const months = Math.floor(diffInSeconds / 2592000);
+                return `${months} month${months === 1 ? '' : 's'} ago`;
+            }
+
+            function getStatusLabel(status) {
+                const statusMap = {
+                    open: 'Open',
+                    in_progress: 'In Progress',
+                    completed: 'Completed',
+                    draft: 'Draft',
+                    closed: 'Closed',
+                };
+
+                return statusMap[status] || 'Unknown';
+            }
+
+            function getStatusBadgeClass(status) {
+                const classMap = {
+                    open: 'bg-green-100 text-green-800',
+                    in_progress: 'bg-blue-100 text-blue-800',
+                    completed: 'bg-emerald-100 text-emerald-800',
+                    draft: 'bg-amber-100 text-amber-800',
+                    closed: 'bg-gray-100 text-gray-800',
+                };
+
+                return classMap[status] || 'bg-gray-100 text-gray-800';
+            }
+
+            function getTypeLabel(type) {
+                return type === 'hourly' ? 'Hourly' : 'Fixed Price';
+            }
+
+            function getDurationLabel(duration) {
+                const durationMap = {
+                    less_than_1_month: 'Less than 1 month',
+                    '1_to_3_months': '1 to 3 months',
+                    '3_to_6_months': '3 to 6 months',
+                    more_than_6_months: 'More than 6 months',
+                };
+
+                return durationMap[duration] || 'Not specified';
+            }
+
+            function normalizeSkills(skills) {
+                if (Array.isArray(skills)) {
+                    return skills.filter((skill) => typeof skill === 'string' && skill.trim() !== '');
+                }
+
+                return [];
+            }
+
+            function formatBudget(job) {
+                const min = Number(job.budget_min);
+                const max = Number(job.budget_max);
+
+                if (Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > 0) {
+                    const suffix = job.type === 'hourly' ? '/hr' : '';
+                    return `$${min.toLocaleString()} - $${max.toLocaleString()}${suffix}`;
+                }
+
+                if (Number.isFinite(min) && min > 0) {
+                    const suffix = job.type === 'hourly' ? '/hr' : '';
+                    return `$${min.toLocaleString()}${suffix}`;
+                }
+
+                return 'Negotiable';
+            }
+
+            function updateSummary(showing, total) {
+                showingCount.textContent = String(showing);
+                totalJobsCount.textContent = String(total);
+            }
+
+            function updateTabCounts(stats) {
+                if (!stats || typeof stats !== 'object') {
+                    return;
+                }
+
+                ['all', 'open', 'in_progress', 'completed', 'draft'].forEach((key) => {
+                    const countEl = document.querySelector(`[data-tab-count="${key}"]`);
+                    if (countEl && typeof stats[key] !== 'undefined') {
+                        countEl.textContent = String(stats[key]);
+                    }
                 });
             }
 
-            updateEmptyState(visibleCount);
-            updateShowingCounts(visibleCount);
-        });
+            function setActiveTab(tab) {
+                tabs.forEach((button) => {
+                    button.classList.remove('border-blue-600', 'text-blue-600');
+                    button.classList.add('border-transparent', 'text-gray-600');
+                });
 
-        // Clear filters
-        document.getElementById('clear-filters')?.addEventListener('click', function() {
-            document.getElementById('filter-type').value = '';
-            document.getElementById('filter-experience').value = '';
-            document.getElementById('filter-duration').value = '';
-            document.getElementById('filter-sort').value = 'newest';
-            document.getElementById('job-search').value = '';
-            document.getElementById('advanced-filters').classList.add('hidden');
-            filterJobs('all');
-        });
+                const activeButton = document.querySelector(`[data-tab="${tab}"]`);
+                if (activeButton) {
+                    activeButton.classList.remove('border-transparent', 'text-gray-600');
+                    activeButton.classList.add('border-blue-600', 'text-blue-600');
+                }
+            }
 
-        document.getElementById('clear-all-filters')?.addEventListener('click', function() {
-            document.getElementById('filter-type').value = '';
-            document.getElementById('filter-experience').value = '';
-            document.getElementById('filter-duration').value = '';
-            document.getElementById('filter-sort').value = 'newest';
-            document.getElementById('job-search').value = '';
-            filterJobs('all');
-        });
-
-        // Update showing counts
-        function updateShowingCounts(visibleCount) {
-            const totalJobs = document.querySelectorAll('[data-status]').length;
-            document.getElementById('showing-from').textContent = visibleCount > 0 ? '1' : '0';
-            document.getElementById('showing-to').textContent = visibleCount;
-            document.getElementById('total-jobs').textContent = totalJobs;
-        }
-
-        // Update empty state
-        function updateEmptyState(visibleCount) {
-            const emptyState = document.getElementById('empty-state');
-            const jobsContainer = document.getElementById('jobs-container');
-
-            if (visibleCount === 0) {
+            function showLoading() {
+                jobsLoading.classList.remove('hidden');
                 jobsContainer.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            function hideLoading() {
+                jobsLoading.classList.add('hidden');
+            }
+
+            function renderError(message) {
+                jobsContainer.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                jobsContainer.innerHTML = `
+                    <div class="col-span-full bg-white rounded-xl border border-red-200 p-6 text-center">
+                        <p class="text-red-600 font-medium">${escapeHtml(message)}</p>
+                        <button id="retry-load-jobs" type="button"
+                            class="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
+                            Retry
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('retry-load-jobs')?.addEventListener('click', fetchJobsOnce);
+            }
+
+            function renderJobs(jobs) {
+                if (!Array.isArray(jobs) || jobs.length === 0) {
+                    jobsContainer.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    jobsContainer.innerHTML = '';
+                    return;
+                }
+
+                const cardsHtml = jobs.map((job) => {
+                    const skills = normalizeSkills(job.skills_required);
+                    const skillsHtml = skills.length > 0 ?
+                        skills.slice(0, 6).map((skill) =>
+                            `<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">${escapeHtml(skill)}</span>`
+                        ).join('') :
+                        '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">No skills specified</span>';
+
+                    return `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium select-none ${getStatusBadgeClass(job.status)}">
+                                            ${getStatusLabel(job.status)}
+                                        </span>
+                                        <span class="text-xs text-gray-500">Posted: ${formatTimeAgo(job.created_at)}</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900 mb-2 text-lg">${escapeHtml(job.title || 'Untitled job')}</h3>
+                                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                        ${escapeHtml(truncate(job.description))}
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4 select-none">
+                                        ${skillsHtml}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <div class="flex items-center space-x-6">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                        </svg>
+                                        <span class="font-semibold text-gray-900">${formatBudget(job)}</span>
+                                        <span class="text-gray-500 text-sm ml-2">${getTypeLabel(job.type)}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-600 text-sm">${getDurationLabel(job.duration)}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 select-none">
+                                    <button type="button"
+                                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
+                                        View Proposals
+                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${Number(job.proposals_count || 0)}</span>
+                                    </button>
+                                    <button type="button"
+                                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                jobsContainer.innerHTML = cardsHtml;
                 jobsContainer.classList.remove('hidden');
                 emptyState.classList.add('hidden');
             }
-        }
 
-        // Pagination
-        document.getElementById('next-page')?.addEventListener('click', function() {
-            // Implement pagination logic here
-            console.log('Next page clicked');
-        });
-
-        document.getElementById('prev-page')?.addEventListener('click', function() {
-            // Implement pagination logic here
-            console.log('Previous page clicked');
-        });
-
-        // Initialize counts
-        document.addEventListener('DOMContentLoaded', function() {
-            updateShowingCounts(6); // Initial visible count
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleBtn = document.getElementById('sidebarToggle');
-
-            if (window.innerWidth <= 1024 &&
-                sidebar &&
-                !sidebar.contains(event.target) &&
-                toggleBtn &&
-                !toggleBtn.contains(event.target) &&
-                sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
+            function computeStats(jobs) {
+                return {
+                    all: jobs.length,
+                    open: jobs.filter((job) => job.status === 'open').length,
+                    in_progress: jobs.filter((job) => job.status === 'in_progress').length,
+                    completed: jobs.filter((job) => job.status === 'completed').length,
+                    draft: jobs.filter((job) => job.status === 'draft').length,
+                };
             }
+
+            function sortJobs(jobs, sort) {
+                const sortedJobs = [...jobs];
+
+                const getBudgetHigh = (job) => {
+                    const max = Number(job.budget_max);
+                    const min = Number(job.budget_min);
+                    if (Number.isFinite(max)) return max;
+                    if (Number.isFinite(min)) return min;
+                    return 0;
+                };
+
+                const getBudgetLow = (job) => {
+                    const min = Number(job.budget_min);
+                    const max = Number(job.budget_max);
+                    if (Number.isFinite(min)) return min;
+                    if (Number.isFinite(max)) return max;
+                    return 0;
+                };
+
+                switch (sort) {
+                    case 'oldest':
+                        sortedJobs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                        break;
+                    case 'budget_high':
+                        sortedJobs.sort((a, b) => {
+                            const diff = getBudgetHigh(b) - getBudgetHigh(a);
+                            if (diff !== 0) return diff;
+                            return new Date(b.created_at) - new Date(a.created_at);
+                        });
+                        break;
+                    case 'budget_low':
+                        sortedJobs.sort((a, b) => {
+                            const diff = getBudgetLow(a) - getBudgetLow(b);
+                            if (diff !== 0) return diff;
+                            return new Date(b.created_at) - new Date(a.created_at);
+                        });
+                        break;
+                    default:
+                        sortedJobs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                        break;
+                }
+
+                return sortedJobs;
+            }
+
+            function applyCurrentFilters() {
+                if (!hasFetchedJobs) {
+                    return;
+                }
+
+                const searchValue = searchInput.value.trim().toLowerCase();
+                const selectedType = filterType.value;
+                const selectedExperience = filterExperience.value;
+                const selectedDuration = filterDuration.value;
+                const selectedSort = filterSort.value || 'newest';
+
+                let filteredJobs = allJobsData.filter((job) => {
+                    if (currentTab !== 'all' && job.status !== currentTab) {
+                        return false;
+                    }
+
+                    if (selectedType && job.type !== selectedType) {
+                        return false;
+                    }
+
+                    if (selectedExperience && job.experience_level !== selectedExperience) {
+                        return false;
+                    }
+
+                    if (selectedDuration && job.duration !== selectedDuration) {
+                        return false;
+                    }
+
+                    if (searchValue !== '') {
+                        const title = (job.title || '').toLowerCase();
+                        const description = (job.description || '').toLowerCase();
+                        const category = (job.category?.name || '').toLowerCase();
+                        const skills = normalizeSkills(job.skills_required).join(' ').toLowerCase();
+
+                        if (!title.includes(searchValue) && !description.includes(searchValue) && !category
+                            .includes(
+                                searchValue) && !skills.includes(searchValue)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+
+                filteredJobs = sortJobs(filteredJobs, selectedSort);
+
+                renderJobs(filteredJobs);
+                updateSummary(filteredJobs.length, totalJobsFromServer);
+            }
+
+            async function fetchJobsOnce() {
+                if (hasFetchedJobs || isFetchingJobs) {
+                    applyCurrentFilters();
+                    return;
+                }
+
+                isFetchingJobs = true;
+                showLoading();
+
+                try {
+                    const response = await fetch(jobsEndpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Failed to fetch jobs.');
+                    }
+
+                    allJobsData = Array.isArray(data.jobs) ? data.jobs : [];
+                    hasFetchedJobs = true;
+
+                    const stats = (data.stats && typeof data.stats === 'object') ? data.stats : computeStats(
+                        allJobsData);
+                    totalJobsFromServer = Number(stats.all ?? allJobsData.length);
+
+                    updateTabCounts(stats);
+                    applyCurrentFilters();
+                } catch (error) {
+                    console.error('Error loading my jobs:', error);
+                    renderError(error.message || 'Failed to load jobs.');
+                    updateSummary(0, totalJobsFromServer);
+                } finally {
+                    isFetchingJobs = false;
+                    hideLoading();
+                }
+            }
+
+            tabs.forEach((button) => {
+                button.addEventListener('click', () => {
+                    currentTab = button.dataset.tab || 'all';
+                    setActiveTab(currentTab);
+                    applyCurrentFilters();
+                });
+            });
+
+            document.getElementById('filter-toggle')?.addEventListener('click', () => {
+                filterPanel.classList.toggle('hidden');
+            });
+
+            document.getElementById('apply-filters')?.addEventListener('click', () => {
+                applyCurrentFilters();
+            });
+
+            function resetAllFilters() {
+                filterType.value = '';
+                filterExperience.value = '';
+                filterDuration.value = '';
+                filterSort.value = 'newest';
+                searchInput.value = '';
+                currentTab = 'all';
+                setActiveTab(currentTab);
+            }
+
+            document.getElementById('clear-filters')?.addEventListener('click', () => {
+                resetAllFilters();
+                applyCurrentFilters();
+            });
+
+            document.getElementById('clear-all-filters')?.addEventListener('click', () => {
+                resetAllFilters();
+                applyCurrentFilters();
+            });
+
+            searchInput.addEventListener('input', () => {
+                if (searchTimer) {
+                    clearTimeout(searchTimer);
+                }
+
+                searchTimer = setTimeout(() => {
+                    applyCurrentFilters();
+                }, 350);
+            });
+
+            setActiveTab(currentTab);
+            fetchJobsOnce();
         });
     </script>
 @endpush
