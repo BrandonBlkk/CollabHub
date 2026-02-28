@@ -7,8 +7,8 @@
     <div class="mb-3">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.welcome.title') }} {{ auth()->user()->name }}!
-                    👋
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {{ __('dashboard.welcome.title') }} {{ auth()->user()->name }}! &#128075;
                 </h1>
                 <p class="text-gray-600 mt-1">
                     @if (auth()->user()->role === 'freelancer')
@@ -33,7 +33,7 @@
                     $isNeutral = $trend === 'neutral';
 
                     return [
-                        'direction' => $isDown ? '↓' : ($isNeutral ? '→' : '↑'),
+                        'direction' => $isDown ? "\u{2193}" : ($isNeutral ? "\u{2192}" : "\u{2191}"),
                         'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
                         'percent' => number_format(abs($percent ?? 0), 2),
                     ];
@@ -48,7 +48,8 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.total_earnings') }}</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.total_earnings') }}
+                        </p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($totalEarnings ?? 0, 2) }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -71,7 +72,8 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.active_projects') }}</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.active_projects') }}
+                        </p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $activeProjects ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -94,7 +96,8 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.proposals_sent') }}</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.proposals_sent') }}
+                        </p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $proposalsSent ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
@@ -117,7 +120,8 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.profile_views') }}</p>
+                        <p class="text-gray-500 text-sm font-medium">{{ __('dashboard.freelancer.stats.profile_views') }}
+                        </p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $profileViews ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
@@ -140,11 +144,40 @@
             </div>
         @else
             <!-- Client Stats -->
+            @php
+                $formatClientTrend = function ($trend, $percent) {
+                    $isDown = $trend === 'down';
+                    $isNeutral = $trend === 'neutral';
+
+                    return [
+                        'direction' => $isDown ? "\u{2193}" : ($isNeutral ? "\u{2192}" : "\u{2191}"),
+                        'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
+                        'percent' => number_format(abs($percent ?? 0), 2),
+                    ];
+                };
+
+                $clientActiveJobsUi = $formatClientTrend(
+                    $clientActiveJobsTrend ?? 'neutral',
+                    $clientActiveJobsChangePercent ?? 0,
+                );
+                $clientTotalSpentUi = $formatClientTrend(
+                    $clientTotalSpentTrend ?? 'neutral',
+                    $clientTotalSpentChangePercent ?? 0,
+                );
+                $clientFreelancersHiredUi = $formatClientTrend(
+                    $clientFreelancersHiredTrend ?? 'neutral',
+                    $clientFreelancersHiredChangePercent ?? 0,
+                );
+                $clientProposalsUi = $formatClientTrend(
+                    $clientProposalsReceivedTrend ?? 'neutral',
+                    $clientProposalsReceivedChangePercent ?? 0,
+                );
+            @endphp
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Active Jobs</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">8</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $clientActiveJobs ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,8 +189,10 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 3</span>
-                        <span class="text-gray-500 ml-2">from last week</span>
+                        <span
+                            class="{{ $clientActiveJobsUi['color'] }} font-medium">{{ $clientActiveJobsUi['direction'] }}
+                            {{ $clientActiveJobsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -166,10 +201,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Total Spent</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">$45,200</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($clientTotalSpent ?? 0, 2) }}
+                        </h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
                             </path>
@@ -178,8 +214,10 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 22%</span>
-                        <span class="text-gray-500 ml-2">from last month</span>
+                        <span
+                            class="{{ $clientTotalSpentUi['color'] }} font-medium">{{ $clientTotalSpentUi['direction'] }}
+                            {{ $clientTotalSpentUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -188,7 +226,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Freelancers Hired</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">15</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $clientFreelancersHired ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,8 +238,10 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">↑ 5</span>
-                        <span class="text-gray-500 ml-2">this quarter</span>
+                        <span class="{{ $clientFreelancersHiredUi['color'] }} font-medium">
+                            {{ $clientFreelancersHiredUi['direction'] }} {{ $clientFreelancersHiredUi['percent'] }}%
+                        </span>
+                        <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                     </div>
                 </div>
             </div>
@@ -210,7 +250,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Proposals Received</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">128</h3>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $clientProposalsReceived ?? 0 }}</h3>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
                         <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,8 +262,10 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex items-center text-sm">
-                        <span class="text-green-600 font-medium">48 avg.</span>
-                        <span class="text-gray-500 ml-2">per job</span>
+                        <span class="{{ $clientProposalsUi['color'] }} font-medium">{{ $clientProposalsUi['direction'] }}
+                            {{ $clientProposalsUi['percent'] }}%</span>
+                        <span class="text-gray-500 ml-2">{{ number_format($clientAvgProposalsPerJob ?? 0, 1) }} avg. per
+                            job</span>
                     </div>
                 </div>
             </div>
@@ -238,9 +280,11 @@
                 <!-- Freelancer: Recommended Jobs -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="freelancer-active-jobs">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.recommended_jobs.title') }}</h2>
+                        <h2 class="text-xl font-bold text-gray-900">
+                            {{ __('dashboard.freelancer.recommended_jobs.title') }}</h2>
                         <a href="{{ route('find-jobs') }}"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.recommended_jobs.view_all') }} →</a>
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.recommended_jobs.view_all') }}
+                            &rarr;</a>
                     </div>
 
                     <div id="recommended-jobs-container" class="space-y-4">
@@ -281,9 +325,11 @@
                 <!-- Freelancer: Active Projects -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.active_jobs.title') }}</h2>
+                        <h2 class="text-xl font-bold text-gray-900">{{ __('dashboard.freelancer.active_jobs.title') }}
+                        </h2>
                         <a href="{{ route('freelancer.active-jobs') }}"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.active_jobs.view_all') }} &rarr;</a>
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('dashboard.freelancer.active_jobs.view_all') }}
+                            &rarr;</a>
                     </div>
 
                     <div class="space-y-4">
@@ -337,7 +383,8 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center justify-between text-sm">
-                                            <span class="text-gray-600">{{ __('dashboard.freelancer.active_jobs.deadline') }}:
+                                            <span
+                                                class="text-gray-600">{{ __('dashboard.freelancer.active_jobs.deadline') }}:
                                                 {{ $deadlineDisplay }}</span>
                                             <div class="flex items-center space-x-3">
                                                 <button
@@ -361,28 +408,66 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Your Job Postings</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <a href="{{ route('my-jobs.index') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View all &rarr;
+                        </a>
                     </div>
 
                     <div class="space-y-4">
-                        @for ($i = 1; $i <= 3; $i++)
+                        @forelse ($clientJobPostings as $job)
+                            @php
+                                $status = $job->status ?? 'draft';
+                                $statusClasses = match ($status) {
+                                    'open' => 'bg-green-100 text-green-800',
+                                    'in_progress' => 'bg-blue-100 text-blue-800',
+                                    'completed' => 'bg-emerald-100 text-emerald-800',
+                                    'closed' => 'bg-gray-100 text-gray-800',
+                                    default => 'bg-amber-100 text-amber-800',
+                                };
+
+                                $statusLabel = \Illuminate\Support\Str::title(str_replace('_', ' ', $status));
+                                $categoryName = $job->category?->name ?? 'General';
+                                $postedText = $job->created_at
+                                    ? 'Posted ' . $job->created_at->diffForHumans()
+                                    : 'Recently posted';
+                                $proposalsCount = (int) ($job->proposals_count ?? 0);
+                                $description = $job->description
+                                    ? \Illuminate\Support\Str::limit($job->description, 150)
+                                    : 'No description provided.';
+
+                                $budgetDisplay = 'Negotiable';
+                                if (!is_null($job->budget_min) && !is_null($job->budget_max)) {
+                                    $budgetDisplay =
+                                        '$' .
+                                        number_format((float) $job->budget_min, 0) .
+                                        ' - $' .
+                                        number_format((float) $job->budget_max, 0);
+                                } elseif (!is_null($job->budget_min)) {
+                                    $budgetDisplay = '$' . number_format((float) $job->budget_min, 0);
+                                } elseif (!is_null($job->budget_max)) {
+                                    $budgetDisplay = '$' . number_format((float) $job->budget_max, 0);
+                                }
+
+                                $typeLabel = $job->type === 'hourly' ? 'Hourly' : 'Fixed Price';
+                            @endphp
                             <div
                                 class="job-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-all duration-200">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-2 mb-2 select-none">
+                                            <span class="{{ $statusClasses }} text-xs font-semibold px-2 py-1 rounded">
+                                                {{ $statusLabel }}
+                                            </span>
                                             <span
-                                                class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Active</span>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">Web
-                                                Development</span>
-                                            <span class="text-gray-500 text-xs">• Posted 1 day ago</span>
+                                                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                                {{ $categoryName }}
+                                            </span>
+                                            <span class="text-gray-500 text-xs">&bull; {{ $postedText }}</span>
                                         </div>
-                                        <h3 class="font-semibold text-gray-900 mb-1">Senior React Developer
-                                            Needed</h3>
-                                        <p class="text-gray-600 text-sm mb-3">Looking for a senior React
-                                            developer with TypeScript experience to join our team for a
-                                            3-month project...</p>
+                                        <h3 class="font-semibold text-gray-900 mb-1">{{ $job->title ?? 'Untitled Job' }}
+                                        </h3>
+                                        <p class="text-gray-600 text-sm mb-3">{{ $description }}</p>
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-4">
                                                 <div class="flex items-center">
@@ -393,26 +478,31 @@
                                                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                                         </path>
                                                     </svg>
-                                                    <span class="text-gray-600 text-sm">12 Proposals</span>
+                                                    <span class="text-gray-600 text-sm">{{ $proposalsCount }}
+                                                        Proposals</span>
                                                 </div>
-                                                <span class="text-gray-700 font-medium">$5,000 -
-                                                    $8,000</span>
+                                                <span class="text-gray-700 font-medium">{{ $budgetDisplay }}</span>
+                                                <span class="text-gray-500 text-sm">{{ $typeLabel }}</span>
                                             </div>
                                             <div class="flex items-center space-x-2 select-none">
-                                                <button
+                                                <a href="{{ route('my-jobs.index') }}"
                                                     class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-all duration-200">
                                                     View Proposals
-                                                </button>
-                                                <button
+                                                </a>
+                                                <a href="{{ route('my-jobs.index') }}"
                                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200">
                                                     Edit
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @endfor
+                        @empty
+                            <div class="p-4 my-10 text-center text-gray-500 text-sm">
+                                No job postings found yet.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -420,25 +510,70 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Recent Applications</h2>
-                        <a href="" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all →</a>
+                        <a href="{{ route('my-jobs.index') }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View all &rarr;
+                        </a>
                     </div>
 
                     <div class="space-y-4">
-                        @for ($i = 1; $i <= 3; $i++)
+                        @forelse ($clientRecentApplications as $application)
+                            @php
+                                $freelancer = $application->freelancer;
+                                $freelancerUser = $freelancer?->user;
+                                $freelancerName = $freelancerUser?->name ?? 'Unknown Freelancer';
+                                $freelancerProfileUrl = $freelancerUser
+                                    ? route('freelancer-profile', $freelancerUser->id)
+                                    : null;
+                                $nameParts = preg_split('/\s+/', trim($freelancerName)) ?: [];
+                                $firstInitial = strtoupper(\Illuminate\Support\Str::substr($nameParts[0] ?? 'F', 0, 1));
+                                $secondInitial = strtoupper(\Illuminate\Support\Str::substr($nameParts[1] ?? '', 0, 1));
+                                $freelancerInitials = trim($firstInitial . $secondInitial);
+                                $freelancerPhotoUrl = $freelancerUser?->profile_photo_url;
+                                $applicationTime = $application->created_at
+                                    ? $application->created_at->diffForHumans()
+                                    : 'Recently';
+                                $proposalSummary = \Illuminate\Support\Str::limit(
+                                    $application->proposal_text ?? 'No proposal message provided.',
+                                    140,
+                                );
+                                $rating = !is_null($freelancer?->rating)
+                                    ? number_format((float) $freelancer->rating, 1)
+                                    : '0.0';
+                            @endphp
                             <div class="p-4 border border-gray-200 rounded-lg">
                                 <div class="flex items-start space-x-4">
                                     <div
                                         class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center select-none">
-                                        <span class="text-white font-bold text-sm">JD</span>
+                                        @if ($freelancerProfileUrl)
+                                            <a href="{{ $freelancerProfileUrl }}" class="block">
+                                        @endif
+                                        @if ($freelancerPhotoUrl)
+                                            <img src="{{ $freelancerPhotoUrl }}" alt="{{ $freelancerName }}"
+                                                class="w-12 h-12 rounded-full object-cover">
+                                        @else
+                                            <span class="text-white font-bold text-sm">{{ $freelancerInitials }}</span>
+                                        @endif
+                                        @if ($freelancerProfileUrl)
+                                            </a>
+                                        @endif
                                     </div>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-2">
-                                            <h3 class="font-semibold text-gray-900">John Doe</h3>
-                                            <span class="text-gray-500 text-xs">2 hours ago</span>
+                                            @if ($freelancerProfileUrl)
+                                                <a href="{{ $freelancerProfileUrl }}"
+                                                    class="font-semibold text-gray-900 hover:text-blue-700">
+                                                    {{ $freelancerName }}
+                                                </a>
+                                            @else
+                                                <h3 class="font-semibold text-gray-900">{{ $freelancerName }}</h3>
+                                            @endif
+                                            <span class="text-gray-500 text-xs">{{ $applicationTime }}</span>
                                         </div>
-                                        <p class="text-gray-600 text-sm mb-3">Senior React Developer with
-                                            5+ years of experience. Previously worked at Google and
-                                            Facebook...</p>
+                                        <p class="text-gray-500 text-xs mb-1">
+                                            For: {{ $application->job?->title ?? 'Untitled Job' }}
+                                        </p>
+                                        <p class="text-gray-600 text-sm mb-3">{{ $proposalSummary }}</p>
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <div class="flex items-center">
@@ -447,26 +582,30 @@
                                                         <path
                                                             d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                     </svg>
-                                                    <span class="text-gray-600 text-sm ml-1">4.9</span>
+                                                    <span class="text-gray-600 text-sm ml-1">{{ $rating }}</span>
                                                 </div>
                                                 <span class="text-gray-600 text-sm">Proposed: <span
-                                                        class="font-medium">$6,500</span></span>
+                                                        class="font-medium">${{ number_format((float) ($application->bid_amount ?? 0), 2) }}</span></span>
                                             </div>
                                             <div class="flex items-center space-x-2 select-none">
-                                                <button
+                                                <a href="{{ route('my-jobs.index') }}"
                                                     class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-black transition-all duration-200">
                                                     Hire
-                                                </button>
-                                                <button
+                                                </a>
+                                                <a href="{{ route('messages.index') }}"
                                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200">
                                                     Message
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @endfor
+                        @empty
+                            <div class="p-4 my-10 text-center text-gray-500 text-sm">
+                                No recent applications found.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             @endif
@@ -496,7 +635,9 @@
                             $deadlineDate = $deadline['date'] ?? '';
                             try {
                                 $formattedDeadlineDate = $deadlineDate
-                                    ? \Illuminate\Support\Carbon::parse($deadlineDate)->locale(app()->getLocale())->translatedFormat('F j, Y')
+                                    ? \Illuminate\Support\Carbon::parse($deadlineDate)
+                                        ->locale(app()->getLocale())
+                                        ->translatedFormat('F j, Y')
                                     : '';
                             } catch (\Throwable $e) {
                                 $formattedDeadlineDate = $deadlineDate;
@@ -623,7 +764,7 @@
                                 <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
                                     ${categoryName}
                                 </span>
-                                <span class="text-gray-500 text-xs">• ${formatDate(job.created_at)}</span>
+                                <span class="text-gray-500 text-xs">&bull; ${formatDate(job.created_at)}</span>
                             </div>
                             <h3 class="font-semibold text-gray-900 mb-1">${job.title || freelancerI18n.untitledJob}</h3>
                             <p class="text-gray-600 text-sm mb-3">${job.description ? (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) : freelancerI18n.noDescription}</p>

@@ -36,11 +36,18 @@ class JobController extends Controller
     {
         $validated = $request->validated();
 
-        $validated['client_id'] = Auth::id();
+        $clientId = Auth::user()?->client?->id;
+        if (!$clientId) {
+            return back()
+                ->withErrors(['client' => 'Unable to determine the client account for this user.'])
+                ->withInput();
+        }
 
-        $job = Job::create($validated);
+        $validated['client_id'] = $clientId;
 
-        return redirect()->route('client.jobs.index');
+        Job::create($validated);
+
+        return redirect()->route('my-jobs.index');
     }
 
     /**

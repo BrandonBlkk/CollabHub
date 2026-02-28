@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\UserLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FindFreelancersController extends Controller
 {
@@ -46,7 +47,7 @@ class FindFreelancersController extends Controller
 
     public function freelancerProfile(Request $request, $id)
     {
-        $freelancer = User::with(['freelancer', 'skills'])
+        $freelancer = User::with(['freelancer', 'skills', 'settings'])
             ->where('role', 'freelancer')
             ->where('id', $id)
             ->firstOrFail();
@@ -89,6 +90,16 @@ class FindFreelancersController extends Controller
         // Get freelancer certificates
         $certificates = $freelancer->freelancer->certificates;
 
+        $showOnlineStatus = (bool) ($freelancer->settings?->show_online_status ?? true);
+        $isOnline = false;
+        if ($showOnlineStatus) {
+            $threshold = now()->subMinutes(5)->timestamp;
+            $isOnline = DB::table('sessions')
+                ->where('user_id', $freelancer->id)
+                ->where('last_activity', '>=', $threshold)
+                ->exists();
+        }
+
         return view('freelancer.freelancer-profile', compact(
             'freelancer',
             'similarFreelancers',
@@ -99,7 +110,9 @@ class FindFreelancersController extends Controller
             'languages',
             'experiences',
             'educations',
-            'certificates'
+            'certificates',
+            'showOnlineStatus',
+            'isOnline'
         ));
     }
 }
