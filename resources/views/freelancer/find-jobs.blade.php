@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Find Jobs')
+@section('title', __('find-jobs.meta.title'))
 
 @section('content')
     <!-- Page Header -->
     <div class="mb-3">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Find Jobs</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ __('find-jobs.header.title') }}</h1>
             <p class="text-gray-600 mt-1">
-                Browse and apply for freelance jobs
+                {{ __('find-jobs.header.subtitle') }}
             </p>
         </div>
     </div>
@@ -20,26 +20,26 @@
             <div class="flex space-x-6 overflow-x-auto select-none">
                 <button onclick="filterJobs('all')" id="tab-all"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap border-b-2 border-blue-600">
-                    All Jobs
+                    {{ __('find-jobs.tabs.all_jobs') }}
                 </button>
                 <button onclick="filterJobs('saved')" id="tab-saved"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap">
-                    Saved Jobs
+                    {{ __('find-jobs.tabs.saved_jobs') }}
                 </button>
                 <button onclick="filterJobs('in_progress')" id="tab-in_progress"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap">
-                    In Progress
+                    {{ __('find-jobs.tabs.in_progress') }}
                 </button>
                 <button onclick="filterJobs('applied')" id="tab-applied"
                     class="pb-2 font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap">
-                    Applied Jobs
+                    {{ __('find-jobs.tabs.applied_jobs') }}
                 </button>
             </div>
 
             <!-- Search and Filter -->
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <input type="text" placeholder="Search jobs..." id="job-search"
+                    <input type="text" placeholder="{{ __('find-jobs.filters.search_placeholder') }}" id="job-search"
                         class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm w-64">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
-                    <span>Filter</span>
+                    <span>{{ __('find-jobs.filters.filter') }}</span>
                 </button>
             </div>
         </div>
@@ -62,52 +62,56 @@
         <div id="advanced-filters" class="hidden mt-4 pt-4 border-t border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.job_type') }}</label>
                     <select id="filter-type"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <option value="">All Types</option>
-                        <option value="fixed">Fixed Price</option>
-                        <option value="hourly">Hourly</option>
+                        <option value="">{{ __('find-jobs.filters.all_types') }}</option>
+                        <option value="fixed">{{ __('find-jobs.filters.fixed_price') }}</option>
+                        <option value="hourly">{{ __('find-jobs.filters.hourly') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.experience_level') }}</label>
                     <select id="filter-experience"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <option value="">All Levels</option>
-                        <option value="entry">Entry Level</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="expert">Expert</option>
+                        <option value="">{{ __('find-jobs.filters.all_levels') }}</option>
+                        <option value="entry">{{ __('find-jobs.filters.entry_level') }}</option>
+                        <option value="intermediate">{{ __('find-jobs.filters.intermediate') }}</option>
+                        <option value="expert">{{ __('find-jobs.filters.expert') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.duration') }}</label>
                     <select id="filter-duration"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <option value="">Any Duration</option>
-                        <option value="less_than_1_month">Less than 1 month</option>
-                        <option value="1_to_3_months">1 to 3 months</option>
-                        <option value="3_to_6_months">3 to 6 months</option>
-                        <option value="more_than_6_months">More than 6 months</option>
+                        <option value="">{{ __('find-jobs.filters.any_duration') }}</option>
+                        <option value="less_than_1_month">{{ __('find-jobs.filters.less_than_1_month') }}</option>
+                        <option value="1_to_3_months">{{ __('find-jobs.filters.one_to_three_months') }}</option>
+                        <option value="3_to_6_months">{{ __('find-jobs.filters.three_to_six_months') }}</option>
+                        <option value="more_than_6_months">{{ __('find-jobs.filters.more_than_6_months') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-2">{{ __('find-jobs.filters.sort_by') }}</label>
                     <select id="filter-sort"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="budget_high">Budget (High to Low)</option>
-                        <option value="budget_low">Budget (Low to High)</option>
+                        <option value="newest">{{ __('find-jobs.filters.newest_first') }}</option>
+                        <option value="oldest">{{ __('find-jobs.filters.oldest_first') }}</option>
+                        <option value="budget_high">{{ __('find-jobs.filters.budget_high_to_low') }}</option>
+                        <option value="budget_low">{{ __('find-jobs.filters.budget_low_to_high') }}</option>
                     </select>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 mt-4 select-none">
                 <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
-                    Clear All
+                    {{ __('find-jobs.filters.clear_all') }}
                 </button>
                 <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                    Apply Filters
+                    {{ __('find-jobs.filters.apply_filters') }}
                 </button>
             </div>
         </div>
@@ -124,7 +128,8 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900" id="modal-title">Job Details</h3>
+                            <h3 class="text-lg font-bold text-gray-900" id="modal-title">
+                                {{ __('find-jobs.modals.job_details.title') }}</h3>
                             <div class="mt-2">
                                 <div class="flex items-center space-x-2">
                                     <span id="modal-status" class="px-2 py-1 rounded-full text-xs font-medium"></span>
@@ -176,20 +181,23 @@
 
                         <!-- Job Description -->
                         <div class="bg-gray-50 rounded-lg p-3">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                {{ __('find-jobs.modals.job_details.job_description') }}</h3>
                             <div class="text-sm max-w-none text-gray-700" id="modal-description"></div>
                         </div>
 
                         <!-- Skills Required -->
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Skills Required</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                {{ __('find-jobs.modals.job_details.skills_required') }}</h3>
                             <div class="flex flex-wrap gap-2" id="modal-skills"></div>
                         </div>
 
                         <!-- Job Details Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">Job Type</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.job_type') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -200,7 +208,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">Experience Level</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.experience_level') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -211,7 +220,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">Timeline</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.timeline') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -222,7 +232,8 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">Proposals</h4>
+                                <h4 class="font-semibold text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.job_details.proposals') }}</h4>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -241,19 +252,19 @@
                     class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
                     <button type="button" id="update-job-btn"
                         class="hidden w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
-                        Update Proposal
+                        {{ __('find-jobs.modals.job_details.update_proposal') }}
                     </button>
                     <button type="button" id="apply-job-btn"
                         class="inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200">
-                        Apply Job
+                        {{ __('find-jobs.modals.job_details.apply_job') }}
                     </button>
                     <button type="button" id="save-job-btn"
                         class="px-4 py-2 flex items-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                        Save Job
+                        {{ __('find-jobs.modals.job_details.save_job') }}
                     </button>
                     <button type="button" id="cancel-modal"
                         class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                        Cancel
+                        {{ __('find-jobs.common.cancel') }}
                     </button>
                 </div>
             </div>
@@ -271,11 +282,12 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">Submit Proposal</h3>
+                            <h3 class="text-lg font-bold text-gray-900" id="proposal-modal-title">
+                                {{ __('find-jobs.modals.proposal.submit_title') }}</h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-600">Job: <span id="proposal-job-title"
-                                        class="font-medium"></span></p>
-                                <p class="text-xs text-gray-500 mt-1">Please fill in your proposal details below</p>
+                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span
+                                        id="proposal-job-title" class="font-medium"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('find-jobs.modals.proposal.help_text') }}</p>
                             </div>
                         </div>
                         <button type="button" id="close-proposal-modal"
@@ -298,17 +310,19 @@
                             <!-- Proposal Text -->
                             <div>
                                 <label for="proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Proposal Details <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.details_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <textarea id="proposal-text" name="proposal_text" rows="6"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
-                                    placeholder="Describe your approach, relevant experience, and why you're the best fit for this job..."></textarea>
+                                    placeholder="{{ __('find-jobs.modals.proposal.details_placeholder') }}"></textarea>
                             </div>
 
                             <!-- Bid Amount -->
                             <div>
                                 <label for="bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Your Bid Amount (USD) <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -317,27 +331,32 @@
                                     <input type="number" id="bid-amount" name="bid_amount" step="0.01"
                                         min="1"
                                         class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
-                                        placeholder="0.00">
+                                        placeholder="{{ __('find-jobs.common.amount_placeholder') }}">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Enter your proposed budget between
-                                    (USD) <span id="min_max_budget"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_help') }}
+                                    <span id="min_max_budget"></span>
+                                </p>
                             </div>
 
                             <!-- Estimated Timeline (Optional) -->
                             <div>
                                 <label for="estimated-timeline" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Estimated Timeline (Optional)
+                                    {{ __('find-jobs.modals.proposal.estimated_timeline_label') }}
                                 </label>
                                 <select name="estimated_timeline" id="estimated-timeline"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm">
-                                    <option value="2 weeks">2 weeks</option>
-                                    <option value="3-4 weeks">3-4 weeks</option>
-                                    <option value="1-2 months">1-2 months</option>
-                                    <option value="3-6 months">3-6 months</option>
-                                    <option value="more than 6 months">More than 6 months</option>
-                                    <option value="not sure">Not sure</option>
-                                    <option value="ongoing support">Ongoing support</option>
-                                    <option value="to be discussed" selected>To be discussed (default)</option>
+                                    <option value="2 weeks">{{ __('find-jobs.timeline.two_weeks') }}</option>
+                                    <option value="3-4 weeks">{{ __('find-jobs.timeline.three_four_weeks') }}</option>
+                                    <option value="1-2 months">{{ __('find-jobs.timeline.one_two_months') }}</option>
+                                    <option value="3-6 months">{{ __('find-jobs.timeline.three_six_months') }}</option>
+                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}
+                                    </option>
+                                    <option value="not sure">{{ __('find-jobs.timeline.not_sure') }}</option>
+                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}
+                                    </option>
+                                    <option value="to be discussed" selected>
+                                        {{ __('find-jobs.timeline.to_be_discussed_default') }}</option>
                                 </select>
                             </div>
 
@@ -356,11 +375,11 @@
                             <div id="submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submit-proposal-text">Submit Proposal</span>
+                            <span id="submit-proposal-text">{{ __('find-jobs.modals.proposal.submit_button') }}</span>
                         </button>
                         <button type="button" id="cancel-proposal-modal"
                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                            Cancel
+                            {{ __('find-jobs.common.cancel') }}
                         </button>
                     </div>
                 </form>
@@ -380,11 +399,13 @@
                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900">Update Proposal</h3>
+                            <h3 class="text-lg font-bold text-gray-900">{{ __('find-jobs.modals.update_proposal.title') }}
+                            </h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-600">Job: <span id="update-proposal-job-title"
-                                        class="font-medium"></span></p>
-                                <p class="text-xs text-gray-500 mt-1">Update your proposal details below</p>
+                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span
+                                        id="update-proposal-job-title" class="font-medium"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.update_proposal.help_text') }}</p>
                             </div>
                         </div>
                         <button type="button" id="close-update-proposal-modal"
@@ -408,17 +429,19 @@
                             <!-- Proposal Text -->
                             <div>
                                 <label for="update-proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Proposal Details <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.details_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <textarea id="update-proposal-text" name="proposal_text" rows="6"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
-                                    placeholder="Describe your approach, relevant experience, and why you're the best fit for this job..."></textarea>
+                                    placeholder="{{ __('find-jobs.modals.proposal.details_placeholder') }}"></textarea>
                             </div>
 
                             <!-- Bid Amount -->
                             <div>
                                 <label for="update-bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Your Bid Amount (USD) <span class="text-red-500">*</span>
+                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span
+                                        class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -427,28 +450,33 @@
                                     <input type="number" id="update-bid-amount" name="bid_amount" step="0.01"
                                         min="1"
                                         class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
-                                        placeholder="0.00">
+                                        placeholder="{{ __('find-jobs.common.amount_placeholder') }}">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Enter your proposed budget between
-                                    (USD) <span id="update-min_max_budget"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_help') }}
+                                    <span id="update-min_max_budget"></span>
+                                </p>
                             </div>
 
                             <!-- Estimated Timeline (Optional) -->
                             <div>
                                 <label for="update-estimated-timeline"
                                     class="block text-sm font-medium text-gray-900 mb-2">
-                                    Estimated Timeline (Optional)
+                                    {{ __('find-jobs.modals.proposal.estimated_timeline_label') }}
                                 </label>
                                 <select name="estimated_timeline" id="update-estimated-timeline"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm">
-                                    <option value="2 weeks">2 weeks</option>
-                                    <option value="3-4 weeks">3-4 weeks</option>
-                                    <option value="1-2 months">1-2 months</option>
-                                    <option value="3-6 months">3-6 months</option>
-                                    <option value="more than 6 months">More than 6 months</option>
-                                    <option value="not sure">Not sure</option>
-                                    <option value="ongoing support">Ongoing support</option>
-                                    <option value="to be discussed">To be discussed (default)</option>
+                                    <option value="2 weeks">{{ __('find-jobs.timeline.two_weeks') }}</option>
+                                    <option value="3-4 weeks">{{ __('find-jobs.timeline.three_four_weeks') }}</option>
+                                    <option value="1-2 months">{{ __('find-jobs.timeline.one_two_months') }}</option>
+                                    <option value="3-6 months">{{ __('find-jobs.timeline.three_six_months') }}</option>
+                                    <option value="more than 6 months">{{ __('find-jobs.timeline.more_than_six_months') }}
+                                    </option>
+                                    <option value="not sure">{{ __('find-jobs.timeline.not_sure') }}</option>
+                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}
+                                    </option>
+                                    <option value="to be discussed">{{ __('find-jobs.timeline.to_be_discussed_default') }}
+                                    </option>
                                 </select>
                             </div>
 
@@ -467,18 +495,20 @@
                             <div id="update-submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submit-update-proposal-text">Update Proposal</span>
+                            <span
+                                id="submit-update-proposal-text">{{ __('find-jobs.modals.update_proposal.submit_button') }}</span>
                         </button>
                         <button type="submit" id="submit-withdraw-proposal-btn"
                             class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             <div id="withdraw-submitSpinner"
                                 class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                             </div>
-                            <span id="submit-withdraw-proposal-text">Withdraw Proposal</span>
+                            <span
+                                id="submit-withdraw-proposal-text">{{ __('find-jobs.modals.update_proposal.withdraw_button') }}</span>
                         </button>
                         <button type="button" id="cancel-proposal-update-modal"
                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
-                            Cancel
+                            {{ __('find-jobs.common.cancel') }}
                         </button>
                     </div>
                 </form>
@@ -500,16 +530,17 @@
                                     onclick="event.stopPropagation();">
                                     <div
                                         class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center overflow-hidden select-none">
-                                        <img src="" alt="Client photo"
+                                        <img src="" alt="{{ __('find-jobs.job_card.client_photo_alt') }}"
                                             class="client-avatar-image w-full h-full object-cover hidden">
-                                        <span class="client-avatar-initial text-white text-sm font-bold">C</span>
+                                        <span
+                                            class="client-avatar-initial text-white text-sm font-bold">{{ __('find-jobs.job_card.client_initial') }}</span>
                                     </div>
                                     <div>
                                         <p
                                             class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 client-name">
-                                            Client
-                                            Name</p>
-                                        <p class="text-xs text-gray-500 client-company">Company</p>
+                                            {{ __('find-jobs.job_card.client_name') }}</p>
+                                        <p class="text-xs text-gray-500 client-company">
+                                            {{ __('find-jobs.job_card.client_company') }}</p>
                                     </div>
                                 </a>
                                 <div class="flex items-center gap-2">
@@ -526,7 +557,7 @@
                                                 onclick="event.stopPropagation();">
                                                 <span class="inline-flex items-center gap-2">
                                                     <i class="ri-bookmark-line"></i>
-                                                    <span>Save</span>
+                                                    <span>{{ __('find-jobs.job_card.menu.save') }}</span>
                                                 </span>
                                             </button>
                                             <button type="button"
@@ -534,7 +565,7 @@
                                                 onclick="event.stopPropagation();">
                                                 <span class="inline-flex items-center gap-2">
                                                     <i class="ri-forbid-2-line"></i>
-                                                    <span>Not for me</span>
+                                                    <span>{{ __('find-jobs.job_card.menu.not_for_me') }}</span>
                                                 </span>
                                             </button>
                                         </div>
@@ -544,19 +575,22 @@
                             <div class="flex items-center justify-between mb-2">
                                 <span
                                     class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
-                                    Open
+                                    {{ __('find-jobs.job_card.status.open') }}
                                 </span>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-xs text-gray-500 posted-time">Posted: Just now</span>
+                                    <span
+                                        class="text-xs text-gray-500 posted-time">{{ __('find-jobs.job_card.posted_prefix') }}
+                                        {{ __('find-jobs.time.just_now') }}</span>
                                 </div>
                             </div>
-                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">Untitled Job</h3>
+                            <h3 class="font-bold text-gray-900 mb-2 text-lg job-title">
+                                {{ __('find-jobs.job_card.untitled_job') }}</h3>
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2 job-description">
-                                No description provided.
+                                {{ __('find-jobs.job_card.no_description') }}
                             </p>
                             <div class="flex flex-wrap gap-2 mb-4 select-none skills-container">
-                                <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">No Skills
-                                    Required</span>
+                                <span
+                                    class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">{{ __('find-jobs.job_card.no_skills_required') }}</span>
                             </div>
                         </div>
                     </div>
@@ -570,9 +604,10 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    <span class="font-semibold text-gray-900 budget-amount break-words">Budget not
-                                        specified</span>
-                                    <span class="text-gray-500 text-sm ml-2 job-type whitespace-nowrap">Not specified</span>
+                                    <span
+                                        class="font-semibold text-gray-900 budget-amount break-words">{{ __('find-jobs.job_card.budget_not_specified') }}</span>
+                                    <span
+                                        class="text-gray-500 text-sm ml-2 job-type whitespace-nowrap">{{ __('find-jobs.job_card.not_specified') }}</span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
@@ -580,12 +615,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span class="text-gray-600 text-sm duration-text">Duration not specified</span>
+                                    <span
+                                        class="text-gray-600 text-sm duration-text">{{ __('find-jobs.job_card.duration_not_specified') }}</span>
                                 </div>
                             </div>
                             <button
                                 class="w-full sm:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 flex items-center justify-center select-none view-job-btn shrink-0 min-w-[130px]">
-                                <span class="whitespace-nowrap">View Job</span>
+                                <span class="whitespace-nowrap">{{ __('find-jobs.job_card.view_job') }}</span>
                                 <span
                                     class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full views-count shrink-0">0</span>
                             </button>
@@ -664,27 +700,29 @@
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ __('find-jobs.empty_state.title') }}</h3>
         <p class="text-gray-600 mb-6 max-w-md mx-auto">
-            No jobs match your current filters. Try adjusting your search criteria or clear all filters.
+            {{ __('find-jobs.empty_state.description') }}
         </p>
         <button id="clear-all-filters"
             class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
-            Clear All Filters
+            {{ __('find-jobs.empty_state.clear_all_filters') }}
         </button>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
         <div class="text-sm text-gray-700">
-            Showing <span id="showing-from">1</span> to <span id="showing-to">6</span> of <span id="total-jobs">12</span>
-            jobs
+            {{ __('find-jobs.pagination.showing') }} <span id="showing-from">1</span>
+            {{ __('find-jobs.pagination.to') }}
+            <span id="showing-to">6</span> {{ __('find-jobs.pagination.of') }} <span id="total-jobs">12</span>
+            {{ __('find-jobs.pagination.jobs') }}
         </div>
         <div class="flex items-center space-x-2">
             <button
                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 id="prev-page" disabled>
-                Previous
+                {{ __('find-jobs.pagination.previous') }}
             </button>
             <div class="flex items-center space-x-1">
                 <button class="w-8 h-8 rounded-lg bg-blue-600 text-white text-sm font-medium">1</button>
@@ -692,7 +730,7 @@
             </div>
             <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
                 id="next-page">
-                Next
+                {{ __('find-jobs.pagination.next') }}
             </button>
         </div>
     </div>
@@ -732,6 +770,114 @@
         } catch (e) {
             dismissedJobIds = new Set();
         }
+
+        const i18n = {
+            networkResponseNotOk: '@json(__('find-jobs.js.network_response_not_ok'))',
+            failedFetchJobDetails: @json(__('find-jobs.js.failed_fetch_job_details')),
+            failedLoadJobDetails: @json(__('find-jobs.js.failed_load_job_details')),
+            failedFetchProposal: @json(__('find-jobs.js.failed_fetch_proposal')),
+            proposalNotFound: @json(__('find-jobs.js.proposal_not_found')),
+            failedLoadProposalDetails: @json(__('find-jobs.js.failed_load_proposal_details')),
+            failedSaveJob: @json(__('find-jobs.js.failed_save_job')),
+            noJobsFoundSimple: @json(__('find-jobs.js.no_jobs_found')),
+            unknownClient: @json(__('find-jobs.js.unknown_client')),
+            independentClient: @json(__('find-jobs.js.independent_client')),
+            noSkillsSpecified: @json(__('find-jobs.js.no_skills_specified')),
+            moreSkills: @json(__('find-jobs.js.more_skills', ['count' => ':count'])),
+            unableToSaveJob: @json(__('find-jobs.js.unable_save_job')),
+            errorLoadingJobs: @json(__('find-jobs.js.error_loading_jobs')),
+            errorLoadingSavedJobs: @json(__('find-jobs.js.error_loading_saved_jobs')),
+            errorLoadingInProgressJobs: @json(__('find-jobs.js.error_loading_in_progress_jobs')),
+            errorLoadingAppliedJobs: @json(__('find-jobs.js.error_loading_applied_jobs')),
+            failedFetchJobs: @json(__('find-jobs.js.failed_fetch_jobs', ['type' => ':type'])),
+            retry: @json(__('find-jobs.common.retry')),
+            saveMenu: @json(__('find-jobs.job_card.menu.save')),
+            unsaveMenu: @json(__('find-jobs.job_card.menu.unsave')),
+            postedPrefix: @json(__('find-jobs.job_card.posted_prefix')),
+            untitledJob: @json(__('find-jobs.job_card.untitled_job')),
+            noDescription: @json(__('find-jobs.job_card.no_description')),
+            noSkillsRequired: @json(__('find-jobs.job_card.no_skills_required')),
+            budgetNotSpecified: @json(__('find-jobs.job_card.budget_not_specified')),
+            durationNotSpecified: @json(__('find-jobs.job_card.duration_not_specified')),
+            notSpecified: @json(__('find-jobs.job_card.not_specified')),
+            experienceNotSpecified: @json(__('find-jobs.js.experience_not_specified')),
+            jobDetailsTitle: @json(__('find-jobs.modals.job_details.title')),
+            saveJob: @json(__('find-jobs.modals.job_details.save_job')),
+            unsaveJob: @json(__('find-jobs.modals.job_details.unsave_job')),
+            applyJob: @json(__('find-jobs.modals.job_details.apply_job')),
+            updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+            proposalsCount: @json(__('find-jobs.js.proposals_count', ['count' => ':count'])),
+            zeroProposal: @json(__('find-jobs.js.zero_proposal')),
+            proposalMinValidation: @json(__('find-jobs.js.proposal_min_validation', ['min' => ':min'])),
+            charactersCount: @json(__('find-jobs.js.characters_count', ['count' => ':count'])),
+            charactersCountMinimum: @json(__('find-jobs.js.characters_count_minimum', ['count' => ':count', 'min' => ':min'])),
+            validBidAmount: @json(__('find-jobs.js.valid_bid_amount')),
+            submitting: @json(__('find-jobs.js.submitting')),
+            submitProposal: @json(__('find-jobs.modals.proposal.submit_button')),
+            proposalSubmitted: @json(__('find-jobs.js.proposal_submitted')),
+            failedSubmitProposal: @json(__('find-jobs.js.failed_submit_proposal')),
+            failedSubmitProposalRetry: @json(__('find-jobs.js.failed_submit_proposal_retry')),
+            updating: @json(__('find-jobs.js.updating')),
+            updateProposalButton: @json(__('find-jobs.modals.update_proposal.submit_button')),
+            proposalUpdated: @json(__('find-jobs.js.proposal_updated')),
+            failedUpdateProposal: @json(__('find-jobs.js.failed_update_proposal')),
+            failedUpdateProposalRetry: @json(__('find-jobs.js.failed_update_proposal_retry')),
+            withdrawConfirm: @json(__('find-jobs.js.withdraw_confirm')),
+            withdrawing: @json(__('find-jobs.js.withdrawing')),
+            withdrawProposalButton: @json(__('find-jobs.modals.update_proposal.withdraw_button')),
+            proposalWithdrawn: @json(__('find-jobs.js.proposal_withdrawn')),
+            failedWithdrawProposal: @json(__('find-jobs.js.failed_withdraw_proposal')),
+            failedWithdrawProposalRetry: @json(__('find-jobs.js.failed_withdraw_proposal_retry')),
+            timelineDefaultValue: @json(__('find-jobs.timeline.to_be_discussed_value')),
+            time: {
+                justNow: @json(__('find-jobs.time.just_now')),
+                minuteAgo: @json(__('find-jobs.time.minute_ago', ['count' => ':count'])),
+                minutesAgo: @json(__('find-jobs.time.minutes_ago', ['count' => ':count'])),
+                hourAgo: @json(__('find-jobs.time.hour_ago', ['count' => ':count'])),
+                hoursAgo: @json(__('find-jobs.time.hours_ago', ['count' => ':count'])),
+                dayAgo: @json(__('find-jobs.time.day_ago', ['count' => ':count'])),
+                daysAgo: @json(__('find-jobs.time.days_ago', ['count' => ':count'])),
+                weekAgo: @json(__('find-jobs.time.week_ago', ['count' => ':count'])),
+                weeksAgo: @json(__('find-jobs.time.weeks_ago', ['count' => ':count'])),
+                monthAgo: @json(__('find-jobs.time.month_ago', ['count' => ':count'])),
+                monthsAgo: @json(__('find-jobs.time.months_ago', ['count' => ':count'])),
+            },
+            durationMap: {
+                less_than_1_month: @json(__('find-jobs.duration.less_than_1_month')),
+                one_to_three_months: @json(__('find-jobs.duration.one_to_three_months')),
+                three_to_six_months: @json(__('find-jobs.duration.three_to_six_months')),
+                six_months_to_one_year: @json(__('find-jobs.duration.six_months_to_one_year')),
+                more_than_one_year: @json(__('find-jobs.duration.more_than_one_year')),
+            },
+            experienceMap: {
+                entry: @json(__('find-jobs.experience.entry')),
+                intermediate: @json(__('find-jobs.experience.intermediate')),
+                expert: @json(__('find-jobs.experience.expert')),
+            },
+            jobTypeMap: {
+                fixed: @json(__('find-jobs.filters.fixed_price')),
+                hourly: @json(__('find-jobs.filters.hourly')),
+            },
+            status: {
+                open: @json(__('find-jobs.job_card.status.open')),
+                closed: @json(__('find-jobs.job_card.status.closed')),
+                in_progress: @json(__('find-jobs.job_card.status.in_progress')),
+            },
+            appliedStatus: {
+                viewed: @json(__('find-jobs.js.applied_status.viewed')),
+                shortlisted: @json(__('find-jobs.js.applied_status.shortlisted')),
+                interviewing: @json(__('find-jobs.js.applied_status.interviewing')),
+                revising: @json(__('find-jobs.js.applied_status.revising')),
+                reapply: @json(__('find-jobs.js.applied_status.reapply')),
+                offerAccepted: @json(__('find-jobs.js.applied_status.offer_accepted')),
+            },
+            updateStatusText: {
+                updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+                withdrawApplication: @json(__('find-jobs.js.update_status.withdraw_application')),
+                updateApplication: @json(__('find-jobs.js.update_status.update_application')),
+                updateRevision: @json(__('find-jobs.js.update_status.update_revision')),
+            },
+        };
 
         function getJobsRouteByType(type = 'all') {
             const routes = {
@@ -825,7 +971,7 @@
         }
 
         function setSaveMenuButtonContent(button, isSaved) {
-            const label = isSaved ? 'Unsave' : 'Save';
+            const label = isSaved ? i18n.unsaveMenu : i18n.saveMenu;
             button.innerHTML = `
                 <span class="inline-flex items-center gap-2">
                     <i class="ri-bookmark-line"></i>
@@ -1250,7 +1396,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(i18n.networkResponseNotOk);
                 }
 
                 const data = await response.json();
@@ -1260,11 +1406,11 @@
                     displayJobDetails(data.job);
                     openModal();
                 } else {
-                    throw new Error(data.message || 'Failed to fetch job details');
+                    throw new Error(data.message || i18n.failedFetchJobDetails);
                 }
             } catch (error) {
                 console.error('Error fetching job details:', error);
-                alert('Failed to load job details. Please try again.');
+                alert(i18n.failedLoadJobDetails);
             }
         }
 
@@ -1274,12 +1420,12 @@
             modalJobTitle.setAttribute('data-job-id', job.id);
 
             // Set modal title
-            document.getElementById('modal-title').textContent = 'Job Details';
-            modalJobTitle.textContent = job.title || 'Untitled Job';
+            document.getElementById('modal-title').textContent = i18n.jobDetailsTitle;
+            modalJobTitle.textContent = job.title || i18n.untitledJob;
 
             // Set status badge
             const statusBadge = document.getElementById('modal-status');
-            statusBadge.textContent = job.status ? job.status.charAt(0).toUpperCase() + job.status.slice(1) : 'Open';
+            statusBadge.textContent = i18n.status[job.status] || i18n.status.open;
 
             // Update badge color based on status
             if (job.status === 'open') {
@@ -1294,24 +1440,26 @@
             }
 
             // Set posted time
-            document.getElementById('modal-posted-time').textContent = `Posted: ${formatTimeAgo(job.created_at)}`;
+            document.getElementById('modal-posted-time').textContent =
+                `${i18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
 
             // Set budget and type
             const budgetElement = document.getElementById('modal-budget');
             if (job.budget_min !== null && job.budget_max !== null) {
                 budgetElement.textContent = formatBudgetRange(job.budget_min, job.budget_max);
             } else {
-                budgetElement.textContent = 'Budget not specified';
+                budgetElement.textContent = i18n.budgetNotSpecified;
             }
 
             const typeElement = document.getElementById('modal-type');
-            typeElement.textContent = job.type ? job.type.charAt(0).toUpperCase() + job.type.slice(1) : 'Not specified';
+            typeElement.textContent = job.type ? (i18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type
+                .slice(1)) : i18n.notSpecified;
 
             // Set duration
             document.getElementById('modal-duration').textContent = job.duration ? formatDuration(job.duration) :
-                'Duration not specified';
+                i18n.durationNotSpecified;
             document.getElementById('modal-detail-duration').textContent = job.duration ? formatDuration(job.duration) :
-                'Not specified';
+                i18n.notSpecified;
 
             // Set experience level
             const experienceElement = document.getElementById('modal-experience');
@@ -1321,15 +1469,15 @@
                 experienceElement.textContent = experienceText;
                 detailExperienceElement.textContent = experienceText;
             } else {
-                experienceElement.textContent = 'Experience not specified';
-                detailExperienceElement.textContent = 'Not specified';
+                experienceElement.textContent = i18n.experienceNotSpecified;
+                detailExperienceElement.textContent = i18n.notSpecified;
             }
 
             // Set description
             const descriptionElement = document.getElementById('modal-description');
             descriptionElement.innerHTML = job.description ?
                 job.description.replace(/\n/g, '<br>') :
-                '<p class="text-gray-500 italic">No description provided.</p>';
+                `<p class="text-gray-500 italic">${i18n.noDescription}</p>`;
 
             // Set skills
             const skillsContainer = document.getElementById('modal-skills');
@@ -1357,23 +1505,25 @@
                 const noSkillElement = document.createElement('span');
                 noSkillElement.className =
                     'px-3 py-1.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-full border border-gray-200';
-                noSkillElement.textContent = 'No skills specified';
+                noSkillElement.textContent = i18n.noSkillsSpecified;
                 skillsContainer.appendChild(noSkillElement);
             }
 
             // Set detail type
             document.getElementById('modal-detail-type').textContent = job.type ?
-                job.type.charAt(0).toUpperCase() + job.type.slice(1) : 'Not specified';
+                (i18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type.slice(1)) : i18n.notSpecified;
 
             // Set proposals count
             const proposalsElement = document.getElementById('modal-proposals-count');
-            proposalsElement.textContent = job.proposals_count ? `${job.proposals_count} proposals` : '0 proposal';
+            proposalsElement.textContent = job.proposals_count ?
+                i18n.proposalsCount.replace(':count', job.proposals_count) :
+                i18n.zeroProposal;
 
             // Update save button text
             if (job.is_saved) {
-                saveJobBtn.textContent = 'Unsave Job';
+                saveJobBtn.textContent = i18n.unsaveJob;
             } else {
-                saveJobBtn.textContent = 'Save Job';
+                saveJobBtn.textContent = i18n.saveJob;
             }
 
             // Function to update buttons based on job status
@@ -1396,51 +1546,51 @@
                         showApply: false,
                         applyEnabled: false,
                         showUpdate: true,
-                        updateText: 'Update Proposal'
+                        updateText: i18n.updateStatusText.updateProposal
                     },
                     'viewed': {
                         showApply: true,
-                        applyText: 'Already Viewed',
+                        applyText: i18n.appliedStatus.viewed,
                         applyEnabled: false,
                         showUpdate: true,
-                        updateText: 'Update Proposal'
+                        updateText: i18n.updateStatusText.updateProposal
                     },
                     'shortlisted': {
                         showApply: true,
-                        applyText: 'Already Shortlisted',
+                        applyText: i18n.appliedStatus.shortlisted,
                         applyEnabled: false,
                         showUpdate: true,
-                        updateText: 'Withdraw Application'
+                        updateText: i18n.updateStatusText.withdrawApplication
                     },
                     'interviewing': {
                         showApply: false,
-                        applyText: 'Interview in Progress',
+                        applyText: i18n.appliedStatus.interviewing,
                         applyEnabled: false,
                         showUpdate: true,
-                        updateText: 'Update Application'
+                        updateText: i18n.updateStatusText.updateApplication
                     },
                     'revising': {
                         showApply: false,
-                        applyText: 'Application Under Revision',
+                        applyText: i18n.appliedStatus.revising,
                         applyEnabled: false,
                         showUpdate: true,
-                        updateText: 'Update Revision'
+                        updateText: i18n.updateStatusText.updateRevision
                     },
                     'rejected': {
                         showApply: true,
-                        applyText: 'Reapply',
+                        applyText: i18n.appliedStatus.reapply,
                         applyEnabled: true,
                         showUpdate: false
                     },
                     'accepted': {
                         showApply: true,
-                        applyText: 'Offer Accepted',
+                        applyText: i18n.appliedStatus.offerAccepted,
                         applyEnabled: false,
                         showUpdate: false
                     },
                     'withdrawn': {
                         showApply: true,
-                        applyText: 'Apply Job',
+                        applyText: i18n.applyJob,
                         applyEnabled: true,
                         showUpdate: false
                     }
@@ -1499,7 +1649,7 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch proposal');
+                        throw new Error(i18n.failedFetchProposal);
                     }
 
                     const data = await response.json();
@@ -1508,11 +1658,11 @@
                         // Open update modal with existing proposal data
                         openUpdateProposalModal(job, data.proposal);
                     } else {
-                        throw new Error(data.message || 'Proposal not found');
+                        throw new Error(data.message || i18n.proposalNotFound);
                     }
                 } catch (error) {
                     console.error('Error fetching proposal:', error);
-                    alert('Failed to load proposal details. Please try again.');
+                    alert(i18n.failedLoadProposalDetails);
                 }
             };
 
@@ -1521,7 +1671,7 @@
                 const result = await toggleSaveJob(job.id);
                 if (result.success) {
                     // Update button text based on action
-                    saveJobBtn.textContent = result.action === 'saved' ? 'Unsave Job' : 'Save Job';
+                    saveJobBtn.textContent = result.action === 'saved' ? i18n.unsaveJob : i18n.saveJob;
 
                     // Update the job data in memory
                     updateJobSavedStatus(job.id, result.action === 'saved');
@@ -1536,7 +1686,7 @@
                 jobsContainer.innerHTML =
                     '<div class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">' +
                     '<div>' +
-                    '<p class="text-gray-600">No jobs found.</p>' +
+                    `<p class="text-gray-600">${i18n.noJobsFoundSimple}</p>` +
                     '</div>' +
                     '</div>';
 
@@ -1563,7 +1713,7 @@
                 // Set status badge
                 const statusBadge = cardElement.querySelector('.status-badge');
                 if (job.status) {
-                    statusBadge.textContent = job.status.charAt(0).toUpperCase() + job.status.slice(1);
+                    statusBadge.textContent = i18n.status[job.status] || i18n.status.open;
                     // Update badge color based on status
                     if (job.status === 'open') {
                         statusBadge.className =
@@ -1579,7 +1729,7 @@
 
                 // Set posted time
                 const postedTime = cardElement.querySelector('.posted-time');
-                postedTime.textContent = `Posted: ${formatTimeAgo(job.created_at)}`;
+                postedTime.textContent = `${i18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
 
                 // Set client profile info
                 const clientProfile = job.client_profile || {};
@@ -1589,9 +1739,10 @@
                 const clientAvatarImage = cardElement.querySelector('.client-avatar-image');
                 const clientAvatarInitial = cardElement.querySelector('.client-avatar-initial');
 
-                const resolvedClientName = clientProfile.name || 'Unknown Client';
-                const resolvedCompany = clientProfile.company || 'Independent client';
-                const resolvedInitial = (clientProfile.initial || resolvedClientName.charAt(0) || 'C')
+                const resolvedClientName = clientProfile.name || i18n.unknownClient;
+                const resolvedCompany = clientProfile.company || i18n.independentClient;
+                const resolvedInitial = (clientProfile.initial || resolvedClientName.charAt(0) ||
+                        @js(__('find-jobs.job_card.client_initial')))
                     .toUpperCase();
 
                 clientName.textContent = resolvedClientName;
@@ -1616,13 +1767,13 @@
 
                 // Set job title
                 const jobTitle = cardElement.querySelector('.job-title');
-                jobTitle.textContent = job.title || 'Untitled Job';
+                jobTitle.textContent = job.title || i18n.untitledJob;
 
                 // Set job description
                 const jobDescription = cardElement.querySelector('.job-description');
                 jobDescription.textContent = job.description ?
                     (job.description.length > 150 ? job.description.substring(0, 150) + '...' : job.description) :
-                    'No description provided.';
+                    i18n.noDescription;
 
                 // Set skills
                 const skillsContainer = cardElement.querySelector('.skills-container');
@@ -1652,13 +1803,13 @@
                     if (skills.length > 3) {
                         const moreElement = document.createElement('span');
                         moreElement.className = 'px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded';
-                        moreElement.textContent = `+${skills.length - 3} more`;
+                        moreElement.textContent = i18n.moreSkills.replace(':count', skills.length - 3);
                         skillsContainer.appendChild(moreElement);
                     }
                 } else {
                     const noSkillElement = document.createElement('span');
                     noSkillElement.className = 'px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded';
-                    noSkillElement.textContent = 'No Skills Required';
+                    noSkillElement.textContent = i18n.noSkillsRequired;
                     skillsContainer.appendChild(noSkillElement);
                 }
 
@@ -1669,18 +1820,19 @@
                 if (job.budget_min !== null && job.budget_max !== null) {
                     budgetAmount.textContent = formatBudgetRange(job.budget_min, job.budget_max);
                 } else {
-                    budgetAmount.textContent = 'Budget not specified';
+                    budgetAmount.textContent = i18n.budgetNotSpecified;
                 }
 
                 if (job.type) {
-                    jobType.textContent = job.type.charAt(0).toUpperCase() + job.type.slice(1);
+                    jobType.textContent = i18n.jobTypeMap[job.type] || (job.type.charAt(0).toUpperCase() + job.type
+                        .slice(1));
                 } else {
-                    jobType.textContent = 'Not specified';
+                    jobType.textContent = i18n.notSpecified;
                 }
 
                 // Set duration
                 const durationText = cardElement.querySelector('.duration-text');
-                durationText.textContent = formatDuration(job.duration) || 'Duration not specified';
+                durationText.textContent = formatDuration(job.duration) || i18n.durationNotSpecified;
 
                 // Set views count on View Job button
                 const viewsCount = cardElement.querySelector('.views-count');
@@ -1720,7 +1872,7 @@
                         updateJobSavedStatus(job.id, isSavedNow);
                         closeAllJobMoreMenus();
                     } else {
-                        showToast(result.message || 'Unable to save job', 'error');
+                        showToast(result.message || i18n.unableToSaveJob, 'error');
                     }
                 });
 
@@ -1753,10 +1905,10 @@
             showSkeletonLoading();
 
             const errorMessages = {
-                'all': 'Error loading jobs. Please try again.',
-                'saved': 'Error loading saved jobs. Please try again.',
-                'in_progress': 'Error loading in progress jobs. Please try again.',
-                'applied': 'Error loading applied jobs. Please try again.'
+                'all': i18n.errorLoadingJobs,
+                'saved': i18n.errorLoadingSavedJobs,
+                'in_progress': i18n.errorLoadingInProgressJobs,
+                'applied': i18n.errorLoadingAppliedJobs
             };
 
             const retryFunctions = {
@@ -1778,7 +1930,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(i18n.networkResponseNotOk);
                 }
 
                 const data = await response.json();
@@ -1799,7 +1951,7 @@
                     refreshJobViewsRealtime();
                     maybeAutoOpenDeepLinkedJob(type);
                 } else {
-                    throw new Error(data.message || `Failed to fetch ${type} jobs`);
+                    throw new Error(data.message || i18n.failedFetchJobs.replace(':type', type));
                 }
             } catch (error) {
                 console.error(`Error fetching ${type} jobs:`, error);
@@ -1808,7 +1960,7 @@
                     '<div>' +
                     `<p class="text-gray-600 mb-2">${errorMessages[type]}</p>` +
                     `<button onclick="${retryFunctions[type]}" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">` +
-                    'Retry' +
+                    i18n.retry +
                     '</button>' +
                     '</div>' +
                     '</div>';
@@ -1832,7 +1984,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(i18n.networkResponseNotOk);
                 }
 
                 const data = await response.json();
@@ -1853,7 +2005,7 @@
 
                     return data;
                 } else {
-                    throw new Error(data.message || 'Failed to save job');
+                    throw new Error(data.message || i18n.failedSaveJob);
                 }
             } catch (error) {
                 return {
@@ -1902,7 +2054,7 @@
             currentJobForProposal = job;
 
             // Set job details
-            document.getElementById('proposal-job-title').textContent = job.title || 'Untitled Job';
+            document.getElementById('proposal-job-title').textContent = job.title || i18n.untitledJob;
             document.getElementById('proposal-job-id').value = job.id;
 
             // Clear form
@@ -1975,7 +2127,7 @@
         // Update Proposal Modal functions
         async function openUpdateProposalModal(job, proposal) {
             // Set job details
-            document.getElementById('update-proposal-job-title').textContent = job.title || 'Untitled Job';
+            document.getElementById('update-proposal-job-title').textContent = job.title || i18n.untitledJob;
             document.getElementById('update-proposal-job-id').value = job.id;
 
             // Set proposal details
@@ -1984,7 +2136,7 @@
                 document.getElementById('update-proposal-text').value = proposal.proposal_text || '';
                 document.getElementById('update-bid-amount').value = proposal.bid_amount || job.budget_min;
                 document.getElementById('update-estimated-timeline').value = proposal.estimated_timeline ||
-                    'to be discussed';
+                    i18n.timelineDefaultValue;
             }
 
             // Set budget limits
@@ -2073,13 +2225,13 @@
             // Add conditional classes based on length
             if (length < minLength) {
                 counter.classList.add('text-red-500');
-                counter.textContent = `${length} characters (Minimum ${minLength} required)`;
+                counter.textContent = i18n.charactersCountMinimum.replace(':count', length).replace(':min', minLength);
             } else if (length < 150) {
                 counter.classList.add('text-amber-500');
-                counter.textContent = `${length} characters`;
+                counter.textContent = i18n.charactersCount.replace(':count', length);
             } else {
                 counter.classList.add('text-emerald-500');
-                counter.textContent = `${length} characters`;
+                counter.textContent = i18n.charactersCount.replace(':count', length);
             }
         }
 
@@ -2102,13 +2254,13 @@
             // Add conditional classes based on length
             if (length < minLength) {
                 counter.classList.add('text-red-500');
-                counter.textContent = `${length} characters (Minimum ${minLength} required)`;
+                counter.textContent = i18n.charactersCountMinimum.replace(':count', length).replace(':min', minLength);
             } else if (length < 150) {
                 counter.classList.add('text-amber-500');
-                counter.textContent = `${length} characters`;
+                counter.textContent = i18n.charactersCount.replace(':count', length);
             } else {
                 counter.classList.add('text-emerald-500');
-                counter.textContent = `${length} characters`;
+                counter.textContent = i18n.charactersCount.replace(':count', length);
             }
         }
 
@@ -2138,13 +2290,13 @@
             // Check proposal text
             const proposalText = formData.get('proposal_text')?.trim() || '';
             if (proposalText.length < 100) {
-                errors.push('Proposal details must be at least 100 characters');
+                errors.push(i18n.proposalMinValidation.replace(':min', 100));
             }
 
             // Check bid amount
             const bidAmount = parseFloat(formData.get('bid_amount'));
             if (!bidAmount || bidAmount <= 0) {
-                errors.push('Please enter a valid bid amount');
+                errors.push(i18n.validBidAmount);
             }
 
             return errors;
@@ -2156,13 +2308,13 @@
             // Check proposal text
             const proposalText = formData.get('proposal_text')?.trim() || '';
             if (proposalText.length < 100) {
-                errors.push('Proposal details must be at least 100 characters');
+                errors.push(i18n.proposalMinValidation.replace(':min', 100));
             }
 
             // Check bid amount
             const bidAmount = parseFloat(formData.get('bid_amount'));
             if (!bidAmount || bidAmount <= 0) {
-                errors.push('Please enter a valid bid amount');
+                errors.push(i18n.validBidAmount);
             }
 
             return errors;
@@ -2183,7 +2335,7 @@
             }
 
             // Show loading state
-            submitProposalText.textContent = 'Submitting...';
+            submitProposalText.textContent = i18n.submitting;
             submitProposalLoading.classList.remove('hidden');
             submitProposalBtn.disabled = true;
             hideProposalError();
@@ -2202,12 +2354,12 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to submit proposal');
+                    throw new Error(data.message || i18n.failedSubmitProposal);
                 }
 
                 if (data.success) {
                     // Show success message
-                    showToast('Proposal submitted successfully!');
+                    showToast(i18n.proposalSubmitted);
 
                     // Close modal
                     closeProposalModal();
@@ -2217,14 +2369,14 @@
                         fetchJobs('applied');
                     }
                 } else {
-                    throw new Error(data.message || 'Failed to submit proposal');
+                    throw new Error(data.message || i18n.failedSubmitProposal);
                 }
             } catch (error) {
                 console.error('Error submitting proposal:', error);
-                showProposalError(error.message || 'Failed to submit proposal. Please try again.');
+                showProposalError(error.message || i18n.failedSubmitProposalRetry);
             } finally {
                 // Reset button state
-                submitProposalText.textContent = 'Submit Proposal';
+                submitProposalText.textContent = i18n.submitProposal;
                 submitProposalLoading.classList.add('hidden');
                 submitProposalBtn.disabled = false;
             }
@@ -2245,7 +2397,7 @@
             }
 
             // Show loading state
-            submitUpdateProposalText.textContent = 'Updating...';
+            submitUpdateProposalText.textContent = i18n.updating;
             submitUpdateProposalLoading.classList.remove('hidden');
             submitUpdateProposalBtn.disabled = true;
             hideUpdateProposalError();
@@ -2269,12 +2421,12 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to update proposal');
+                    throw new Error(data.message || i18n.failedUpdateProposal);
                 }
 
                 if (data.success) {
                     // Show success message
-                    showToast('Proposal updated successfully!');
+                    showToast(i18n.proposalUpdated);
 
                     // Close modal
                     closeUpdateProposalModal();
@@ -2284,14 +2436,14 @@
                         fetchJobs('applied');
                     }
                 } else {
-                    throw new Error(data.message || 'Failed to update proposal');
+                    throw new Error(data.message || i18n.failedUpdateProposal);
                 }
             } catch (error) {
                 console.error('Error updating proposal:', error);
-                showUpdateProposalError(error.message || 'Failed to update proposal. Please try again.');
+                showUpdateProposalError(error.message || i18n.failedUpdateProposalRetry);
             } finally {
                 // Reset button state
-                submitUpdateProposalText.textContent = 'Update Proposal';
+                submitUpdateProposalText.textContent = i18n.updateProposalButton;
                 submitUpdateProposalLoading.classList.add('hidden');
                 submitUpdateProposalBtn.disabled = false;
             }
@@ -2304,12 +2456,12 @@
             const jobId = document.getElementById('update-proposal-job-id').value;
 
             // Confirm withdrawal
-            if (!confirm('Are you sure you want to withdraw your proposal? This action cannot be undone.')) {
+            if (!confirm(i18n.withdrawConfirm)) {
                 return;
             }
 
             // Show loading state
-            submitWithdrawProposalText.textContent = 'Withdrawing...';
+            submitWithdrawProposalText.textContent = i18n.withdrawing;
             submitWithdrawProposalLoading.classList.remove('hidden');
             submitWithdrawProposalBtn.disabled = true;
             hideUpdateProposalError();
@@ -2328,12 +2480,12 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to withdraw proposal');
+                    throw new Error(data.message || i18n.failedWithdrawProposal);
                 }
 
                 if (data.success) {
                     // Show success message
-                    showToast('Proposal withdrawn successfully!');
+                    showToast(i18n.proposalWithdrawn);
 
                     // Close modal
                     closeUpdateProposalModal();
@@ -2354,19 +2506,19 @@
                         updateBtn.classList.add('hidden');
                         applyBtn.classList.remove('hidden');
                         applyBtn.classList.add('inline-flex');
-                        applyBtn.textContent = 'Apply Job';
+                        applyBtn.textContent = i18n.applyJob;
                         applyBtn.disabled = false;
                         applyBtn.classList.remove('opacity-30', 'cursor-not-allowed');
                     }
                 } else {
-                    throw new Error(data.message || 'Failed to withdraw proposal');
+                    throw new Error(data.message || i18n.failedWithdrawProposal);
                 }
             } catch (error) {
                 console.error('Error withdrawing proposal:', error);
-                showUpdateProposalError(error.message || 'Failed to withdraw proposal. Please try again.');
+                showUpdateProposalError(error.message || i18n.failedWithdrawProposalRetry);
             } finally {
                 // Reset button state
-                submitWithdrawProposalText.textContent = 'Withdraw Proposal';
+                submitWithdrawProposalText.textContent = i18n.withdrawProposalButton;
                 submitWithdrawProposalLoading.classList.add('hidden');
                 submitWithdrawProposalBtn.disabled = false;
             }
@@ -2443,35 +2595,53 @@
             const now = new Date();
             const diffInSeconds = Math.floor((now - date) / 1000);
 
-            if (diffInSeconds < 60) return 'Just now';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-            if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-            return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+            if (diffInSeconds < 60) return i18n.time.justNow;
+            if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                const template = minutes === 1 ? i18n.time.minuteAgo : i18n.time.minutesAgo;
+                return template.replace(':count', minutes);
+            }
+            if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                const template = hours === 1 ? i18n.time.hourAgo : i18n.time.hoursAgo;
+                return template.replace(':count', hours);
+            }
+            if (diffInSeconds < 604800) {
+                const days = Math.floor(diffInSeconds / 86400);
+                const template = days === 1 ? i18n.time.dayAgo : i18n.time.daysAgo;
+                return template.replace(':count', days);
+            }
+            if (diffInSeconds < 2592000) {
+                const weeks = Math.floor(diffInSeconds / 604800);
+                const template = weeks === 1 ? i18n.time.weekAgo : i18n.time.weeksAgo;
+                return template.replace(':count', weeks);
+            }
+            const months = Math.floor(diffInSeconds / 2592000);
+            const template = months === 1 ? i18n.time.monthAgo : i18n.time.monthsAgo;
+            return template.replace(':count', months);
         }
 
         function formatDuration(duration) {
-            if (!duration) return 'Not specified';
+            if (!duration) return i18n.notSpecified;
 
             const durationMap = {
-                'less_than_1_month': 'Less than 1 month',
-                '1_to_3_months': '1-3 months',
-                '3_to_6_months': '3-6 months',
-                '6_months_to_1_year': '6 months - 1 year',
-                'more_than_1_year': 'More than 1 year'
+                'less_than_1_month': i18n.durationMap.less_than_1_month,
+                '1_to_3_months': i18n.durationMap.one_to_three_months,
+                '3_to_6_months': i18n.durationMap.three_to_six_months,
+                '6_months_to_1_year': i18n.durationMap.six_months_to_one_year,
+                'more_than_1_year': i18n.durationMap.more_than_one_year
             };
 
             return durationMap[duration] || duration.replace(/_/g, ' ');
         }
 
         function formatExperienceLevel(experience) {
-            if (!experience) return 'Not specified';
+            if (!experience) return i18n.notSpecified;
 
             const experienceMap = {
-                'entry': 'Entry Level',
-                'intermediate': 'Intermediate',
-                'expert': 'Expert'
+                'entry': i18n.experienceMap.entry,
+                'intermediate': i18n.experienceMap.intermediate,
+                'expert': i18n.experienceMap.expert
             };
 
             return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
@@ -2482,7 +2652,7 @@
             const maxAmount = parseFloat(maxUsd);
 
             if (!Number.isFinite(minAmount) || !Number.isFinite(maxAmount)) {
-                return 'Budget not specified';
+                return i18n.budgetNotSpecified;
             }
 
             return `$${minAmount.toLocaleString()} - $${maxAmount.toLocaleString()}`;

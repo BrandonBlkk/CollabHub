@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Messages')
+@section('title', __('messages.meta.title'))
 
 @section('content')
     <div class="flex flex-col h-[calc(99vh-100px)]">
@@ -12,15 +12,15 @@
                 <div class="p-4 border-b border-gray-200 select-none">
                     <div class="flex space-x-2">
                         <button class="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors">
-                            All
+                            {{ __('messages.filters.all') }}
                         </button>
                         <button
                             class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
-                            Unread
+                            {{ __('messages.filters.unread') }}
                         </button>
                         <button
                             class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
-                            Archived
+                            {{ __('messages.filters.archived') }}
                         </button>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                                         <span class="text-xs text-gray-500 whitespace-nowrap">10:24 AM</span>
                                     </div>
                                     <p class="text-gray-600 text-xs truncate mb-1">
-                                        Hey! I've sent the latest design files...
+                                        {{ __('messages.chat.received_preview') }}
                                     </p>
                                 </div>
                             </div>
@@ -73,8 +73,10 @@
                             <div>
                                 <h3 class="font-bold text-gray-900">John Doe</h3>
                                 <div class="flex items-center">
-                                    <span class="text-xs text-green-600 font-medium mr-2">Online</span>
-                                    <span class="text-xs text-gray-500">Web Design Project • $2,500</span>
+                                    <span class="text-xs text-green-600 font-medium mr-2">{{ __('messages.chat.status_online') }}</span>
+                                    <span class="text-xs text-gray-500">
+                                        {{ __('messages.chat.context_project_budget', ['project' => __('messages.right_panel.project_title'), 'amount' => '$2,500']) }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -116,7 +118,7 @@
                     <!-- Date Separator -->
                     <div class="text-center">
                         <span class="inline-block px-3 py-1 bg-gray-200 text-gray-700 text-xs font-medium rounded-full">
-                            Today
+                            {{ __('messages.chat.today') }}
                         </span>
                     </div>
 
@@ -129,9 +131,7 @@
                         <div class="flex-1">
                             <div
                                 class="bg-white rounded-xl rounded-tl-none p-4 border border-gray-200 shadow-sm max-w-[85%]">
-                                <p class="text-sm text-gray-800">Hey! I've sent the latest design files for the landing
-                                    page. Let me
-                                    know what you think!</p>
+                                <p class="text-sm text-gray-800">{{ __('messages.chat.received_1') }}</p>
                                 <div class="mt-2 flex items-center space-x-3">
                                     <a href="#"
                                         class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
@@ -140,7 +140,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                         </svg>
-                                        design_v2.zip (4.2 MB)
+                                        {{ __('messages.chat.attachment_label') }}
                                     </a>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                     <div class="flex items-start space-x-3 max-w-2xl ml-auto justify-end">
                         <div class="text-right">
                             <div class="bg-blue-600 text-white text-sm rounded-xl rounded-tr-none p-4 max-w-[85%] ml-auto">
-                                <p>Thanks John! The designs look great. I'll review them and share feedback by EOD.</p>
+                                <p>{{ __('messages.chat.sent_1') }}</p>
                             </div>
                             <div class="flex items-center justify-end space-x-1 mt-1">
                                 <span class="text-xs text-gray-500">10:28 AM</span>
@@ -174,10 +174,7 @@
                         <div class="flex-1">
                             <div
                                 class="bg-white rounded-xl rounded-tl-none p-4 border border-gray-200 shadow-sm max-w-[85%]">
-                                <p class="text-sm text-gray-800">Perfect! Also, can we schedule a quick call tomorrow to
-                                    discuss
-                                    the
-                                    development timeline?</p>
+                                <p class="text-sm text-gray-800">{{ __('messages.chat.received_2') }}</p>
                             </div>
                             <span class="text-xs text-gray-500 mt-1 block ml-1">10:32 AM</span>
                         </div>
@@ -187,20 +184,20 @@
                     <div class="flex items-start space-x-3 max-w-2xl ml-auto justify-end">
                         <div class="text-right">
                             <div class="bg-blue-600 text-white text-sm rounded-xl rounded-tr-none p-4 max-w-[85%] ml-auto">
-                                <p>Sure, how about 11 AM tomorrow?</p>
+                                <p>{{ __('messages.chat.sent_2') }}</p>
                             </div>
                             <div class="flex space-x-2 mt-2 justify-end">
                                 <button
                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors whitespace-nowrap">
-                                    11 AM
+                                    {{ __('messages.chat.quick_time_1') }}
                                 </button>
                                 <button
                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors whitespace-nowrap">
-                                    2 PM
+                                    {{ __('messages.chat.quick_time_2') }}
                                 </button>
                                 <button
                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors whitespace-nowrap">
-                                    4 PM
+                                    {{ __('messages.chat.quick_time_3') }}
                                 </button>
                             </div>
                             <div class="flex items-center justify-end space-x-1 mt-1">
@@ -217,7 +214,7 @@
                     <!-- System Message -->
                     <div class="text-center">
                         <div class="inline-block px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                            <p class="text-amber-800 text-sm">John Doe is typing...</p>
+                            <p class="text-amber-800 text-sm">{{ __('messages.chat.typing', ['name' => 'John Doe']) }}</p>
                         </div>
                     </div>
                 </div>
@@ -251,7 +248,7 @@
                             <input type="file" id="photoInput" class="hidden" accept="image/*" />
                         </div>
                         <div class="flex-1 relative">
-                            <textarea rows="1" placeholder="Type your message here..."
+                            <textarea rows="1" placeholder="{{ __('messages.composer.placeholder') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all"
                                 oninput="autoResize(this)"></textarea>
                             <div class="absolute right-3 bottom-3 flex items-center space-x-2">
@@ -281,30 +278,30 @@
             <div id="rightSection"
                 class="w-0 border-l border-gray-200 bg-white overflow-y-auto transition-all duration-300">
                 <div class="p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">Project Details</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">{{ __('messages.right_panel.title') }}</h3>
 
                     <div class="space-y-6">
                         <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h4 class="font-semibold text-gray-900 mb-3">Web Design Project</h4>
+                            <h4 class="font-semibold text-gray-900 mb-3">{{ __('messages.right_panel.project_title') }}</h4>
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 text-sm">Budget:</span>
+                                    <span class="text-gray-600 text-sm">{{ __('messages.right_panel.budget') }}</span>
                                     <span class="font-medium text-gray-900">$2,500</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 text-sm">Status:</span>
+                                    <span class="text-gray-600 text-sm">{{ __('messages.right_panel.status') }}</span>
                                     <span
-                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">Active</span>
+                                        class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">{{ __('messages.right_panel.status_active') }}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 text-sm">Deadline:</span>
+                                    <span class="text-gray-600 text-sm">{{ __('messages.right_panel.deadline') }}</span>
                                     <span class="font-medium text-sm text-gray-900">Dec 20, 2023</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <h4 class="font-semibold text-gray-900">Shared Files</h4>
+                            <h4 class="font-semibold text-gray-900">{{ __('messages.right_panel.shared_files') }}</h4>
                             <div class="space-y-2">
                                 @for ($i = 1; $i <= 3; $i++)
                                     <div
@@ -322,8 +319,8 @@
                                                 <p class="text-sm font-medium text-gray-900 truncate">
                                                     design_v{{ $i }}.zip
                                                 </p>
-                                                <p class="text-xs text-gray-500">{{ $i * 2.1 }} MB •
-                                                    {{ $i }} day ago</p>
+                                                <p class="text-xs text-gray-500">{{ $i * 2.1 }} MB -
+                                                    {{ trans_choice('messages.right_panel.day_ago_many', $i, ['count' => $i]) }}</p>
                                             </div>
                                         </div>
                                         <button
@@ -339,11 +336,11 @@
                         </div>
 
                         <div class="pt-6 border-t border-gray-200">
-                            <h4 class="font-semibold text-gray-900 mb-3">Quick Actions</h4>
+                            <h4 class="font-semibold text-gray-900 mb-3">{{ __('messages.right_panel.quick_actions') }}</h4>
                             <div class="space-y-2">
                                 <button
                                     class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                                    <span class="text-gray-700 text-sm font-medium">Schedule Meeting</span>
+                                    <span class="text-gray-700 text-sm font-medium">{{ __('messages.right_panel.schedule_meeting') }}</span>
                                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -352,7 +349,7 @@
                                 </button>
                                 <button
                                     class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                                    <span class="text-gray-700 text-sm font-medium">Create Milestone</span>
+                                    <span class="text-gray-700 text-sm font-medium">{{ __('messages.right_panel.create_milestone') }}</span>
                                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -361,7 +358,7 @@
                                 </button>
                                 <button
                                     class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                                    <span class="text-gray-700 text-sm font-medium">View Contract</span>
+                                    <span class="text-gray-700 text-sm font-medium">{{ __('messages.right_panel.view_contract') }}</span>
                                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -409,3 +406,4 @@
         }
     </style>
 @endsection
+

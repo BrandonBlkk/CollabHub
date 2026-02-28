@@ -143,11 +143,11 @@ class ProfileController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You are not authorized to update this profile.',
+                    'message' => __('profile.messages.unauthorized_update'),
                 ], 403);
             }
 
-            abort(403, 'You are not authorized to update this profile.');
+            abort(403, __('profile.messages.unauthorized_update'));
         }
 
         $validated = $request->validate([
@@ -201,7 +201,7 @@ class ProfileController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Profile updated successfully.',
+                'message' => __('profile.messages.updated_success'),
                 'name' => $freelancer->name,
                 'profile_photo_url' => $freelancer->profile_photo_url,
                 'availability' => $updatedAvailability,

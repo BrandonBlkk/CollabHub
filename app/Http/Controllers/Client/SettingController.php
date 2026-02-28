@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $this->applyPreferredLocale($request->user());
+
         return view('settings');
     }
 
@@ -53,9 +55,11 @@ class SettingController extends Controller
             $validated
         );
 
+        $this->applyPreferredLocale($user, $validated['language'] ?? null);
+
         return response()->json([
             'success' => true,
-            'message' => 'Settings updated successfully'
+            'message' => __('settings.messages.updated')
         ]);
     }
 
@@ -79,9 +83,11 @@ class SettingController extends Controller
             'show_earnings' => true,
         ]);
 
+        $this->applyPreferredLocale($user, 'en');
+
         return response()->json([
             'success' => true,
-            'message' => 'Settings reset to default successfully'
+            'message' => __('settings.messages.reset')
         ]);
     }
 
@@ -352,5 +358,11 @@ class SettingController extends Controller
             'certificate' => FreelancerCertification::class,
             default => null
         };
+    }
+
+    private function applyPreferredLocale($user, ?string $overrideLanguage = null): void
+    {
+        $locale = strtolower((string) ($overrideLanguage ?? $user?->settings?->language ?? 'en'));
+        app()->setLocale(in_array($locale, ['en', 'my'], true) ? $locale : 'en');
     }
 }

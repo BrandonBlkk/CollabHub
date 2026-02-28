@@ -61,7 +61,7 @@ class EducationController extends Controller
         if (Auth::user()->freelancer->id !== $education->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ]);
         }
 
@@ -78,7 +78,7 @@ class EducationController extends Controller
         if (Auth::user()->freelancer->id !== $education->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ]);
         }
 
@@ -111,7 +111,7 @@ class EducationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Education updated successfully',
+            'message' => __('profile.freelancer.education.messages.updated'),
             'education' => $education->load(['university', 'major'])
         ]);
     }
@@ -126,7 +126,7 @@ class EducationController extends Controller
         if (Auth::user()->freelancer->id !== $education->freelancer_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized action'
+                'message' => __('profile.freelancer.languages.errors.unauthorized')
             ]);
         }
 
@@ -134,7 +134,7 @@ class EducationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Education deleted successfully'
+            'message' => __('profile.freelancer.education.messages.deleted')
         ]);
     }
 }

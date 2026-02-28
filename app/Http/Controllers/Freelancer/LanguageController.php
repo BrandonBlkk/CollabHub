@@ -29,7 +29,7 @@ class LanguageController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching languages: ' . $e->getMessage()
+                'message' => __('profile.freelancer.languages.errors.fetch') . ': ' . $e->getMessage()
             ], 500);
         }
     }
@@ -61,13 +61,13 @@ class LanguageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Languages added successfully',
+                'message' => __('profile.freelancer.languages.messages.added'),
                 'languages' => $createdLanguages
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error adding languages: ' . $e->getMessage()
+                'message' => __('profile.freelancer.languages.errors.add') . ': ' . $e->getMessage()
             ], 500);
         }
     }
@@ -83,7 +83,7 @@ class LanguageController extends Controller
             if (Auth::id() !== $language->user_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized action'
+                    'message' => __('profile.freelancer.languages.errors.unauthorized')
                 ], 403);
             }
 
@@ -98,13 +98,13 @@ class LanguageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Language updated successfully',
+                'message' => __('profile.freelancer.languages.messages.updated'),
                 'language' => $language
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating language: ' . $e->getMessage()
+                'message' => __('profile.freelancer.languages.errors.update') . ': ' . $e->getMessage()
             ], 500);
         }
     }
@@ -120,7 +120,7 @@ class LanguageController extends Controller
             if (Auth::id() !== $language->user_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized action'
+                    'message' => __('profile.freelancer.languages.errors.unauthorized')
                 ], 403);
             }
 
@@ -128,12 +128,12 @@ class LanguageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Language deleted successfully'
+                'message' => __('profile.freelancer.languages.messages.deleted')
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting language: ' . $e->getMessage()
+                'message' => __('profile.freelancer.languages.errors.delete') . ': ' . $e->getMessage()
             ], 500);
         }
     }

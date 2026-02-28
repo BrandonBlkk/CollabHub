@@ -1,0 +1,83 @@
+<?php
+
+return [
+    'meta' => [
+        'title' => 'လုပ်ဆောင်နေသော အလုပ်များ',
+    ],
+    'header' => [
+        'title' => 'လုပ်ဆောင်နေသော အလုပ်များ',
+        'subtitle' => 'တိုးတက်မှုကို စောင့်ကြည့်ပြီး လက်ရှိစာချုပ်များကို စီမံခန့်ခွဲပါ။',
+    ],
+    'labels' => [
+        'client' => 'Client',
+        'deadline' => 'နောက်ဆုံးရက်',
+        'progress' => 'တိုးတက်မှု',
+        'type' => 'အမျိုးအစား',
+        'budget' => 'ဘတ်ဂျက်',
+        'started' => 'စတင်သည့်ရက်',
+        'next_milestone' => 'နောက်ထပ် မိုင်စတုန်း',
+        'next_due' => 'နောက်ထပ်အပ်နှံရမည့်ရက်',
+        'notes' => 'မှတ်စုများ',
+    ],
+    'buttons' => [
+        'view_details' => 'အသေးစိတ်ကြည့်ရန်',
+        'message' => 'စာပို့ရန်',
+        'open_contract' => 'စာချုပ်ဖွင့်ရန်',
+        'message_client' => 'Client ထံ စာပို့ရန်',
+        'add_milestone' => 'မိုင်စတုန်း ထည့်ရန်',
+    ],
+    'modal' => [
+        'title' => 'အလုပ်အသေးစိတ်',
+        'client_fallback' => 'Client',
+        'status_fallback' => 'အခြေအနေ',
+    ],
+    'status' => [
+        'in_progress' => 'လုပ်ဆောင်နေဆဲ',
+        'active' => 'တက်ကြွ',
+    ],
+    'job_type' => [
+        'fixed' => 'တန်ဖိုးသတ်မှတ်',
+        'hourly' => 'နာရီလိုက်',
+    ],
+    'sample_jobs' => [
+        [
+            'title' => 'Landing Page ပြန်လည်ပြင်ဆင်ခြင်း',
+            'status_key' => 'in_progress',
+            'amount' => '$2,400',
+            'progress' => 65,
+            'deadline' => '2026 ဖေဖော်ဝါရီ 19',
+            'client' => 'Nova Studio',
+            'job_type_key' => 'fixed',
+            'started' => '2026 ဖေဖော်ဝါရီ 02',
+            'milestone' => 'UI polish နှင့် QA',
+            'next_due' => '2026 ဖေဖော်ဝါရီ 16',
+            'notes' => 'Hero section အတွက် နောက်ဆုံး assets နှင့် Client feedback ကို စောင့်နေသည်။',
+        ],
+        [
+            'title' => 'API ချိတ်ဆက်မှု ပံ့ပိုးခြင်း',
+            'status_key' => 'active',
+            'amount' => '$1,200',
+            'progress' => 35,
+            'deadline' => '2026 ဖေဖော်ဝါရီ 24',
+            'client' => 'BrightPay',
+            'job_type_key' => 'hourly',
+            'started' => '2026 ဖေဖော်ဝါရီ 05',
+            'milestone' => 'ငွေပေးချေမှု webhook များ',
+            'next_due' => '2026 ဖေဖော်ဝါရီ 18',
+            'notes' => 'Client က staging keys ပေးပြီးဖြစ်သည်။ webhook retry spec စောင့်နေသည်။',
+        ],
+        [
+            'title' => 'Mobile QA စစ်ဆေးမှု',
+            'status_key' => 'in_progress',
+            'amount' => '$900',
+            'progress' => 80,
+            'deadline' => '2026 ဖေဖော်ဝါရီ 15',
+            'client' => 'ShipMate',
+            'job_type_key' => 'fixed',
+            'started' => '2026 ဖေဖော်ဝါရီ 07',
+            'milestone' => 'iOS regression pass',
+            'next_due' => '2026 ဖေဖော်ဝါရီ 14',
+            'notes' => 'Issue အများစုကို စစ်ပြီးဖြစ်သည်။ iPhone 13 mini အတွက် နောက်ဆုံးစစ်ဆေးမှု ကျန်သေးသည်။',
+        ],
+    ],
+];

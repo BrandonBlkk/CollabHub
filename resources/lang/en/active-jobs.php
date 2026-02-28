@@ -1,0 +1,83 @@
+<?php
+
+return [
+    'meta' => [
+        'title' => 'Active Jobs',
+    ],
+    'header' => [
+        'title' => 'Active Jobs',
+        'subtitle' => 'Track progress and manage your active contracts.',
+    ],
+    'labels' => [
+        'client' => 'Client',
+        'deadline' => 'Deadline',
+        'progress' => 'Progress',
+        'type' => 'Type',
+        'budget' => 'Budget',
+        'started' => 'Started',
+        'next_milestone' => 'Next milestone',
+        'next_due' => 'Next due',
+        'notes' => 'Notes',
+    ],
+    'buttons' => [
+        'view_details' => 'View details',
+        'message' => 'Message',
+        'open_contract' => 'Open contract',
+        'message_client' => 'Message client',
+        'add_milestone' => 'Add milestone',
+    ],
+    'modal' => [
+        'title' => 'Job details',
+        'client_fallback' => 'Client',
+        'status_fallback' => 'Status',
+    ],
+    'status' => [
+        'in_progress' => 'In Progress',
+        'active' => 'Active',
+    ],
+    'job_type' => [
+        'fixed' => 'Fixed',
+        'hourly' => 'Hourly',
+    ],
+    'sample_jobs' => [
+        [
+            'title' => 'Landing Page Revamp',
+            'status_key' => 'in_progress',
+            'amount' => '$2,400',
+            'progress' => 65,
+            'deadline' => 'Feb 19, 2026',
+            'client' => 'Nova Studio',
+            'job_type_key' => 'fixed',
+            'started' => 'Feb 02, 2026',
+            'milestone' => 'UI polish & QA',
+            'next_due' => 'Feb 16, 2026',
+            'notes' => 'Waiting on final assets and client feedback for hero section.',
+        ],
+        [
+            'title' => 'API Integration Support',
+            'status_key' => 'active',
+            'amount' => '$1,200',
+            'progress' => 35,
+            'deadline' => 'Feb 24, 2026',
+            'client' => 'BrightPay',
+            'job_type_key' => 'hourly',
+            'started' => 'Feb 05, 2026',
+            'milestone' => 'Payment webhooks',
+            'next_due' => 'Feb 18, 2026',
+            'notes' => 'Client shared staging keys. Pending webhook retry spec.',
+        ],
+        [
+            'title' => 'Mobile QA Audit',
+            'status_key' => 'in_progress',
+            'amount' => '$900',
+            'progress' => 80,
+            'deadline' => 'Feb 15, 2026',
+            'client' => 'ShipMate',
+            'job_type_key' => 'fixed',
+            'started' => 'Feb 07, 2026',
+            'milestone' => 'iOS regression pass',
+            'next_due' => 'Feb 14, 2026',
+            'notes' => 'Most issues verified. Final pass on iPhone 13 mini pending.',
+        ],
+    ],
+];

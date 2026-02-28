@@ -1,12 +1,57 @@
 @extends('layouts.app')
 
+@section('title', __('profile.freelancer.meta.title'))
+
 @section('content')
+    <script>
+        window.freelancerProfileJsMap = @json(trans('profile.freelancer.js_map'));
+        window.translateFreelancerProfileText = function(text) {
+            if (typeof text !== 'string') return text;
+            const map = window.freelancerProfileJsMap || {};
+            if (Object.prototype.hasOwnProperty.call(map, text)) {
+                return map[text];
+            }
+
+            let translated = text;
+            Object.keys(map)
+                .sort((a, b) => b.length - a.length)
+                .forEach((source) => {
+                    if (!source || !translated.includes(source)) return;
+                    translated = translated.split(source).join(map[source]);
+                });
+
+            return translated;
+        };
+        window.freelancerPresentLabel = @json(__('profile.freelancer.common.present'));
+        window.freelancerSavingLabel = @json(__('profile.actions.saving'));
+        window.freelancerUpdatingLabel = @json(__('profile.freelancer.actions.updating'));
+        window.freelancerJobRoleNotFoundLabel = @json(__('profile.freelancer.experience.job_role_not_found'));
+        window.freelancerUniversityFallbackLabel = @json(__('profile.freelancer.education.university_fallback'));
+        window.freelancerGradeLabel = @json(__('profile.freelancer.education.grade_label'));
+        window.freelancerSkillsNoResults = @json(__('profile.freelancer.skills.no_skills_found'));
+        window.freelancerSkillsNoResultsShort = @json(__('profile.freelancer.skills.no_results_short'));
+        window.freelancerSkillsAllSelected = @json(__('profile.freelancer.skills.all_selected'));
+        window.freelancerSkillsAddedAction = @json(__('profile.freelancer.skills.added_action'));
+        window.freelancerSkillsClickToAdd = @json(__('profile.freelancer.skills.click_to_add'));
+        window.freelancerHourlyUpdatedSuccess = @json(__('profile.freelancer.hourly.messages.updated_success'));
+        window.freelancerHourlyUpdateFailed = @json(__('profile.freelancer.hourly.messages.update_failed'));
+        window.freelancerHourlyUnknownError = @json(__('profile.freelancer.hourly.messages.unknown_error'));
+        window._freelancerProfileAlert = window.alert.bind(window);
+        window._freelancerProfileConfirm = window.confirm.bind(window);
+        window.alert = function(message) {
+            return window._freelancerProfileAlert(window.translateFreelancerProfileText(String(message)));
+        };
+        window.confirm = function(message) {
+            return window._freelancerProfileConfirm(window.translateFreelancerProfileText(String(message)));
+        };
+    </script>
+
     <!-- Add Experience Modal -->
     <div id="addExperienceModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
         style="display: none;">
         <div class=" bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Add New Experience</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.modals.experience.add_title') }}</h3>
             </div>
 
             <form id="experienceForm" method="POST" action="{{ route('experiences.store') }}" class="p-6 space-y-4">
@@ -16,11 +61,11 @@
                 {{-- Job Role --}}
                 <div>
                     <label for="job_role_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Job Role *
+                        {{ __('profile.freelancer.modals.experience.job_role') }} *
                     </label>
                     <select name="job_role_id" id="job_role_id"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select Job Role</option>
+                        <option value="">{{ __('profile.freelancer.modals.experience.select_job_role') }}</option>
                         @foreach ($jobRoles as $jobRole)
                             <option value="{{ $jobRole->id }}">{{ $jobRole->title }}</option>
                         @endforeach
@@ -29,33 +74,35 @@
 
                 <div>
                     <label for="company" class="block text-sm font-medium text-gray-700 mb-1">
-                        Company Name *
+                        {{ __('profile.freelancer.modals.experience.company_name') }} *
                     </label>
-                    <input type="text" id="company" name="company" placeholder="e.g., TechCorp Inc." required
+                    <input type="text" id="company" name="company"
+                        placeholder="{{ __('profile.freelancer.modals.experience.company_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {{ __('profile.freelancer.modals.common.description') }}
                     </label>
                     <textarea id="description" name="description" rows="3"
-                        placeholder="Describe your responsibilities and achievements..."
+                        placeholder="{{ __('profile.freelancer.modals.experience.description_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
                 <div>
                     <label for="employment_type" class="block text-sm font-medium text-gray-700 mb-1">
-                        Employment Type
+                        {{ __('profile.freelancer.modals.experience.employment_type') }}
                     </label>
-                    <input type="text" id="employment_type" name="employment_type" placeholder="e.g., Full-time" required
+                    <input type="text" id="employment_type" name="employment_type"
+                        placeholder="{{ __('profile.freelancer.modals.experience.employment_type_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Date
+                            {{ __('profile.freelancer.modals.common.start_date') }}
                         </label>
                         <input type="month" id="start_date" name="start_date"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
@@ -63,33 +110,35 @@
 
                     <div>
                         <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            End Date
+                            {{ __('profile.freelancer.modals.common.end_date') }}
                         </label>
                         <input type="month" id="end_date" name="end_date"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         <div class="flex items-center mt-2">
                             <input type="checkbox" id="is_current" name="is_current" class="mr-2" value="1">
-                            <label for="is_current" class="text-sm text-gray-600">Currently working here</label>
+                            <label for="is_current"
+                                class="text-sm text-gray-600">{{ __('profile.freelancer.modals.experience.currently_working_here') }}</label>
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
-                        Location
+                        {{ __('profile.freelancer.modals.common.location') }}
                     </label>
-                    <input type="text" id="location" name="location" placeholder="e.g., San Francisco, CA"
+                    <input type="text" id="location" name="location"
+                        placeholder="{{ __('profile.freelancer.modals.common.location_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddExperienceModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Save Experience
+                        {{ __('profile.freelancer.modals.experience.save') }}
                     </button>
                 </div>
             </form>
@@ -101,7 +150,8 @@
         style="display: none;">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Edit Experience</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.modals.experience.edit_title') }}
+                </h3>
             </div>
 
             <div id="submitSpinner" class="h-[80vh] hidden items-center justify-center">
@@ -117,11 +167,11 @@
                 <!-- Job Role -->
                 <div>
                     <label for="edit_job_role_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Job Role *
+                        {{ __('profile.freelancer.modals.experience.job_role') }} *
                     </label>
                     <select name="job_role_id" id="edit_job_role_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select Job Role</option>
+                        <option value="">{{ __('profile.freelancer.modals.experience.select_job_role') }}</option>
                         @foreach ($jobRoles as $jobRole)
                             <option value="{{ $jobRole->id }}">{{ $jobRole->title }}</option>
                         @endforeach
@@ -130,33 +180,35 @@
 
                 <div>
                     <label for="edit_company" class="block text-sm font-medium text-gray-700 mb-1">
-                        Company Name *
+                        {{ __('profile.freelancer.modals.experience.company_name') }} *
                     </label>
-                    <input type="text" id="edit_company" name="company" placeholder="e.g., TechCorp Inc." required
+                    <input type="text" id="edit_company" name="company"
+                        placeholder="{{ __('profile.freelancer.modals.experience.company_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div>
                     <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {{ __('profile.freelancer.modals.common.description') }}
                     </label>
                     <textarea id="edit_description" name="description" rows="3"
-                        placeholder="Describe your responsibilities and achievements..."
+                        placeholder="{{ __('profile.freelancer.modals.experience.description_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
                 <div>
                     <label for="edit_employment_type" class="block text-sm font-medium text-gray-700 mb-1">
-                        Employment Type
+                        {{ __('profile.freelancer.modals.experience.employment_type') }}
                     </label>
-                    <input type="text" id="edit_employment_type" name="employment_type" placeholder="e.g., Full-time"
+                    <input type="text" id="edit_employment_type" name="employment_type"
+                        placeholder="{{ __('profile.freelancer.modals.experience.employment_type_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_start_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Date *
+                            {{ __('profile.freelancer.modals.common.start_date') }} *
                         </label>
                         <input type="month" id="edit_start_date" name="start_date" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
@@ -164,34 +216,35 @@
 
                     <div>
                         <label for="edit_end_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            End Date
+                            {{ __('profile.freelancer.modals.common.end_date') }}
                         </label>
                         <input type="month" id="edit_end_date" name="end_date"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                         <div class="flex items-center mt-2">
                             <input type="checkbox" id="edit_is_current" name="is_current" class="mr-2">
-                            <label for="edit_is_current" class="text-sm text-gray-600">Currently working
-                                here</label>
+                            <label for="edit_is_current"
+                                class="text-sm text-gray-600">{{ __('profile.freelancer.modals.experience.currently_working_here') }}</label>
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <label for="edit_location" class="block text-sm font-medium text-gray-700 mb-1">
-                        Location
+                        {{ __('profile.freelancer.modals.common.location') }}
                     </label>
-                    <input type="text" id="edit_location" name="location" placeholder="e.g., San Francisco, CA"
+                    <input type="text" id="edit_location" name="location"
+                        placeholder="{{ __('profile.freelancer.modals.common.location_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditExperienceModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Update Experience
+                        {{ __('profile.freelancer.modals.experience.update') }}
                     </button>
                 </div>
             </form>
@@ -203,7 +256,7 @@
         style="display: none;">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Add New Education</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.modals.education.add_title') }}</h3>
             </div>
 
             <form id="educationForm" method="POST" action="{{ route('educations.store') }}" class="p-6 space-y-4">
@@ -213,15 +266,16 @@
                 <!-- University -->
                 <div>
                     <label for="university_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        University *
+                        {{ __('profile.freelancer.modals.education.university') }} *
                     </label>
                     <select name="university_id" id="university_id"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select University</option>
+                        <option value="">{{ __('profile.freelancer.modals.education.select_university') }}</option>
                         @forelse ($universities as $university)
                             <option value="{{ $university->id }}">{{ $university->name }}</option>
                         @empty
-                            <option value="">No universities found</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.no_universities') }}
+                            </option>
                         @endforelse
                     </select>
                 </div>
@@ -229,15 +283,15 @@
                 <!-- Major -->
                 <div>
                     <label for="major_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Major/Field of Study *
+                        {{ __('profile.freelancer.modals.education.major') }} *
                     </label>
                     <select name="major_id" id="major_id"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select Major</option>
+                        <option value="">{{ __('profile.freelancer.modals.education.select_major') }}</option>
                         @forelse ($majors as $major)
                             <option value="{{ $major->id }}">{{ $major->name }}</option>
                         @empty
-                            <option value="">No majors found</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.no_majors') }}</option>
                         @endforelse
                     </select>
                 </div>
@@ -245,18 +299,20 @@
                 <!-- Degree -->
                 <div>
                     <label for="degree" class="block text-sm font-medium text-gray-700 mb-1">
-                        Degree *
+                        {{ __('profile.freelancer.modals.education.degree') }} *
                     </label>
-                    <input type="text" id="degree" name="degree" placeholder="e.g., Bachelor of Science" required
+                    <input type="text" id="degree" name="degree"
+                        placeholder="{{ __('profile.freelancer.modals.education.degree_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <!-- Field of Study -->
                 <div>
                     <label for="field_of_study" class="block text-sm font-medium text-gray-700 mb-1">
-                        Field of Study
+                        {{ __('profile.freelancer.modals.education.field_of_study') }}
                     </label>
-                    <input type="text" id="field_of_study" name="field_of_study" placeholder="e.g., Computer Science"
+                    <input type="text" id="field_of_study" name="field_of_study"
+                        placeholder="{{ __('profile.freelancer.modals.education.field_of_study_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
@@ -264,11 +320,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="start_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Year *
+                            {{ __('profile.freelancer.modals.education.start_year') }} *
                         </label>
                         <select id="start_year" name="start_year" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
                             @for ($year = date('Y'); $year >= 1980; $year--)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
@@ -277,19 +333,20 @@
 
                     <div>
                         <label for="end_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            End Year
+                            {{ __('profile.freelancer.modals.education.end_year') }}
                         </label>
                         <select id="end_year" name="end_year"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
-                            <option value="present">Present</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
+                            <option value="present">{{ __('profile.freelancer.common.present') }}</option>
                             @for ($year = date('Y'); $year >= 1980; $year--)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
                         </select>
                         <div class="flex items-center mt-2">
                             <input type="checkbox" id="is_current" name="is_current" class="mr-2" value="1">
-                            <label for="is_current" class="text-sm text-gray-600">Currently studying</label>
+                            <label for="is_current"
+                                class="text-sm text-gray-600">{{ __('profile.freelancer.modals.education.currently_studying') }}</label>
                         </div>
                     </div>
                 </div>
@@ -297,30 +354,31 @@
                 <!-- Grade -->
                 <div>
                     <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">
-                        Grade/GPA
+                        {{ __('profile.freelancer.modals.education.grade') }}
                     </label>
-                    <input type="text" id="grade" name="grade" placeholder="e.g., 3.8/4.0, First Class"
+                    <input type="text" id="grade" name="grade"
+                        placeholder="{{ __('profile.freelancer.modals.education.grade_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <!-- Description -->
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {{ __('profile.freelancer.modals.common.description') }}
                     </label>
                     <textarea id="description" name="description" rows="3"
-                        placeholder="Describe your achievements, courses, or projects..."
+                        placeholder="{{ __('profile.freelancer.modals.education.description_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddEducationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Save Education
+                        {{ __('profile.freelancer.modals.education.save') }}
                     </button>
                 </div>
             </form>
@@ -332,7 +390,8 @@
         style="display: none;">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Edit Education</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.modals.education.edit_title') }}
+                </h3>
             </div>
 
             <form id="editEducationForm" method="POST" class="p-6 space-y-4">
@@ -343,11 +402,11 @@
                 <!-- University -->
                 <div>
                     <label for="edit_university_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        University *
+                        {{ __('profile.freelancer.modals.education.university') }} *
                     </label>
                     <select name="university_id" id="edit_university_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select University</option>
+                        <option value="">{{ __('profile.freelancer.modals.education.select_university') }}</option>
                         @foreach ($universities as $university)
                             <option value="{{ $university->id }}">{{ $university->name }}</option>
                         @endforeach
@@ -357,11 +416,11 @@
                 <!-- Major -->
                 <div>
                     <label for="edit_major_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Major/Field of Study *
+                        {{ __('profile.freelancer.modals.education.major') }} *
                     </label>
                     <select name="major_id" id="edit_major_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                        <option value="">Select Major</option>
+                        <option value="">{{ __('profile.freelancer.modals.education.select_major') }}</option>
                         @foreach ($majors as $major)
                             <option value="{{ $major->id }}">{{ $major->name }}</option>
                         @endforeach
@@ -371,20 +430,20 @@
                 <!-- Degree -->
                 <div>
                     <label for="edit_degree" class="block text-sm font-medium text-gray-700 mb-1">
-                        Degree *
+                        {{ __('profile.freelancer.modals.education.degree') }} *
                     </label>
-                    <input type="text" id="edit_degree" name="degree" placeholder="e.g., Bachelor of Science"
-                        required
+                    <input type="text" id="edit_degree" name="degree"
+                        placeholder="{{ __('profile.freelancer.modals.education.degree_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <!-- Field of Study -->
                 <div>
                     <label for="edit_field_of_study" class="block text-sm font-medium text-gray-700 mb-1">
-                        Field of Study
+                        {{ __('profile.freelancer.modals.education.field_of_study') }}
                     </label>
                     <input type="text" id="edit_field_of_study" name="field_of_study"
-                        placeholder="e.g., Computer Science"
+                        placeholder="{{ __('profile.freelancer.modals.education.field_of_study_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
@@ -392,11 +451,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_start_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Year *
+                            {{ __('profile.freelancer.modals.education.start_year') }} *
                         </label>
                         <select id="edit_start_year" name="start_year" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
                             @for ($year = date('Y'); $year >= 1980; $year--)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
@@ -405,19 +464,20 @@
 
                     <div>
                         <label for="edit_end_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            End Year
+                            {{ __('profile.freelancer.modals.education.end_year') }}
                         </label>
                         <select id="edit_end_year" name="end_year"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
-                            <option value="present">Present</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
+                            <option value="present">{{ __('profile.freelancer.common.present') }}</option>
                             @for ($year = date('Y'); $year >= 1980; $year--)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
                         </select>
                         <div class="flex items-center mt-2">
                             <input type="checkbox" id="edit_is_current" name="is_current" class="mr-2">
-                            <label for="edit_is_current" class="text-sm text-gray-600">Currently studying</label>
+                            <label for="edit_is_current"
+                                class="text-sm text-gray-600">{{ __('profile.freelancer.modals.education.currently_studying') }}</label>
                         </div>
                     </div>
                 </div>
@@ -425,30 +485,31 @@
                 <!-- Grade -->
                 <div>
                     <label for="edit_grade" class="block text-sm font-medium text-gray-700 mb-1">
-                        Grade/GPA
+                        {{ __('profile.freelancer.modals.education.grade') }}
                     </label>
-                    <input type="text" id="edit_grade" name="grade" placeholder="e.g., 3.8/4.0, First Class"
+                    <input type="text" id="edit_grade" name="grade"
+                        placeholder="{{ __('profile.freelancer.modals.education.grade_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <!-- Description -->
                 <div>
                     <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {{ __('profile.freelancer.modals.common.description') }}
                     </label>
                     <textarea id="edit_description" name="description" rows="3"
-                        placeholder="Describe your achievements, courses, or projects..."
+                        placeholder="{{ __('profile.freelancer.modals.education.description_placeholder') }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditEducationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Update Education
+                        {{ __('profile.freelancer.modals.education.update') }}
                     </button>
                 </div>
             </form>
@@ -460,7 +521,8 @@
         class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50" style="display: none;">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Add New Certification</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.modals.certification.add_title') }}
+                </h3>
             </div>
 
             <form id="certificationForm" method="POST" action="{{ route('certificates.store') }}"
@@ -471,29 +533,30 @@
 
                 <div>
                     <label for="certification_name" class="block text-sm font-medium text-gray-700 mb-1">
-                        Certification Name *
+                        {{ __('profile.freelancer.modals.certification.name') }} *
                     </label>
                     <input type="text" id="certification_name" name="name"
-                        placeholder="Enter your certificate name" required
+                        placeholder="{{ __('profile.freelancer.modals.certification.name_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div>
                     <label for="issuer" class="block text-sm font-medium text-gray-700 mb-1">
-                        Issuing Organization *
+                        {{ __('profile.freelancer.modals.certification.issuer') }} *
                     </label>
-                    <input type="text" id="issuer" name="issuer" placeholder="Enter your issuer" required
+                    <input type="text" id="issuer" name="issuer"
+                        placeholder="{{ __('profile.freelancer.modals.certification.issuer_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="issued_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Issued Year
+                            {{ __('profile.freelancer.modals.certification.issued_year') }}
                         </label>
                         <select id="issued_year" name="issued_year"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
                             @for ($year = date('Y'); $year >= 1990; $year--)
                                 <option value="{{ $year }}">{{ $year }}
                                 </option>
@@ -503,11 +566,11 @@
 
                     <div>
                         <label for="expiry_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Expiry Year
+                            {{ __('profile.freelancer.modals.certification.expiry_year') }}
                         </label>
                         <select id="expiry_year" name="expiry_year"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">No Expiry</option>
+                            <option value="">{{ __('profile.freelancer.modals.certification.no_expiry') }}</option>
                             @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
                                 <option value="{{ $year }}">{{ $year }}
                                 </option>
@@ -518,7 +581,7 @@
 
                 <div>
                     <label for="certificate_url" class="block text-sm font-medium text-gray-700 mb-1">
-                        Certificate URL
+                        {{ __('profile.freelancer.modals.certification.url') }}
                     </label>
                     <input type="url" id="certificate_url" name="certificate_url"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
@@ -528,11 +591,11 @@
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideAddCertificationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Save Certification
+                        {{ __('profile.freelancer.modals.certification.save') }}
                     </button>
                 </div>
             </form>
@@ -544,7 +607,8 @@
         class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50" style="display: none;">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-gray-900">Edit Certification</h3>
+                <h3 class="text-lg font-bold text-gray-900">
+                    {{ __('profile.freelancer.modals.certification.edit_title') }}</h3>
             </div>
 
             <form id="editCertificationForm" method="POST" class="p-6 space-y-4">
@@ -554,18 +618,19 @@
 
                 <div>
                     <label for="edit_certification_name" class="block text-sm font-medium text-gray-700 mb-1">
-                        Certification Name *
+                        {{ __('profile.freelancer.modals.certification.name') }} *
                     </label>
                     <input type="text" id="edit_certification_name" name="name"
-                        placeholder="e.g., AWS Certified Solutions Architect" required
+                        placeholder="{{ __('profile.freelancer.modals.certification.edit_name_placeholder') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
 
                 <div>
                     <label for="edit_issuer" class="block text-sm font-medium text-gray-700 mb-1">
-                        Issuing Organization *
+                        {{ __('profile.freelancer.modals.certification.issuer') }} *
                     </label>
-                    <input type="text" id="edit_issuer" name="issuer" placeholder="e.g., Amazon Web Services"
+                    <input type="text" id="edit_issuer" name="issuer"
+                        placeholder="{{ __('profile.freelancer.modals.certification.edit_issuer_placeholder') }}"
                         required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
                 </div>
@@ -573,11 +638,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="edit_issued_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Issued Year *
+                            {{ __('profile.freelancer.modals.certification.issued_year') }} *
                         </label>
                         <select id="edit_issued_year" name="issued_year" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">Select Year</option>
+                            <option value="">{{ __('profile.freelancer.modals.education.select_year') }}</option>
                             @for ($year = date('Y'); $year >= 1990; $year--)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
@@ -586,11 +651,11 @@
 
                     <div>
                         <label for="edit_expiry_year" class="block text-sm font-medium text-gray-700 mb-1">
-                            Expiry Year
+                            {{ __('profile.freelancer.modals.certification.expiry_year') }}
                         </label>
                         <select id="edit_expiry_year" name="expiry_year"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200">
-                            <option value="">No Expiry</option>
+                            <option value="">{{ __('profile.freelancer.modals.certification.no_expiry') }}</option>
                             @for ($year = date('Y'); $year <= date('Y') + 10; $year++)
                                 <option value="{{ $year }}">{{ $year }}</option>
                             @endfor
@@ -600,22 +665,23 @@
 
                 <div>
                     <label for="edit_certificate_url" class="block text-sm font-medium text-gray-700 mb-1">
-                        Certificate URL
+                        {{ __('profile.freelancer.modals.certification.url') }}
                     </label>
                     <input type="url" id="edit_certificate_url" name="certificate_url"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="https://www.credly.com/badges/..." pattern="https?://.+">
-                    <p class="text-xs text-gray-500 mt-1">Include https:// in the URL</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ __('profile.freelancer.modals.certification.url_help') }}
+                    </p>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 select-none">
                     <button type="button" onclick="hideEditCertificationModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Cancel
+                        {{ __('profile.actions.cancel') }}
                     </button>
                     <button type="submit"
                         class="px-4 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-black rounded-lg transition flex items-center gap-2">
-                        Update Certification
+                        {{ __('profile.freelancer.modals.certification.update') }}
                     </button>
                 </div>
             </form>
@@ -638,7 +704,8 @@
                         <div id="freelancerProfileAvatarContainer">
                             @if ($freelancer->profile_photo_path)
                                 <div class="w-32 h-32 rounded-full flex-shrink-0 select-none">
-                                    <img src="{{ $freelancer->profile_photo_url }}" alt="Profile Image"
+                                    <img src="{{ $freelancer->profile_photo_url }}"
+                                        alt="{{ __('profile.profile.image_alt') }}"
                                         class="w-full h-full rounded-full object-cover border-4 border-white shadow">
                                 </div>
                             @else
@@ -656,7 +723,7 @@
                                 <button type="button" id="freelancerPhotoActionsToggle"
                                     onclick="toggleFreelancerPhotoMenu()"
                                     class="absolute bottom-0 right-0 bg-gray-800 text-white p-2 rounded-full hover:bg-black transition shadow-lg"
-                                    title="Change profile photo">
+                                    title="{{ __('profile.freelancer.profile.change_photo_title') }}">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -669,11 +736,11 @@
                                     <button type="button"
                                         onclick="document.getElementById('profile-photo-upload').click(); toggleFreelancerPhotoMenu(false);"
                                         class="w-full text-left px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-50">
-                                        Update Photo
+                                        {{ __('profile.profile.update_photo') }}
                                     </button>
                                     <button type="button" id="remove-freelancer-photo"
                                         class="w-full text-left px-3 py-2 text-sm text-red-600 rounded hover:bg-red-50 {{ $freelancer->profile_photo_path ? '' : 'hidden' }}">
-                                        Remove Photo
+                                        {{ __('profile.profile.remove_photo') }}
                                     </button>
                                 </div>
                                 <input type="file" id="profile-photo-upload" class="hidden" accept="image/*"
@@ -703,8 +770,7 @@
                                         <span
                                             class="font-semibold text-gray-900">{{ number_format($freelancer->freelancer->rating, 1) }}</span>
                                         <span
-                                            class="text-gray-600 ml-1 text-sm">({{ $freelancer->freelancer->rating_count }}
-                                            reviews)</span>
+                                            class="text-gray-600 ml-1 text-sm">{{ __('profile.freelancer.profile.reviews_count', ['count' => $freelancer->freelancer->rating_count]) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -717,10 +783,10 @@
                                 @php
                                     $headerAvailability = $freelancer->freelancer->availability ?? 'available';
                                     $headerAvailabilityLabel = match ($headerAvailability) {
-                                        'available' => 'Available Now',
-                                        'busy' => 'Busy',
-                                        'unavailable' => 'Unavailable',
-                                        default => 'Available Now',
+                                        'available' => __('profile.freelancer.availability.available_now'),
+                                        'busy' => __('profile.freelancer.availability.busy'),
+                                        'unavailable' => __('profile.freelancer.availability.unavailable'),
+                                        default => __('profile.freelancer.availability.available_now'),
                                     };
                                     $headerAvailabilityClasses = match ($headerAvailability) {
                                         'available' => 'text-green-600 bg-green-50',
@@ -749,7 +815,7 @@
                                         <div
                                             class="w-2 h-2 rounded-full mr-2 {{ $isOnline ? 'bg-green-500' : 'bg-gray-400' }}">
                                         </div>
-                                        {{ $isOnline ? 'Online now' : 'Offline' }}
+                                        {{ $isOnline ? __('profile.freelancer.profile.online_now') : __('profile.freelancer.profile.offline') }}
                                     </div>
                                 @endif
                             </div>
@@ -784,12 +850,13 @@
                                             <input type="number" value="{{ $freelancer->freelancer->years_experience }}"
                                                 class="bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-20"
                                                 id="years-experience">
-                                            <span class="ml-1">+ years experience</span>
+                                            <span
+                                                class="ml-1">{{ __('profile.freelancer.profile.years_experience_suffix') }}</span>
                                         @else
-                                            {{ $freelancer->freelancer->years_experience }}+ years experience
+                                            {{ __('profile.freelancer.profile.years_experience', ['count' => $freelancer->freelancer->years_experience]) }}
                                         @endif
                                     @else
-                                        {{ $freelancer->freelancer->years_experience }}+ years experience
+                                        {{ __('profile.freelancer.profile.years_experience', ['count' => $freelancer->freelancer->years_experience]) }}
                                     @endauth
                                 </div>
                             @endif
@@ -802,7 +869,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Member since {{ date('Y', strtotime($freelancer->created_at)) }}
+                                    {{ __('profile.freelancer.profile.member_since', ['year' => date('Y', strtotime($freelancer->created_at))]) }}
                                 </div>
                             @endif
                         </div>
@@ -818,7 +885,7 @@
                                                 d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                                         </svg>
                                         <input type="url" value="{{ $freelancer->linkedin_url }}"
-                                            placeholder="LinkedIn URL"
+                                            placeholder="{{ __('profile.freelancer.profile.linkedin_placeholder') }}"
                                             class="ml-1 text-sm bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-40"
                                             id="linkedin-url">
                                     </div>
@@ -828,7 +895,8 @@
                                             <path
                                                 d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                                         </svg>
-                                        <input type="url" value="{{ $freelancer->github_url }}" placeholder="GitHub URL"
+                                        <input type="url" value="{{ $freelancer->github_url }}"
+                                            placeholder="{{ __('profile.freelancer.profile.github_placeholder') }}"
                                             class="ml-1 text-sm bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0.5 w-40"
                                             id="github-url">
                                     </div>
@@ -883,20 +951,20 @@
                             <!-- Save All Button for freelancer -->
                             <button type="submit"
                                 class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
-                                Save All Changes
+                                {{ __('profile.freelancer.actions.save_all_changes') }}
                             </button>
                         @else
                             <!-- Hire Button for other users -->
                             @if ($freelancer->freelancer->availability === 'unavailable')
                                 <button
                                     class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
-                                    disabled title="This freelancer is currently unavailable for hire">
-                                    Unavailable
+                                    disabled title="{{ __('profile.freelancer.actions.unavailable_hire_title') }}">
+                                    {{ __('profile.freelancer.actions.unavailable') }}
                                 </button>
                             @else
                                 <button
                                     class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
-                                    Hire Now
+                                    {{ __('profile.freelancer.actions.hire_now') }}
                                 </button>
                             @endif
                         @endif
@@ -905,13 +973,13 @@
                         @if ($freelancer->freelancer->availability === 'unavailable')
                             <button
                                 class="flex-1 md:flex-none bg-gray-300 text-gray-500 font-medium py-3 px-6 rounded-lg cursor-not-allowed text-sm"
-                                disabled title="This freelancer is currently unavailable for hire">
-                                Unavailable
+                                disabled title="{{ __('profile.freelancer.actions.unavailable_hire_title') }}">
+                                {{ __('profile.freelancer.actions.unavailable') }}
                             </button>
                         @else
                             <button
                                 class="flex-1 md:flex-none bg-gray-800 hover:bg-black text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm select-none">
-                                Hire Now
+                                {{ __('profile.freelancer.actions.hire_now') }}
                             </button>
                         @endif
                     @endauth
@@ -947,37 +1015,37 @@
                                 :class="activeTab === 'overview' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Overview
+                                {{ __('profile.freelancer.tabs.overview') }}
                             </button>
                             <button type="button" @click="activeTab = 'portfolio'"
                                 :class="activeTab === 'portfolio' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Portfolio
+                                {{ __('profile.freelancer.tabs.portfolio') }}
                             </button>
                             <button type="button" @click="activeTab = 'reviews'"
                                 :class="activeTab === 'reviews' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Reviews
+                                {{ __('profile.freelancer.tabs.reviews') }}
                             </button>
                             <button type="button" @click="activeTab = 'experience'"
                                 :class="activeTab === 'experience' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Experience
+                                {{ __('profile.freelancer.tabs.experience') }}
                             </button>
                             <button type="button" @click="activeTab = 'education'"
                                 :class="activeTab === 'education' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Education
+                                {{ __('profile.freelancer.tabs.education') }}
                             </button>
                             <button type="button" @click="activeTab = 'certifications'"
                                 :class="activeTab === 'certifications' ?
                                     'border-b-3 border-blue-500 text-blue-600 font-semibold' : 'text-gray-600'"
                                 class="px-4 py-3 text-sm font-medium hover:text-blue-600 transition duration-300 whitespace-nowrap">
-                                Certifications
+                                {{ __('profile.freelancer.tabs.certifications') }}
                             </button>
                         </nav>
                     </div>
@@ -990,7 +1058,8 @@
                                 <!-- Bio -->
                                 <div>
                                     <div class="flex items-center justify-between mb-3">
-                                        <h3 class="text-lg font-bold text-gray-900">About Me</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">
+                                            {{ __('profile.freelancer.sections.about_me') }}</h3>
                                         @auth
                                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                 <button type="button" onclick="editBio()"
@@ -1007,31 +1076,31 @@
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                             <p id="bio" class="text-gray-600 text-sm leading-relaxed">
-                                                {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                {{ $freelancer->freelancer->bio ?: __('profile.freelancer.profile.default_bio') }}
                                             </p>
                                             <div id="bio-container" class="hidden">
                                                 <textarea id="bio-text" name="bio"
                                                     class="w-full text-gray-600 text-sm leading-relaxed bg-transparent border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200 min-h-[120px]"
-                                                    placeholder="Tell clients about yourself, your experience, and what you can do...">{{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}</textarea>
+                                                    placeholder="{{ __('profile.freelancer.profile.bio_placeholder') }}">{{ $freelancer->freelancer->bio ?: __('profile.freelancer.profile.default_bio') }}</textarea>
                                                 <div class="flex justify-end gap-2 mt-2">
                                                     <button type="button" onclick="cancelEditBio()"
                                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                                        Cancel
+                                                        {{ __('profile.actions.cancel') }}
                                                     </button>
                                                     <button type="submit"
                                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                                        Save Bio
+                                                        {{ __('profile.freelancer.actions.save_bio') }}
                                                     </button>
                                                 </div>
                                             </div>
                                         @else
                                             <p class="text-gray-600 text-sm leading-relaxed">
-                                                {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                                {{ $freelancer->freelancer->bio ?: __('profile.freelancer.profile.default_bio') }}
                                             </p>
                                         @endif
                                     @else
                                         <p class="text-gray-600 text-sm leading-relaxed">
-                                            {{ $freelancer->freelancer->bio ?: 'Talented freelancer ready to help bring your project to life with clean, efficient solutions.' }}
+                                            {{ $freelancer->freelancer->bio ?: __('profile.freelancer.profile.default_bio') }}
                                         </p>
                                     @endauth
                                 </div>
@@ -1039,7 +1108,8 @@
                                 <!-- Skills Section -->
                                 <div>
                                     <div class="flex items-center justify-between mb-3">
-                                        <h3 class="text-lg font-bold text-gray-900">Skills & Expertise</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">
+                                            {{ __('profile.freelancer.sections.skills_expertise') }}</h3>
                                         @auth
                                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                                 <button type="button" onclick="editSkills()"
@@ -1060,7 +1130,7 @@
                                             <div id="skills-edit-mode" class="hidden">
                                                 <div class="relative mb-3">
                                                     <input type="text" id="skill-search-input"
-                                                        placeholder="Search skills..."
+                                                        placeholder="{{ __('profile.freelancer.skills.search_placeholder') }}"
                                                         class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
                                                         onkeyup="searchSkills(this.value)" autocomplete="off">
                                                     <div id="skills-suggestions"
@@ -1087,17 +1157,18 @@
                                                             </button>
                                                         </span>
                                                     @empty
-                                                        <p class="text-gray-500 text-sm" id="no-skills-message">No skills
-                                                            added yet.</p>
+                                                        <p class="text-gray-500 text-sm" id="no-skills-message">
+                                                            {{ __('profile.freelancer.skills.none_added') }}</p>
                                                     @endforelse
                                                 </div>
 
                                                 <!-- Searched Skills Section -->
                                                 <div id="searched-skills-section" class="mb-3 hidden">
-                                                    <p class="text-sm font-medium text-gray-700 mb-2">Search Results</p>
+                                                    <p class="text-sm font-medium text-gray-700 mb-2">
+                                                        {{ __('profile.freelancer.skills.search_results') }}</p>
                                                     <div id="searched-skills-message" class="hidden mb-2">
-                                                        <p class="text-gray-500 text-sm">No skills found. Try a different
-                                                            search term.</p>
+                                                        <p class="text-gray-500 text-sm">
+                                                            {{ __('profile.freelancer.skills.no_skills_found') }}</p>
                                                     </div>
                                                     <div class="flex flex-wrap gap-2 select-none"
                                                         id="searched-skills-container">
@@ -1107,7 +1178,8 @@
 
                                                 <!-- Related Skills Section -->
                                                 <div id="related-skills-section" class="mb-3 hidden">
-                                                    <p class="text-sm font-medium text-gray-700 mb-2">Related Skills</p>
+                                                    <p class="text-sm font-medium text-gray-700 mb-2">
+                                                        {{ __('profile.freelancer.skills.related_skills') }}</p>
                                                     <div class="flex flex-wrap gap-2 select-none"
                                                         id="related-skills-container">
                                                         <!-- Related skills will be populated here -->
@@ -1126,7 +1198,7 @@
                                                         <div id="submitSpinner"
                                                             class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
                                                         </div>
-                                                        <p id="skillSaveBtn">Save Skills</p>
+                                                        <p id="skillSaveBtn">{{ __('profile.freelancer.skills.save') }}</p>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1141,8 +1213,8 @@
                                                             {{ $skill->name }}
                                                         </span>
                                                     @empty
-                                                        <p class="text-gray-500 text-sm w-full text-center py-7">No skills
-                                                            added yet.</p>
+                                                        <p class="text-gray-500 text-sm w-full text-center py-7">
+                                                            {{ __('profile.freelancer.skills.none_added') }}</p>
                                                     @endforelse
                                                 </div>
                                             </div>
@@ -1155,8 +1227,8 @@
                                                         {{ $skill->name }}
                                                     </span>
                                                 @empty
-                                                    <p class="text-gray-500 text-sm w-full text-center py-7">No skills added
-                                                        yet.</p>
+                                                    <p class="text-gray-500 text-sm w-full text-center py-7">
+                                                        {{ __('profile.freelancer.skills.none_added') }}</p>
                                                 @endforelse
                                             </div>
                                         @endif
@@ -1212,7 +1284,7 @@
 
                                         if (skillTags.length === 0) {
                                             viewContainer.innerHTML =
-                                                '<p class="text-gray-500 text-sm w-full text-center py-7">No skills added yet.</p>';
+                                                '<p class="text-gray-500 text-sm w-full text-center py-7">{{ __('profile.freelancer.skills.none_added') }}</p>';
                                             return;
                                         }
 
@@ -1309,7 +1381,7 @@
                                         if (!skills || skills.length === 0) {
                                             searchedSkillsMessage.classList.remove('hidden');
                                             searchedSkillsMessage.innerHTML =
-                                                '<p class="text-gray-500 text-sm">No skills found. Try a different search term.</p>';
+                                                `<p class="text-gray-500 text-sm">${window.freelancerSkillsNoResults}</p>`;
                                             hideRelatedSkills();
                                             return;
                                         }
@@ -1321,7 +1393,7 @@
                                         if (filteredSearchedSkills.length === 0) {
                                             searchedSkillsMessage.classList.remove('hidden');
                                             searchedSkillsMessage.innerHTML =
-                                                '<p class="text-gray-500 text-sm">All matching skills are already selected.</p>';
+                                                `<p class="text-gray-500 text-sm">${window.freelancerSkillsAllSelected}</p>`;
                                             hideRelatedSkills();
                                             return;
                                         }
@@ -1366,7 +1438,8 @@
                                         const suggestionsContainer = document.getElementById('skills-suggestions');
 
                                         if (skills.length === 0) {
-                                            suggestionsContainer.innerHTML = '<div class="p-3 text-gray-500 text-sm">No skills found</div>';
+                                            suggestionsContainer.innerHTML =
+                                                `<div class="p-3 text-gray-500 text-sm">${window.freelancerSkillsNoResultsShort}</div>`;
                                             suggestionsContainer.classList.remove('hidden');
                                             return;
                                         }
@@ -1386,8 +1459,8 @@
                     <div class="flex justify-between items-center">
                         <span class="text-gray-800">${skill.name}</span>
                         ${isSelected ?
-                            '<span class="text-green-600 text-xs font-medium">✓ Added</span>' :
-                            '<span class="text-blue-600 text-xs font-medium">Click to add</span>'
+                            `<span class="text-green-600 text-xs font-medium">${window.freelancerSkillsAddedAction}</span>` :
+                            `<span class="text-blue-600 text-xs font-medium">${window.freelancerSkillsClickToAdd}</span>`
                         }
                     </div>
                 </div>
@@ -1621,7 +1694,7 @@
                                         const selectedSkillsContainer = document.getElementById('selected-skills-container');
                                         if (selectedSkillsContainer.children.length === 0) {
                                             selectedSkillsContainer.innerHTML =
-                                                '<p class="text-gray-500 text-sm" id="no-skills-message">No skills added yet.</p>';
+                                                '<p class="text-gray-500 text-sm" id="no-skills-message">{{ __('profile.freelancer.skills.none_added') }}</p>';
                                         }
 
                                         // Check if this skill was originally from the database (not newly added)
@@ -1735,7 +1808,7 @@
                                         const saveBtn = document.getElementById('skillSaveBtn');
                                         const loader = document.getElementById('submitSpinner');
                                         const originalText = saveBtn.textContent;
-                                        saveBtn.textContent = 'Saving...';
+                                        saveBtn.textContent = window.freelancerSavingLabel;
                                         loader.classList.remove('hidden');
                                         saveBtn.disabled = true;
 
@@ -1795,7 +1868,7 @@
 
                                             if (Object.keys(skills).length === 0) {
                                                 skillsViewContainer.innerHTML =
-                                                    '<p class="text-gray-500 text-sm w-full text-center py-7">No skills added yet.</p>';
+                                                    '<p class="text-gray-500 text-sm w-full text-center py-7">{{ __('profile.freelancer.skills.none_added') }}</p>';
                                             } else {
                                                 Object.entries(skills).forEach(([id, name]) => {
                                                     const skillSpan = document.createElement('span');
@@ -1809,6 +1882,8 @@
                                     }
 
                                     function showSuccessToast(message) {
+                                        const translatedMessage = window.translateFreelancerProfileText ? window
+                                            .translateFreelancerProfileText(message) : message;
                                         let toast = document.getElementById('successToast');
                                         if (!toast) {
                                             toast = document.createElement('div');
@@ -1818,7 +1893,7 @@
                                             document.body.appendChild(toast);
                                         }
 
-                                        toast.textContent = message;
+                                        toast.textContent = translatedMessage;
                                         toast.classList.remove('translate-y-full', 'opacity-0');
                                         toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -1834,22 +1909,26 @@
                                     <div class="bg-gray-50 rounded-xl p-4 text-center">
                                         <div class="text-2xl font-bold text-gray-900">
                                             {{ $freelancer->freelancer->total_projects ?: '0' }}</div>
-                                        <div class="text-gray-500 text-sm mt-1">Total Projects</div>
+                                        <div class="text-gray-500 text-sm mt-1">
+                                            {{ __('profile.freelancer.stats.total_projects') }}</div>
                                     </div>
                                     <div class="bg-gray-50 rounded-xl p-4 text-center">
                                         <div class="text-2xl font-bold text-gray-900">
                                             {{ $freelancer->freelancer->job_success_rate ?: '0' }}%</div>
-                                        <div class="text-gray-500 text-sm mt-1">Job Success</div>
+                                        <div class="text-gray-500 text-sm mt-1">
+                                            {{ __('profile.freelancer.stats.job_success') }}</div>
                                     </div>
                                     <div class="bg-gray-50 rounded-xl p-4 text-center">
                                         <div class="text-2xl font-bold text-gray-900">
                                             {{ number_format($freelancer->freelancer->total_hours) }}</div>
-                                        <div class="text-gray-500 text-sm mt-1">Hours Worked</div>
+                                        <div class="text-gray-500 text-sm mt-1">
+                                            {{ __('profile.freelancer.stats.hours_worked') }}</div>
                                     </div>
                                     <div class="bg-gray-50 rounded-xl p-4 text-center">
                                         <div class="text-2xl font-bold text-gray-900">
                                             ${{ number_format($freelancer->freelancer->total_earned) }}</div>
-                                        <div class="text-gray-500 text-sm mt-1">Total Earned</div>
+                                        <div class="text-gray-500 text-sm mt-1">
+                                            {{ __('profile.freelancer.stats.total_earned') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -1870,17 +1949,17 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                                 </svg>
-                                                Portfolio Website
+                                                {{ __('profile.freelancer.sections.portfolio_website') }}
                                             </h3>
-                                            <p class="text-gray-600 text-sm mt-1">View my complete work and
-                                                case studies</p>
+                                            <p class="text-gray-600 text-sm mt-1">
+                                                {{ __('profile.freelancer.sections.portfolio_subtitle') }}</p>
 
                                             @if ($freelancer->freelancer->portfolio_url)
                                                 <p class="text-gray-500 text-sm mt-1">
                                                     {{ $freelancer->freelancer->portfolio_url }}</p>
                                             @else
-                                                <p class="text-gray-500 text-sm mt-1">No portfolio website
-                                                    added yet.</p>
+                                                <p class="text-gray-500 text-sm mt-1">
+                                                    {{ __('profile.freelancer.sections.no_portfolio') }}</p>
                                             @endif
                                         </div>
 
@@ -1888,9 +1967,9 @@
                                             <a href="{{ $freelancer->freelancer->portfolio_url }}" target="_blank"
                                                 rel="noopener noreferrer"
                                                 class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-3 rounded-lg transition duration-300 shadow-md text-sm select-none">
-                                                <p>Visit
-                                                    Portfolio</p><svg class="w-4 h-4" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                <p>{{ __('profile.freelancer.actions.visit_portfolio') }}</p><svg
+                                                    class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                 </svg>
@@ -1904,7 +1983,8 @@
                         <!-- Reviews Tab -->
                         <div x-show="activeTab === 'reviews'" x-transition>
                             <div class="space-y-6">
-                                <h3 class="text-lg font-bold text-gray-900">Client Reviews</h3>
+                                <h3 class="text-lg font-bold text-gray-900">
+                                    {{ __('profile.freelancer.sections.client_reviews') }}</h3>
                                 <div class="bg-gray-50 rounded-xl p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
@@ -1933,12 +2013,12 @@
                                                     @endif
                                                 @endfor
                                                 <span
-                                                    class="ml-2 text-gray-600 text-sm">{{ $freelancer->freelancer->rating_count }}
-                                                    reviews</span>
+                                                    class="ml-2 text-gray-600 text-sm">{{ __('profile.freelancer.profile.reviews_count', ['count' => $freelancer->freelancer->rating_count]) }}</span>
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <div class="text-gray-600 text-sm">Job Success</div>
+                                            <div class="text-gray-600 text-sm">
+                                                {{ __('profile.freelancer.stats.job_success') }}</div>
                                             <div class="text-2xl font-bold text-gray-900">
                                                 {{ $freelancer->freelancer->job_success_rate ?? '0' }}%</div>
                                         </div>
@@ -1951,7 +2031,8 @@
                         <div x-show="activeTab === 'experience'" x-transition>
                             <div class="space-y-6">
                                 <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-bold text-gray-900">Work Experience</h3>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        {{ __('profile.freelancer.sections.work_experience') }}</h3>
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                             <button type="button" onclick="showAddExperienceModal()"
@@ -1999,7 +2080,7 @@
                                             <div class="flex justify-between items-start pr-10">
                                                 <div>
                                                     <h4 class="font-bold text-gray-900 text-base">
-                                                        {{ $experience->jobRole->title ?? 'Job Role Not Found' }}
+                                                        {{ $experience->jobRole->title ?? __('profile.freelancer.experience.job_role_not_found') }}
                                                     </h4>
                                                     <p class="text-gray-600 text-sm">
                                                         {{ $experience->company }}</p>
@@ -2011,11 +2092,11 @@
                                                 <span class="text-sm text-gray-500">
                                                     {{ date('M Y', strtotime($experience->start_date)) }} -
                                                     @if ($experience->is_current)
-                                                        Present
+                                                        {{ __('profile.freelancer.common.present') }}
                                                     @elseif($experience->end_date)
                                                         {{ date('M Y', strtotime($experience->end_date)) }}
                                                     @else
-                                                        Present
+                                                        {{ __('profile.freelancer.common.present') }}
                                                     @endif
                                                 </span>
                                             </div>
@@ -2026,7 +2107,8 @@
                                         </div>
                                     @empty
                                         <div class="text-center py-8">
-                                            <p class="text-gray-500 text-sm">No work experience added yet</p>
+                                            <p class="text-gray-500 text-sm">
+                                                {{ __('profile.freelancer.experience.empty') }}</p>
                                         </div>
                                     @endforelse
                                 </div>
@@ -2189,7 +2271,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Saving...';
+                                submitBtn.textContent = window.freelancerSavingLabel;
                                 submitBtn.disabled = true;
 
                                 try {
@@ -2256,7 +2338,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Updating...';
+                                submitBtn.textContent = window.freelancerUpdatingLabel;
                                 submitBtn.disabled = true;
 
                                 try {
@@ -2309,7 +2391,7 @@
 
                                 // Format dates
                                 const startDate = experience.start_date ? formatDate(experience.start_date) : '';
-                                const endDate = experience.is_current ? 'Present' :
+                                const endDate = experience.is_current ? window.freelancerPresentLabel :
                                     (experience.end_date ? formatDate(experience.end_date) : '');
 
                                 const experienceHTML = `
@@ -2336,13 +2418,13 @@
                                                 </div>
                                                 <div class="flex justify-between items-start pr-10">
                                                     <div>
-                                                        <h4 class="font-bold text-gray-900 text-base">${experience.job_role_title || (experience.job_role ? experience.job_role.title : 'Job Role Not Found')}</h4>
+                                                        <h4 class="font-bold text-gray-900 text-base">${experience.job_role_title || (experience.job_role ? experience.job_role.title : window.freelancerJobRoleNotFoundLabel)}</h4>
                                                         <p class="text-gray-600 text-sm">${experience.company}</p>
                                                         ${experience.location ? `<p class="text-gray-500 text-xs mt-1">${experience.location}</p>` : ''}
                                                     </div>
                                                     <span class="text-sm text-gray-500">
                                                         ${startDate} -
-                                                        ${experience.is_current ? 'Present' : (experience.end_date ? formatDate(experience.end_date) : 'Present')}
+                                                        ${experience.is_current ? window.freelancerPresentLabel : (experience.end_date ? formatDate(experience.end_date) : window.freelancerPresentLabel)}
                                                     </span>
                                                 </div>
                                                 ${experience.description ? `<p class="text-gray-600 text-sm mt-2 pr-10">${experience.description}</p>` : ''}
@@ -2406,7 +2488,7 @@
                                 if (!dateText) return result;
 
                                 // Check if it contains "Present"
-                                result.isPresent = dateText.includes('Present');
+                                result.isPresent = dateText.includes(window.freelancerPresentLabel);
 
                                 // Extract start date (first part before " - ")
                                 const parts = dateText.split(' - ');
@@ -2469,7 +2551,7 @@
                                     const description = item.querySelector('.text-gray-600.text-sm.mt-2');
 
                                     const jobRoleTitle = experienceData.job_role_title ||
-                                        (experienceData.job_role ? experienceData.job_role.title : 'Job Role Not Found');
+                                        (experienceData.job_role ? experienceData.job_role.title : window.freelancerJobRoleNotFoundLabel);
 
                                     if (title) title.textContent = jobRoleTitle;
                                     if (company) company.textContent = experienceData.company;
@@ -2490,8 +2572,8 @@
                                     // Update date
                                     if (dateSpan) {
                                         const startDate = experienceData.start_date ? formatDate(experienceData.start_date) : '';
-                                        const endDate = experienceData.is_current ? 'Present' :
-                                            (experienceData.end_date ? formatDate(experienceData.end_date) : 'Present');
+                                        const endDate = experienceData.is_current ? window.freelancerPresentLabel :
+                                            (experienceData.end_date ? formatDate(experienceData.end_date) : window.freelancerPresentLabel);
                                         dateSpan.textContent = `${startDate} - ${endDate}`;
                                     }
 
@@ -2523,6 +2605,8 @@
 
                             // Show success toast notification
                             function showSuccessToast(message) {
+                                const translatedMessage = window.translateFreelancerProfileText ? window
+                                    .translateFreelancerProfileText(message) : message;
                                 // Create toast if it doesn't exist
                                 let toast = document.getElementById('successToast');
                                 if (!toast) {
@@ -2533,7 +2617,7 @@
                                     document.body.appendChild(toast);
                                 }
 
-                                toast.textContent = message;
+                                toast.textContent = translatedMessage;
                                 toast.classList.remove('translate-y-full', 'opacity-0');
                                 toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -2612,7 +2696,7 @@
                                                 if (experienceList && experienceList.children.length === 0) {
                                                     experienceList.innerHTML = `
                             <div class="text-center py-8">
-                                <p class="text-gray-500 text-sm">No work experience added yet</p>
+                                <p class="text-gray-500 text-sm">{{ __('profile.freelancer.experience.empty') }}</p>
                             </div>
                         `;
                                                 }
@@ -2651,7 +2735,8 @@
                         <div x-show="activeTab === 'education'" x-transition>
                             <div class="space-y-6">
                                 <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-bold text-gray-900">Education</h3>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        {{ __('profile.freelancer.sections.education') }}</h3>
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                             <button type="button" onclick="showAddEducationModal()"
@@ -2698,10 +2783,12 @@
                                             </div>
                                             <div class="flex justify-between items-start pr-10">
                                                 <div>
-                                                    <h4 class="font-bold text-gray-900 text-base">{{ $education->degree }}
+                                                    <h4 class="font-bold text-gray-900 text-base">
+                                                        {{ $education->degree }}
                                                     </h4>
                                                     <p class="text-gray-600 text-sm">
-                                                        {{ $education->university->name ?? 'University' }}</p>
+                                                        {{ $education->university->name ?? __('profile.freelancer.education.university_fallback') }}
+                                                    </p>
                                                     @if ($education->major)
                                                         <p class="text-gray-500 text-xs mt-1">
                                                             {{ $education->major->name }}</p>
@@ -2714,16 +2801,18 @@
                                                 <span class="text-sm text-gray-500">
                                                     {{ $education->start_year }} -
                                                     @if ($education->is_current)
-                                                        Present
+                                                        {{ __('profile.freelancer.common.present') }}
                                                     @elseif($education->end_year)
                                                         {{ $education->end_year }}
                                                     @else
-                                                        Present
+                                                        {{ __('profile.freelancer.common.present') }}
                                                     @endif
                                                 </span>
                                             </div>
                                             @if ($education->grade)
-                                                <p class="text-gray-600 text-sm mt-1 pr-10">Grade: {{ $education->grade }}
+                                                <p class="text-gray-600 text-sm mt-1 pr-10">
+                                                    {{ __('profile.freelancer.education.grade_label') }}:
+                                                    {{ $education->grade }}
                                                 </p>
                                             @endif
                                             @if ($education->description)
@@ -2733,7 +2822,8 @@
                                         </div>
                                     @empty
                                         <div class="text-center py-8">
-                                            <p class="text-gray-500 text-sm">No education added yet</p>
+                                            <p class="text-gray-500 text-sm">
+                                                {{ __('profile.freelancer.education.empty') }}</p>
                                         </div>
                                     @endforelse
                                 </div>
@@ -2901,7 +2991,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Saving...';
+                                submitBtn.textContent = window.freelancerSavingLabel;
                                 submitBtn.disabled = true;
 
                                 try {
@@ -2958,7 +3048,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Updating...';
+                                submitBtn.textContent = window.freelancerUpdatingLabel;
                                 submitBtn.disabled = true;
 
                                 // Make update request
@@ -3036,16 +3126,16 @@
                 <div class="flex justify-between items-start pr-10">
                     <div>
                         <h4 class="font-bold text-gray-900 text-base">${education.degree}</h4>
-                        <p class="text-gray-600 text-sm">${education.university_name || education.university?.name || 'University'}</p>
+                        <p class="text-gray-600 text-sm">${education.university_name || education.university?.name || window.freelancerUniversityFallbackLabel}</p>
                         ${education.major_name ? `<p class="text-gray-500 text-xs mt-1">${education.major_name}</p>` : ''}
                         ${education.field_of_study ? `<p class="text-gray-500 text-xs mt-1">${education.field_of_study}</p>` : ''}
                     </div>
                     <span class="text-sm text-gray-500">
                         ${education.start_year} -
-                        ${education.is_current ? 'Present' : (education.end_year ? education.end_year : 'Present')}
+                        ${education.is_current ? window.freelancerPresentLabel : (education.end_year ? education.end_year : window.freelancerPresentLabel)}
                     </span>
                 </div>
-                ${education.grade ? `<p class="text-gray-600 text-sm mt-1 pr-10">Grade: ${education.grade}</p>` : ''}
+                ${education.grade ? `<p class="text-gray-600 text-sm mt-1 pr-10">${window.freelancerGradeLabel}: ${education.grade}</p>` : ''}
                 ${education.description ? `<p class="text-gray-600 text-sm mt-2 pr-10">${education.description}</p>` : ''}
             </div>
         `;
@@ -3107,7 +3197,7 @@
                                 if (!dateText) return result;
 
                                 // Check if it contains "Present"
-                                result.isPresent = dateText.includes('Present');
+                                result.isPresent = dateText.includes(window.freelancerPresentLabel);
 
                                 // Extract years from format like "2014 - 2016" or "2018 - Present"
                                 const parts = dateText.split(' - ');
@@ -3119,7 +3209,7 @@
                                         result.startYear = startYear;
                                     }
 
-                                    if (endYearStr !== 'Present') {
+                                    if (endYearStr !== window.freelancerPresentLabel) {
                                         const endYear = parseInt(endYearStr);
                                         if (!isNaN(endYear)) {
                                             result.endYear = endYear;
@@ -3140,7 +3230,7 @@
                                     const dateSpan = item.querySelector('.text-sm.text-gray-500');
 
                                     const universityName = educationData.university_name ||
-                                        (educationData.university ? educationData.university.name : 'University');
+                                        (educationData.university ? educationData.university.name : window.freelancerUniversityFallbackLabel);
                                     const majorName = educationData.major_name ||
                                         (educationData.major ? educationData.major.name : null);
 
@@ -3149,8 +3239,8 @@
 
                                     // Update date
                                     if (dateSpan) {
-                                        const endYear = educationData.is_current ? 'Present' :
-                                            (educationData.end_year ? educationData.end_year : 'Present');
+                                        const endYear = educationData.is_current ? window.freelancerPresentLabel :
+                                            (educationData.end_year ? educationData.end_year : window.freelancerPresentLabel);
                                         dateSpan.textContent = `${educationData.start_year || ''} - ${endYear}`;
                                     }
 
@@ -3186,10 +3276,11 @@
                                     const gradeElement = item.querySelector('.text-gray-600.text-sm.mt-1');
                                     if (educationData.grade) {
                                         if (gradeElement) {
-                                            gradeElement.textContent = `Grade: ${educationData.grade}`;
+                                            gradeElement.textContent = `${window.freelancerGradeLabel}: ${educationData.grade}`;
                                         } else {
                                             const container = item.querySelector('.flex.justify-between.items-start').parentElement;
-                                            const gradeHTML = `<p class="text-gray-600 text-sm mt-1 pr-10">Grade: ${educationData.grade}</p>`;
+                                            const gradeHTML =
+                                                `<p class="text-gray-600 text-sm mt-1 pr-10">${window.freelancerGradeLabel}: ${educationData.grade}</p>`;
                                             container.insertAdjacentHTML('beforeend', gradeHTML);
                                         }
                                     } else if (gradeElement) {
@@ -3281,7 +3372,7 @@
                                                 if (educationList && educationList.children.length === 0) {
                                                     educationList.innerHTML = `
                             <div class="text-center py-8">
-                                <p class="text-gray-500 text-sm">No education added yet</p>
+                                <p class="text-gray-500 text-sm">{{ __('profile.freelancer.education.empty') }}</p>
                             </div>
                         `;
                                                 }
@@ -3319,7 +3410,8 @@
                         <div x-show="activeTab === 'certifications'" x-transition>
                             <div class="space-y-6">
                                 <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-bold text-gray-900">Certifications</h3>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        {{ __('profile.freelancer.sections.certifications') }}</h3>
                                     @auth
                                         @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                             <button type="button" onclick="showAddCertificationModal()"
@@ -3342,7 +3434,7 @@
                                                 <button type="button"
                                                     onclick="showEditCertificationModal({{ $certificate->id }})"
                                                     class="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1 rounded-full hover:bg-blue-50"
-                                                    title="Edit certification">
+                                                    title="{{ __('profile.freelancer.certification.edit_title_attr') }}">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -3355,7 +3447,7 @@
                                                 <button type="button"
                                                     onclick="confirmRemoveCertification({{ $certificate->id }})"
                                                     class="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                                    title="Remove certification">
+                                                    title="{{ __('profile.freelancer.certification.remove_title_attr') }}">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -3380,15 +3472,19 @@
                                                         {{ $certificate->name }}</h4>
                                                     <p class="text-gray-600 text-sm">
                                                         {{ $certificate->issuer }}</p>
-                                                    <p class="text-gray-500 text-xs mt-1">Issued:
-                                                        {{ $certificate->issued_year ?? 'No Issued Date' }} |
-                                                        {{ $certificate->expiry_year ?? 'No Expiry' }}</p>
+                                                    <p class="text-gray-500 text-xs mt-1">
+                                                        {{ __('profile.freelancer.certification.issued_label') }}:
+                                                        {{ $certificate->issued_year ?? __('profile.freelancer.certification.no_issued_date') }}
+                                                        |
+                                                        {{ $certificate->expiry_year ?? __('profile.freelancer.modals.certification.no_expiry') }}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
                                     @empty
                                         <div class="col-span-2 text-center py-8">
-                                            <p class="text-gray-500 text-sm">No certifications added yet</p>
+                                            <p class="text-gray-500 text-sm">
+                                                {{ __('profile.freelancer.certification.empty') }}</p>
                                         </div>
                                     @endforelse
                                 </div>
@@ -3398,7 +3494,7 @@
                         <!-- Success Message Toast -->
                         <div id="successToast"
                             class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50">
-                            Certification added successfully!
+                            {{ __('profile.freelancer.certification.added_success') }}
                         </div>
 
                         <script>
@@ -3506,7 +3602,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Updating...';
+                                submitBtn.textContent = window.freelancerUpdatingLabel;
                                 submitBtn.disabled = true;
 
                                 try {
@@ -3563,16 +3659,18 @@
                                     if (issuer) issuer.textContent = certificateData.issuer;
                                     if (dateInfo) {
                                         dateInfo.textContent =
-                                            `Issued: ${certificateData.issued_year || 'No Issued Date'} | ${certificateData.expiry_year || 'No Expiry'}`;
+                                            `{{ __('profile.freelancer.certification.issued_label') }}: ${certificateData.issued_year || @json(__('profile.freelancer.certification.no_issued_date'))} | ${certificateData.expiry_year || @json(__('profile.freelancer.modals.certification.no_expiry'))}`;
                                     }
                                 }
                             }
 
                             // Show success toast notification
                             function showSuccessToast(message) {
+                                const translatedMessage = window.translateFreelancerProfileText ? window
+                                    .translateFreelancerProfileText(message) : message;
                                 const toast = document.getElementById('successToast');
                                 if (toast) {
-                                    toast.textContent = message;
+                                    toast.textContent = translatedMessage;
                                     toast.classList.remove('translate-y-full', 'opacity-0');
                                     toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -3657,7 +3755,7 @@
                                                 if (certificationsList && certificationsList.children.length === 0) {
                                                     certificationsList.innerHTML = `
                             <div class="col-span-2 text-center py-8">
-                                <p class="text-gray-500 text-sm">No certifications added yet</p>
+                                <p class="text-gray-500 text-sm">{{ __('profile.freelancer.certification.empty') }}</p>
                             </div>
                         `;
                                                 }
@@ -3694,7 +3792,7 @@
                                 // Show loading state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 const originalText = submitBtn.textContent;
-                                submitBtn.textContent = 'Saving...';
+                                submitBtn.textContent = window.freelancerSavingLabel;
                                 submitBtn.disabled = true;
 
                                 try {
@@ -3768,7 +3866,7 @@
                                                     <div class="flex-1">
                                                         <h4 class="font-bold text-gray-900">${certificate.name}</h4>
                                                         <p class="text-gray-600 text-sm">${certificate.issuer}</p>
-                                                        <p class="text-gray-500 text-xs mt-1">Issued: ${certificate.issued_year || 'No Issued Date'} | ${certificate.expiry_year || 'No Expiry'}</p>
+                                                        <p class="text-gray-500 text-xs mt-1">{{ __('profile.freelancer.certification.issued_label') }}: ${certificate.issued_year || @json(__('profile.freelancer.certification.no_issued_date'))} | ${certificate.expiry_year || @json(__('profile.freelancer.modals.certification.no_expiry'))}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -3787,7 +3885,8 @@
                 <!-- Contact Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Contact Information</h3>
+                        <h3 class="text-lg font-bold text-gray-900">
+                            {{ __('profile.freelancer.sections.contact_information') }}</h3>
                         @auth
                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                 <button type="button" onclick="editContactInfo()"
@@ -3859,7 +3958,8 @@
                                     </svg>
                                     <input type="email" value="{{ $freelancer->email }}"
                                         class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        id="edit-email" placeholder="Email" disabled>
+                                        id="edit-email"
+                                        placeholder="{{ __('profile.freelancer.contact.email_placeholder') }}" disabled>
                                     <input type="hidden" value="{{ $freelancer->email }}">
                                 </div>
                                 <div class="flex items-center">
@@ -3870,7 +3970,8 @@
                                     </svg>
                                     <input type="tel" value="{{ $freelancer->phone }}"
                                         class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        id="edit-phone" name="phone" placeholder="Phone number">
+                                        id="edit-phone" name="phone"
+                                        placeholder="{{ __('profile.freelancer.contact.phone_placeholder') }}">
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -3882,7 +3983,8 @@
                                     </svg>
                                     <input type="tel" value="{{ $freelancer->location }}"
                                         class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        id="edit-phone" name="location" placeholder="Location">
+                                        id="edit-phone" name="location"
+                                        placeholder="{{ __('profile.freelancer.contact.location_placeholder') }}">
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
@@ -3892,16 +3994,17 @@
                                     </svg>
                                     <input type="text" value="{{ $freelancer->freelancer->portfolio_url }}"
                                         class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                                        id="edit-phone" name="portfolio_url" placeholder="Portfolio URL">
+                                        id="edit-phone" name="portfolio_url"
+                                        placeholder="{{ __('profile.freelancer.contact.portfolio_placeholder') }}">
                                 </div>
                                 <div class="flex justify-end gap-2 mt-3">
                                     <button type="button" onclick="cancelEditContactInfo()"
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                        Cancel
+                                        {{ __('profile.actions.cancel') }}
                                     </button>
                                     <button type="submit"
                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                        Save
+                                        {{ __('profile.actions.save_changes') }}
                                     </button>
                                 </div>
                             </div>
@@ -3911,7 +4014,7 @@
                     @if (auth()->user()->role === 'clients')
                         <button
                             class="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 rounded-lg transition duration-300 text-sm select-none">
-                            Send Message
+                            {{ __('profile.freelancer.actions.send_message') }}
                         </button>
                     @endif
                 </div>
@@ -3919,7 +4022,8 @@
                 <!-- Hourly Rate Breakdown -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Hourly Rate Breakdown</h3>
+                        <h3 class="text-lg font-bold text-gray-900">
+                            {{ __('profile.freelancer.sections.hourly_rate_breakdown') }}</h3>
                         @auth
                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                 <button type="button" onclick="editHourlyRate()" id="edit-hourly-rate-btn"
@@ -3936,33 +4040,38 @@
                     <!-- View Mode -->
                     <div class="space-y-3" id="hourly-rate-view">
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600 text-sm">Base Rate</span>
+                            <span class="text-gray-600 text-sm">{{ __('profile.freelancer.hourly.base_rate') }}</span>
                             <span class="text-gray-900 font-medium">
                                 ${{ number_format($freelancer->freelancer->hourly_rate, 2) }}/hr
                             </span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600 text-sm">Minimum Hours</span>
+                            <span
+                                class="text-gray-600 text-sm">{{ __('profile.freelancer.hourly.minimum_hours') }}</span>
                             <span class="text-gray-900 text-sm font-medium">
-                                {{ $freelancer->freelancer->minimum_hours ?? '10' }} hours
+                                {{ $freelancer->freelancer->minimum_hours ?? '10' }}
+                                {{ __('profile.freelancer.hourly.hours') }}
                             </span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600 text-sm">Response Time</span>
+                            <span
+                                class="text-gray-600 text-sm">{{ __('profile.freelancer.hourly.response_time') }}</span>
                             <span class="text-gray-900 text-sm font-medium">
-                                {{ $freelancer->freelancer->response_time ?? '2' }} hours
+                                {{ $freelancer->freelancer->response_time ?? '2' }}
+                                {{ __('profile.freelancer.hourly.hours') }}
                             </span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-600 text-sm">Revision Limit</span>
+                            <span
+                                class="text-gray-600 text-sm">{{ __('profile.freelancer.hourly.revision_limit') }}</span>
                             <span class="text-gray-900 text-sm font-medium">
                                 {{ $freelancer->freelancer->revision_limit ?? '3' }} revisions
                             </span>
                         </div>
                         <div class="pt-3 border-t border-gray-100">
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-900 text-sm font-medium">Estimated 20-hour
-                                    project</span>
+                                <span
+                                    class="text-gray-900 text-sm font-medium">{{ __('profile.freelancer.hourly.estimated_project') }}</span>
                                 <span class="text-xl font-bold text-gray-900">
                                     ${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}
                                 </span>
@@ -3976,7 +4085,8 @@
                             <div id="hourly-rate-edit" class="hidden space-y-4">
                                 <div class="space-y-3">
                                     <div class="flex flex-col">
-                                        <label class="text-gray-600 text-sm mb-1">Base Rate ($/hr)</label>
+                                        <label
+                                            class="text-gray-600 text-sm mb-1">{{ __('profile.freelancer.hourly.base_rate_input') }}</label>
                                         <div class="flex items-center">
                                             <span class="text-gray-500 mr-2">$</span>
                                             <input type="number" value="{{ $freelancer->freelancer->hourly_rate }}"
@@ -3987,7 +4097,8 @@
                                     </div>
 
                                     <div class="flex flex-col">
-                                        <label class="text-gray-600 text-sm mb-1">Minimum Hours</label>
+                                        <label
+                                            class="text-gray-600 text-sm mb-1">{{ __('profile.freelancer.hourly.minimum_hours') }}</label>
                                         <input type="number" value="{{ $freelancer->freelancer->minimum_hours ?? '10' }}"
                                             min="1"
                                             class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
@@ -3995,7 +4106,8 @@
                                     </div>
 
                                     <div class="flex flex-col">
-                                        <label class="text-gray-600 text-sm mb-1">Response Time (hours)</label>
+                                        <label
+                                            class="text-gray-600 text-sm mb-1">{{ __('profile.freelancer.hourly.response_time_input') }}</label>
                                         <input type="number" value="{{ $freelancer->freelancer->response_time ?? '2' }}"
                                             min="1" max="24"
                                             class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
@@ -4003,7 +4115,8 @@
                                     </div>
 
                                     <div class="flex flex-col">
-                                        <label class="text-gray-600 text-sm mb-1">Revision Limit</label>
+                                        <label
+                                            class="text-gray-600 text-sm mb-1">{{ __('profile.freelancer.hourly.revision_limit') }}</label>
                                         <input type="number" value="{{ $freelancer->freelancer->revision_limit ?? '3' }}"
                                             min="0"
                                             class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
@@ -4013,7 +4126,8 @@
 
                                 <!-- Preview of estimated project cost -->
                                 <div class="pt-3 border-t border-gray-100 bg-gray-50 rounded-lg p-3">
-                                    <div class="text-sm text-gray-600 mb-1">Estimated 20-hour project cost:</div>
+                                    <div class="text-sm text-gray-600 mb-1">
+                                        {{ __('profile.freelancer.hourly.estimated_project_cost') }}</div>
                                     <div class="text-lg font-bold text-gray-900" id="estimated-cost-preview">
                                         ${{ number_format($freelancer->freelancer->hourly_rate * 20, 2) }}
                                     </div>
@@ -4022,11 +4136,11 @@
                                 <div class="flex justify-end gap-2 pt-3">
                                     <button type="button" onclick="cancelEditHourlyRate()"
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                        Cancel
+                                        {{ __('profile.actions.cancel') }}
                                     </button>
                                     <button type="submit"
                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                        Save Changes
+                                        {{ __('profile.actions.save_changes') }}
                                     </button>
                                 </div>
                             </div>
@@ -4103,19 +4217,21 @@
                                     `$${(parseFloat(hourlyRate) * 20).toFixed(2)}`;
 
                                 cancelEditHourlyRate();
-                                alert('Hourly rate breakdown updated successfully!');
+                                alert(window.freelancerHourlyUpdatedSuccess);
                             } else {
-                                alert('Error updating hourly rate: ' + (data.message || 'Unknown error'));
+                                alert(window.freelancerHourlyUpdateFailed + ': ' + (data.message || window
+                                    .freelancerHourlyUnknownError));
                             }
                         } catch (error) {
-                            alert('Error updating hourly rate. Please try again.');
+                            alert(window.freelancerHourlyUpdateFailed);
                         }
                     }
                 </script>
 
                 <!-- Availability Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Availability</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">
+                        {{ __('profile.freelancer.sections.availability') }}</h3>
                     <div class="space-y-4">
                         @php
                             $isOwnerFreelancer =
@@ -4124,10 +4240,10 @@
                                 auth()->user()->role === 'freelancer';
                             $currentAvailability = $freelancer->freelancer->availability ?? 'available';
                             $currentAvailabilityLabel = match ($currentAvailability) {
-                                'available' => 'Available',
-                                'busy' => 'Busy',
-                                'unavailable' => 'Unavailable',
-                                default => 'Available',
+                                'available' => __('profile.freelancer.availability.available'),
+                                'busy' => __('profile.freelancer.availability.busy'),
+                                'unavailable' => __('profile.freelancer.availability.unavailable'),
+                                default => __('profile.freelancer.availability.available'),
                             };
                             $currentAvailabilityClasses = match ($currentAvailability) {
                                 'available' => 'bg-green-100 text-green-800',
@@ -4137,7 +4253,8 @@
                             };
                         @endphp
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600 text-sm">Current Status:</span>
+                            <span
+                                class="text-gray-600 text-sm">{{ __('profile.freelancer.availability.current_status') }}</span>
                             <span id="availability-current-badge"
                                 class="px-3 py-1 rounded-full text-sm font-medium select-none {{ $currentAvailabilityClasses }}">
                                 {{ $currentAvailabilityLabel }}
@@ -4149,13 +4266,14 @@
                                     class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200">
                                     <option value="available"
                                         {{ $currentAvailability === 'available' ? 'selected' : '' }}>
-                                        Available
+                                        {{ __('profile.freelancer.availability.available') }}
                                     </option>
-                                    <option value="busy" {{ $currentAvailability === 'busy' ? 'selected' : '' }}>Busy
+                                    <option value="busy" {{ $currentAvailability === 'busy' ? 'selected' : '' }}>
+                                        {{ __('profile.freelancer.availability.busy') }}
                                     </option>
                                     <option value="unavailable"
                                         {{ $currentAvailability === 'unavailable' ? 'selected' : '' }}>
-                                        Unavailable
+                                        {{ __('profile.freelancer.availability.unavailable') }}
                                     </option>
                                 </select>
                                 <button type="button" id="save-availability-btn" onclick="saveAvailabilityStatus()"
@@ -4163,20 +4281,21 @@
                                     <div id="availabilitySubmitSpinner"
                                         class="hidden w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2">
                                     </div>
-                                    <span id="availabilitySubmitText">Update</span>
+                                    <span
+                                        id="availabilitySubmitText">{{ __('profile.freelancer.actions.update') }}</span>
                                 </button>
                             </div>
                         @endif
                         <div class="pt-4 border-t border-gray-100">
-                            <h4 class="font-medium text-gray-900 text-sm mb-2">Response Time</h4>
+                            <h4 class="font-medium text-gray-900 text-sm mb-2">
+                                {{ __('profile.freelancer.hourly.response_time') }}</h4>
                             <div class="flex items-center text-gray-600 text-sm">
                                 <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>Usually responds within
-                                    {{ $freelancer->freelancer->response_time ?? '2' }} hours</span>
+                                <span>{{ __('profile.freelancer.availability.usually_responds_within', ['hours' => $freelancer->freelancer->response_time ?? '2']) }}</span>
                             </div>
                         </div>
                     </div>
@@ -4185,7 +4304,8 @@
                 <!-- Languages Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Languages</h3>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('profile.freelancer.sections.languages') }}
+                        </h3>
                         @auth
                             @if (auth()->user()->id === $freelancer->id && auth()->user()->role === 'freelancer')
                                 <div class="flex gap-3">
@@ -4229,17 +4349,17 @@
                                 <!-- Add New Language Button in Edit Mode -->
                                 <button type="button" onclick="addNewLanguageField()"
                                     class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium border border-dashed border-gray-300 rounded-lg py-2 hover:border-blue-300 transition duration-300">
-                                    + Add Another Language
+                                    + {{ __('profile.freelancer.languages.add_another') }}
                                 </button>
 
                                 <div class="flex justify-end gap-2 mt-3 select-none">
                                     <button type="button" onclick="cancelEditLanguages()"
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                        Cancel
+                                        {{ __('profile.actions.cancel') }}
                                     </button>
                                     <button type="button" onclick="saveLanguages()"
                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                        Save Languages
+                                        {{ __('profile.freelancer.languages.save_languages') }}
                                     </button>
                                 </div>
                             </div>
@@ -4253,17 +4373,17 @@
                                 <!-- Add Another Language Button -->
                                 <button type="button" onclick="addAnotherLanguageField()"
                                     class="w-full text-blue-600 hover:text-blue-800 text-sm font-medium border border-dashed border-gray-300 rounded-lg py-2 hover:border-blue-300 transition duration-300">
-                                    + Add Another Language
+                                    + {{ __('profile.freelancer.languages.add_another') }}
                                 </button>
 
                                 <div class="flex justify-end gap-2 mt-3 select-none">
                                     <button type="button" onclick="cancelAddLanguage()"
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-4 py-2 rounded-lg transition duration-300 text-sm">
-                                        Cancel
+                                        {{ __('profile.actions.cancel') }}
                                     </button>
                                     <button type="button" onclick="saveNewLanguages()"
                                         class="bg-gray-800 hover:bg-black text-white font-medium px-4 py-2 rounded-lg transition duration-300 text-sm select-none">
-                                        Save New Languages
+                                        {{ __('profile.freelancer.languages.save_new_languages') }}
                                     </button>
                                 </div>
                             </div>
@@ -4350,7 +4470,7 @@
                                     viewContainer.innerHTML = '';
                                     const emptyState = document.createElement('p');
                                     emptyState.className = 'text-gray-600 text-sm text-center py-7';
-                                    emptyState.textContent = 'No languages added yet.';
+                                    emptyState.textContent = @json(__('profile.freelancer.languages.empty'));
                                     viewContainer.appendChild(emptyState);
                                 }
                             } catch (error) {
@@ -4369,9 +4489,9 @@
                 <svg class="w-8 h-8 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <p class="text-red-600 text-sm mb-2">Error loading languages</p>
+                <p class="text-red-600 text-sm mb-2">{{ __('profile.freelancer.languages.error_loading') }}</p>
                 <button onclick="loadLanguages()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    Try Again
+                    {{ __('profile.common.retry') }}
                 </button>
             `;
                                 viewContainer.appendChild(errorDiv);
@@ -4411,14 +4531,14 @@
                         languageField.innerHTML = `
             <input type="text"
                 class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                placeholder="Language (e.g., Spanish)" name="language[]">
+                placeholder="{{ __('profile.freelancer.languages.language_placeholder') }}" name="language[]">
             <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
-                <option value="">Select Proficiency</option>
-                <option value="native">Native</option>
-                <option value="fluent">Fluent</option>
-                <option value="professional">Professional</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="basic">Basic</option>
+                <option value="">{{ __('profile.freelancer.languages.proficiency.select') }}</option>
+                <option value="native">{{ __('profile.freelancer.languages.proficiency.native') }}</option>
+                <option value="fluent">{{ __('profile.freelancer.languages.proficiency.fluent') }}</option>
+                <option value="professional">{{ __('profile.freelancer.languages.proficiency.professional') }}</option>
+                <option value="intermediate">{{ __('profile.freelancer.languages.proficiency.intermediate') }}</option>
+                <option value="basic">{{ __('profile.freelancer.languages.proficiency.basic') }}</option>
             </select>
         `;
 
@@ -4481,13 +4601,13 @@
                                     languageField.innerHTML = `
                     <input type="text" value="${lang.language}"
                         class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                        placeholder="Language" name="language[]">
+                        placeholder="{{ __('profile.freelancer.languages.language_placeholder_short') }}" name="language[]">
                     <select class="w-40 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
-                        <option value="native" ${lang.proficiency === 'native' ? 'selected' : ''}>Native</option>
-                        <option value="fluent" ${lang.proficiency === 'fluent' ? 'selected' : ''}>Fluent</option>
-                        <option value="professional" ${lang.proficiency === 'professional' ? 'selected' : ''}>Professional</option>
-                        <option value="intermediate" ${lang.proficiency === 'intermediate' ? 'selected' : ''}>Intermediate</option>
-                        <option value="basic" ${lang.proficiency === 'basic' ? 'selected' : ''}>Basic</option>
+                        <option value="native" ${lang.proficiency === 'native' ? 'selected' : ''}>{{ __('profile.freelancer.languages.proficiency.native') }}</option>
+                        <option value="fluent" ${lang.proficiency === 'fluent' ? 'selected' : ''}>{{ __('profile.freelancer.languages.proficiency.fluent') }}</option>
+                        <option value="professional" ${lang.proficiency === 'professional' ? 'selected' : ''}>{{ __('profile.freelancer.languages.proficiency.professional') }}</option>
+                        <option value="intermediate" ${lang.proficiency === 'intermediate' ? 'selected' : ''}>{{ __('profile.freelancer.languages.proficiency.intermediate') }}</option>
+                        <option value="basic" ${lang.proficiency === 'basic' ? 'selected' : ''}>{{ __('profile.freelancer.languages.proficiency.basic') }}</option>
                     </select>
                     <button type="button" onclick="removeLanguage(this)"
                         class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
@@ -4501,7 +4621,7 @@
                                 });
                             } else {
                                 editContainer.innerHTML =
-                                    '<p class="text-gray-600 text-sm text-center py-7">No languages added yet.</p>';
+                                    '<p class="text-gray-600 text-sm text-center py-7">{{ __('profile.freelancer.languages.empty') }}</p>';
                             }
                         } catch (error) {
                             editContainer.innerHTML = `
@@ -4509,9 +4629,9 @@
                 <svg class="w-8 h-8 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <p class="text-red-600 text-sm mb-2">Error loading languages</p>
+                <p class="text-red-600 text-sm mb-2">{{ __('profile.freelancer.languages.error_loading') }}</p>
                 <button onclick="loadLanguagesForEdit()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    Try Again
+                    {{ __('profile.common.retry') }}
                 </button>
             </div>
         `;
@@ -4537,14 +4657,14 @@
                         languageField.innerHTML = `
             <input type="text"
                 class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200"
-                placeholder="New Language" name="language[]">
+                placeholder="{{ __('profile.freelancer.languages.new_language_placeholder') }}" name="language[]">
             <select class="w-40 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-200" name="proficiency[]">
-                <option value="">Select Proficiency</option>
-                <option value="native">Native</option>
-                <option value="fluent">Fluent</option>
-                <option value="professional">Professional</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="basic">Basic</option>
+                <option value="">{{ __('profile.freelancer.languages.proficiency.select') }}</option>
+                <option value="native">{{ __('profile.freelancer.languages.proficiency.native') }}</option>
+                <option value="fluent">{{ __('profile.freelancer.languages.proficiency.fluent') }}</option>
+                <option value="professional">{{ __('profile.freelancer.languages.proficiency.professional') }}</option>
+                <option value="intermediate">{{ __('profile.freelancer.languages.proficiency.intermediate') }}</option>
+                <option value="basic">{{ __('profile.freelancer.languages.proficiency.basic') }}</option>
             </select>
             <button type="button" onclick="removeLanguage(this)"
                 class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors">
@@ -4574,7 +4694,8 @@
                             // If no languages left, show empty state
                             const container = languageItem.closest('#existing-languages-list');
                             if (container && container.children.length === 0) {
-                                container.innerHTML = '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                                container.innerHTML =
+                                    '<p class="text-gray-600 text-sm text-center">{{ __('profile.freelancer.languages.empty') }}</p>';
                             }
                         }
                     }
@@ -4625,7 +4746,7 @@
                                 const container = document.getElementById('existing-languages-list');
                                 if (container && container.children.length === 0) {
                                     container.innerHTML =
-                                        '<p class="text-gray-600 text-sm text-center">No languages added yet.</p>';
+                                        '<p class="text-gray-600 text-sm text-center">{{ __('profile.freelancer.languages.empty') }}</p>';
                                 }
 
                                 // Update the view mode with fresh data
@@ -4688,7 +4809,7 @@
                         // Show loading state
                         const saveBtn = document.querySelector('#languages-add button[onclick="saveNewLanguages()"]');
                         const originalText = saveBtn.textContent;
-                        saveBtn.textContent = 'Saving...';
+                        saveBtn.textContent = window.freelancerSavingLabel;
                         saveBtn.disabled = true;
 
                         // Prepare request data
@@ -4787,7 +4908,7 @@
                         // Show loading state
                         const saveBtn = document.querySelector('#languages-edit button[onclick="saveLanguages()"]');
                         const originalText = saveBtn.textContent;
-                        saveBtn.textContent = 'Saving...';
+                        saveBtn.textContent = window.freelancerSavingLabel;
                         saveBtn.disabled = true;
 
                         // Get CSRF token
@@ -4850,16 +4971,18 @@
                     // Helper function to format proficiency for display
                     function formatProficiency(proficiency) {
                         const proficiencyMap = {
-                            'native': 'Native',
-                            'fluent': 'Fluent',
-                            'professional': 'Professional',
-                            'intermediate': 'Intermediate',
-                            'basic': 'Basic'
+                            'native': @json(__('profile.freelancer.languages.proficiency.native')),
+                            'fluent': @json(__('profile.freelancer.languages.proficiency.fluent')),
+                            'professional': @json(__('profile.freelancer.languages.proficiency.professional')),
+                            'intermediate': @json(__('profile.freelancer.languages.proficiency.intermediate')),
+                            'basic': @json(__('profile.freelancer.languages.proficiency.basic'))
                         };
                         return proficiencyMap[proficiency] || proficiency;
                     }
 
                     function showSuccessToast(message) {
+                        const translatedMessage = window.translateFreelancerProfileText ? window
+                            .translateFreelancerProfileText(message) : message;
                         // Create or reuse toast element
                         let toast = document.getElementById('languageSuccessToast');
                         if (!toast) {
@@ -4870,7 +4993,7 @@
                             document.body.appendChild(toast);
                         }
 
-                        toast.textContent = message;
+                        toast.textContent = translatedMessage;
                         toast.classList.remove('translate-y-full', 'opacity-0');
                         toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -4923,16 +5046,16 @@
             switch (status) {
                 case 'busy':
                     return {
-                        shortLabel: 'Busy',
-                            headerLabel: 'Busy',
+                        shortLabel: @json(__('profile.freelancer.availability.busy')),
+                            headerLabel: @json(__('profile.freelancer.availability.busy')),
                             badgeClasses: ['bg-amber-100', 'text-amber-800'],
                             headerClasses: ['text-amber-600', 'bg-amber-50'],
                             dotClass: 'bg-amber-500'
                     };
                 case 'unavailable':
                     return {
-                        shortLabel: 'Unavailable',
-                            headerLabel: 'Unavailable',
+                        shortLabel: @json(__('profile.freelancer.availability.unavailable')),
+                            headerLabel: @json(__('profile.freelancer.availability.unavailable')),
                             badgeClasses: ['bg-red-100', 'text-red-800'],
                             headerClasses: ['text-red-600', 'bg-red-50'],
                             dotClass: 'bg-red-500'
@@ -4940,8 +5063,8 @@
                 case 'available':
                 default:
                     return {
-                        shortLabel: 'Available',
-                            headerLabel: 'Available Now',
+                        shortLabel: @json(__('profile.freelancer.availability.available')),
+                            headerLabel: @json(__('profile.freelancer.availability.available_now')),
                             badgeClasses: ['bg-green-100', 'text-green-800'],
                             headerClasses: ['text-green-600', 'bg-green-50'],
                             dotClass: 'bg-green-500'
@@ -4987,9 +5110,9 @@
             const submitSpinner = document.getElementById('availabilitySubmitSpinner');
             if (!select || !button) return;
 
-            const originalText = submitText ? submitText.textContent : 'Update';
+            const originalText = submitText ? submitText.textContent : @json(__('profile.freelancer.actions.update'));
             if (submitText) {
-                submitText.textContent = 'Updating...';
+                submitText.textContent = @json(__('profile.freelancer.actions.updating'));
             }
             if (submitSpinner) {
                 submitSpinner.classList.remove('hidden');
@@ -5014,15 +5137,15 @@
 
                 const data = await response.json();
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to update availability.');
+                    throw new Error(data.message || @json(__('profile.freelancer.availability.update_failed')));
                 }
 
                 const updatedStatus = data.availability || select.value;
                 select.value = updatedStatus;
                 applyAvailabilityStatus(updatedStatus);
-                showSuccessToast('Availability updated successfully!');
+                showSuccessToast(@json(__('profile.freelancer.availability.updated_success')));
             } catch (error) {
-                showSuccessToast(error.message || 'Failed to update availability.');
+                showSuccessToast(error.message || @json(__('profile.freelancer.availability.update_failed')));
             } finally {
                 if (submitText) {
                     submitText.textContent = originalText;
@@ -5040,7 +5163,7 @@
             const githubUrl = document.getElementById('github-url').value;
 
             // Here you would make an API call to save social links
-            alert('Social links saved successfully!');
+            alert(@json(__('profile.freelancer.profile.social_links_saved')));
         }
 
         function setFreelancerPhotoMenuOpen(isOpen) {
@@ -5176,7 +5299,7 @@
 
                 const data = await response.json();
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to upload profile photo.');
+                    throw new Error(data.message || @json(__('profile.freelancer.profile.upload_photo_failed')));
                 }
 
                 const updatedName = data.name || document.getElementById('freelancerProfileDisplayName')
@@ -5198,7 +5321,7 @@
                     sidebarName.textContent = updatedName;
                 }
             } catch (error) {
-                alert(error.message || 'Failed to upload profile photo.');
+                alert(error.message || @json(__('profile.freelancer.profile.upload_photo_failed')));
             }
         });
 
@@ -5221,7 +5344,7 @@
 
                 const data = await response.json();
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to remove profile photo.');
+                    throw new Error(data.message || @json(__('profile.freelancer.profile.remove_photo_failed')));
                 }
 
                 const updatedName = data.name || document.getElementById('freelancerProfileDisplayName')
@@ -5236,7 +5359,7 @@
                 const fileInput = document.getElementById('profile-photo-upload');
                 if (fileInput) fileInput.value = '';
             } catch (error) {
-                alert(error.message || 'Failed to remove profile photo.');
+                alert(error.message || @json(__('profile.freelancer.profile.remove_photo_failed')));
             }
         });
     </script>

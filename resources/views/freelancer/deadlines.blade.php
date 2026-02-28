@@ -1,108 +1,59 @@
 @extends('layouts.app')
 
-@section('title', 'Upcoming Deadlines')
+@section('title', __('deadlines.meta.title'))
 
 @section('content')
     <div class="mb-6">
         <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Upcoming Deadlines</h1>
-                <p class="text-gray-600 mt-1">Track your next milestones and due dates.</p>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('deadlines.header.title') }}</h1>
+                <p class="text-gray-600 mt-1">{{ __('deadlines.header.subtitle') }}</p>
             </div>
         </div>
     </div>
 
     @php
-        $deadlines = [
-            [
-                'title' => 'Landing Page Final Review',
-                'days' => 1,
-                'desc' => 'Approve hero section and CTA updates',
-                'date' => 'Feb 13, 2026',
-            ],
-            [
-                'title' => 'API Integration Milestone',
-                'days' => 2,
-                'desc' => 'Connect payment and invoice endpoints',
-                'date' => 'Feb 14, 2026',
-            ],
-            [
-                'title' => 'Mobile UI QA Pass',
-                'days' => 3,
-                'desc' => 'Resolve responsive issues on iOS and Android',
-                'date' => 'Feb 15, 2026',
-            ],
-            [
-                'title' => 'Backend Performance Tuning',
-                'days' => 4,
-                'desc' => 'Optimize heavy dashboard queries',
-                'date' => 'Feb 16, 2026',
-            ],
-            [
-                'title' => 'Client Demo Preparation',
-                'days' => 5,
-                'desc' => 'Prepare walkthrough and staging data',
-                'date' => 'Feb 17, 2026',
-            ],
-            [
-                'title' => 'Auth Flow Regression Test',
-                'days' => 6,
-                'desc' => 'Validate signup/signin and password reset',
-                'date' => 'Feb 18, 2026',
-            ],
-            [
-                'title' => 'Messaging Module Update',
-                'days' => 7,
-                'desc' => 'Finalize unread badge and thread sorting',
-                'date' => 'Feb 19, 2026',
-            ],
-            [
-                'title' => 'Contract Page Cleanup',
-                'days' => 8,
-                'desc' => 'Update labels and status visibility',
-                'date' => 'Feb 20, 2026',
-            ],
-        ];
+        $deadlines = trans('deadlines.sample_deadlines');
     @endphp
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div class="flex flex-wrap gap-2" id="deadline-filters" role="tablist">
             <button type="button" data-filter="all"
                 class="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-900 text-white">
-                All
+                {{ __('deadlines.filters.all') }}
             </button>
             <button type="button" data-filter="today"
                 class="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">
-                Today
+                {{ __('deadlines.filters.today') }}
             </button>
             <button type="button" data-filter="week"
                 class="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">
-                This Week
+                {{ __('deadlines.filters.this_week') }}
             </button>
             <button type="button" data-filter="overdue"
                 class="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">
-                Overdue
+                {{ __('deadlines.filters.overdue') }}
             </button>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-                <label for="deadline-sort" class="font-medium text-gray-700">Sort by</label>
+                <label for="deadline-sort" class="font-medium text-gray-700">{{ __('deadlines.sort.label') }}</label>
                 <select id="deadline-sort"
                     class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-200 focus:border-blue-300">
-                    <option value="soonest">Soonest</option>
-                    <option value="latest">Latest</option>
-                    <option value="client">Client</option>
-                    <option value="project">Project</option>
+                    <option value="soonest">{{ __('deadlines.sort.soonest') }}</option>
+                    <option value="latest">{{ __('deadlines.sort.latest') }}</option>
+                    <option value="client">{{ __('deadlines.sort.client') }}</option>
+                    <option value="project">{{ __('deadlines.sort.project') }}</option>
                 </select>
             </div>
             <div class="flex items-center gap-1 text-sm">
                 <button type="button" data-view="list" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white font-medium">
-                    List
+                    {{ __('deadlines.view.list') }}
                 </button>
                 <button type="button" data-view="timeline"
                     class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200">
-                    Timeline
+                    {{ __('deadlines.view.timeline') }}
                 </button>
             </div>
         </div>
@@ -114,7 +65,8 @@
                 @php
                     $isOverdue = $deadline['days'] < 0;
                     $isDueSoon = !$isOverdue && $deadline['days'] <= 2;
-                    $statusLabel = $isOverdue ? 'Overdue' : ($isDueSoon ? 'Due soon' : 'On track');
+                    $statusKey = $isOverdue ? 'overdue' : ($isDueSoon ? 'due_soon' : 'on_track');
+                    $statusLabel = __('deadlines.status.' . $statusKey);
                     $badgeClasses = $isOverdue
                         ? 'bg-red-100 text-red-700'
                         : ($isDueSoon
@@ -122,11 +74,12 @@
                             : 'bg-blue-100 text-blue-700');
 
                     $filterBucket = $isOverdue ? 'overdue' : ($deadline['days'] === 0 ? 'today' : 'week');
+                    $normalizedTitle = \Illuminate\Support\Str::lower($deadline['title']);
                 @endphp
                 <div class="p-5 flex flex-col lg:flex-row lg:items-start justify-between gap-6 deadline-item"
                     data-days="{{ $deadline['days'] }}" data-status="{{ $filterBucket }}"
-                    data-title="{{ strtolower($deadline['title']) }}" data-client="client"
-                    data-project="{{ strtolower($deadline['title']) }}">
+                    data-title="{{ $normalizedTitle }}" data-client="client"
+                    data-project="{{ $normalizedTitle }}">
                     <div class="flex-1">
                         <div class="flex flex-wrap items-center gap-3 mb-2">
                             <h3 class="text-base font-semibold text-gray-900">{{ $deadline['title'] }}</h3>
@@ -146,40 +99,42 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('find-jobs') }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Job
+                                    {{ __('deadlines.links.job') }}
                                 </a>
                                 <span class="text-gray-300">|</span>
                                 <a href="{{ route('dashboard') }}#freelancer-active-jobs"
                                     class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Contract
+                                    {{ __('deadlines.links.contract') }}
                                 </a>
                                 <span class="text-gray-300">|</span>
                                 <a href="{{ route('messages.index') }}"
                                     class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Messages
+                                    {{ __('deadlines.links.messages') }}
                                 </a>
                             </div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">Due in {{ $deadline['days'] }} days</p>
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ trans_choice('deadlines.labels.due_in_days', $deadline['days'], ['count' => $deadline['days']]) }}
+                        </p>
                         <div class="mt-3 flex flex-col items-end gap-2">
                             <button type="button"
                                 class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">
-                                Reminders On
+                                {{ __('deadlines.buttons.reminders_on') }}
                             </button>
                             <div class="flex items-center gap-2">
                                 <button type="button"
                                     class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100">
-                                    Mark done
+                                    {{ __('deadlines.buttons.mark_done') }}
                                 </button>
                                 <button type="button"
                                     class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100">
-                                    Request extension
+                                    {{ __('deadlines.buttons.request_extension') }}
                                 </button>
                                 <button type="button"
                                     class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
-                                    Send update
+                                    {{ __('deadlines.buttons.send_update') }}
                                 </button>
                             </div>
                         </div>
@@ -189,7 +144,7 @@
         </div>
 
         <div id="deadlines-empty" class="hidden p-8 text-center">
-            <p class="text-gray-600 text-sm">No upcoming deadlines found.</p>
+            <p class="text-gray-600 text-sm">{{ __('deadlines.empty_state.no_upcoming') }}</p>
         </div>
     </div>
 @endsection
