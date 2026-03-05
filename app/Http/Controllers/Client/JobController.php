@@ -137,16 +137,42 @@ class JobController extends Controller
 
         $clientId = Auth::user()?->client?->id;
         if (!$clientId) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to determine the client account for this user.',
+                ], 422);
+            }
+
             return back()
                 ->withErrors(['client' => 'Unable to determine the client account for this user.'])
                 ->withInput();
         }
 
         $validated['client_id'] = $clientId;
+        $validated['status'] = $validated['status'] ?? 'open';
 
-        Job::create($validated);
+        $job = Job::create($validated);
 
-        return redirect()->route('my-jobs.index');
+        $statusLabel = $job->status === 'draft' ? 'draft' : 'published';
+        $successMessage = "Job {$statusLabel} successfully.";
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'job' => [
+                    'id' => $job->id,
+                    'title' => $job->title,
+                    'status' => $job->status,
+                    'created_at' => optional($job->created_at)->toIso8601String(),
+                ],
+            ], 201);
+        }
+
+        return redirect()
+            ->route('my-jobs.index')
+            ->with('success', $successMessage);
     }
 
     /**

@@ -314,6 +314,16 @@
                 return `${text.substring(0, max)}...`;
             }
 
+            function renderFormattedDescriptionPreview(text, max = 180) {
+                const truncated = truncate(text, max);
+                let formatted = escapeHtml(String(truncated)).replace(/\r\n/g, '\n');
+                formatted = formatted.replace(/^\s*-\s+(.*)$/gm, '&bull; $1');
+                formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+                formatted = formatted.replace(/\n/g, ' ');
+                return formatted;
+            }
+
             function formatTimeAgo(dateString) {
                 if (!dateString) {
                     return 'Just now';
@@ -498,7 +508,7 @@
                                     </div>
                                     <h3 class="font-bold text-gray-900 mb-2 text-lg">${escapeHtml(job.title || 'Untitled job')}</h3>
                                     <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                                        ${escapeHtml(truncate(job.description))}
+                                        ${renderFormattedDescriptionPreview(job.description)}
                                     </p>
                                     <div class="flex flex-wrap gap-2 mb-4 select-none">
                                         ${skillsHtml}
