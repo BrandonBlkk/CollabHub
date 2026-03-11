@@ -2,6 +2,32 @@
 
 @section('title', 'Post a New Job')
 
+@push('styles')
+    <style>
+        #job_description_editor:empty::before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+
+        #job_description_editor ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+        }
+
+        #job_description_editor li {
+            margin: 0.25rem 0;
+        }
+
+        .format-button-active {
+            background-color: #e5e7eb;
+        }
+
+        .format-button-active svg {
+            color: #111827;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="mb-3">
         <div class="flex items-center justify-between">
@@ -22,7 +48,7 @@
     </div>
 
     <!-- Job Post Form -->
-    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-6">
+    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-3">
         @csrf
         <input type="hidden" id="job_status" name="status" value="{{ old('status', 'open') }}">
         <div id="jobPostFeedback" class="hidden rounded-lg border px-4 py-3 text-sm"></div>
@@ -50,33 +76,31 @@
 
             <!-- Job Description -->
             <div class="mb-3">
-                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="job_description_editor" class="block text-sm font-medium text-gray-700 mb-2">
                     Job Description <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
-                    <div class="border border-gray-300 rounded-lg overflow-hidden">
+                    <div id="job_description_wrapper"
+                        class="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-200">
                         <div class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center space-x-2">
-                            <button type="button" onclick="formatText('bold')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
+                            <button type="button" onclick="formatText('bold')" data-format="bold" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-bold text-lg"></i>
                             </button>
-                            <button type="button" onclick="formatText('italic')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                </svg>
+                            <button type="button" onclick="formatText('italic')" data-format="italic" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-italic text-lg"></i>
                             </button>
-                            <button type="button" onclick="formatText('ul')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
+                            <button type="button" onclick="formatText('ul')" data-format="ul" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-list-unordered text-lg"></i>
                             </button>
                         </div>
-                        <textarea id="job_description" name="description" rows="8" class="w-full px-4 py-3 focus:outline-none resize-none"
-                            placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals...">{{ old('description') }}</textarea>
+                        <div id="job_description_editor" contenteditable="true" role="textbox" aria-multiline="true"
+                            class="w-full px-4 py-3 focus:outline-none resize-none min-h-[200px] whitespace-pre-wrap"
+                            data-placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals...">
+                        </div>
+                        <textarea id="job_description" name="description" rows="8" class="hidden">{{ old('description') }}</textarea>
                     </div>
                     @error('description')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -116,8 +140,8 @@
                         </div>
                     </label>
                     <label class="relative">
-                        <input type="radio" name="type" value="hourly"
-                            {{ old('type') === 'hourly' ? 'checked' : '' }} class="peer sr-only">
+                        <input type="radio" name="type" value="hourly" {{ old('type') === 'hourly' ? 'checked' : '' }}
+                            class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
                             <div class="flex items-center">
@@ -375,7 +399,7 @@
             <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
                 <!-- Preview content will be inserted here -->
             </div>
-            <div class="mt-6 flex justify-end space-x-4">
+            <div class="mt-6 flex justify-end space-x-4 select-none">
                 <button onclick="closePreview()"
                     class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
                     Close
@@ -453,7 +477,8 @@
 
             skills.forEach((skill, index) => {
                 const skillElement = document.createElement('div');
-                skillElement.className = 'flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg';
+                skillElement.className =
+                    'flex items-center bg-blue-50 text-blue-700 text-sm px-3 py-1.5 rounded-lg select-none';
                 skillElement.innerHTML = `
                     ${skill}
                     <button type="button" onclick="removeSkill(${index})" class="ml-2 text-blue-700 hover:text-blue-900">
@@ -588,29 +613,146 @@
                 .replace(/'/g, '&#39;');
         }
 
-        function renderFormattedDescription(text) {
-            if (!text) {
-                return 'Job description will appear here...';
-            }
-
-            let formatted = escapeHtml(String(text)).replace(/\r\n/g, '\n');
-            formatted = formatted.replace(/^\s*-\s+(.*)$/gm, '&bull; $1');
+        function applyInlineFormatting(value) {
+            let formatted = value;
             formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
             formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
-            formatted = formatted.replace(/\n/g, '<br>');
-
             return formatted;
+        }
+
+        function markdownToHtml(text) {
+            if (!text) {
+                return '';
+            }
+
+            const lines = escapeHtml(String(text)).replace(/\r\n/g, '\n').split('\n');
+            const output = [];
+            let paragraphLines = [];
+            let inList = false;
+
+            const flushParagraph = () => {
+                if (paragraphLines.length === 0) {
+                    return;
+                }
+
+                output.push(`<p>${paragraphLines.join('<br>')}</p>`);
+                paragraphLines = [];
+            };
+
+            lines.forEach((line) => {
+                const listMatch = line.match(/^\s*-\s+(.*)$/);
+                if (listMatch) {
+                    flushParagraph();
+                    if (!inList) {
+                        output.push('<ul class="list-disc pl-6 space-y-1">');
+                        inList = true;
+                    }
+                    output.push(`<li>${applyInlineFormatting(listMatch[1])}</li>`);
+                    return;
+                }
+
+                if (inList) {
+                    output.push('</ul>');
+                    inList = false;
+                }
+
+                if (line.trim() === '') {
+                    flushParagraph();
+                    return;
+                }
+
+                paragraphLines.push(applyInlineFormatting(line));
+            });
+
+            flushParagraph();
+            if (inList) {
+                output.push('</ul>');
+            }
+
+            return output.join('');
+        }
+
+        function renderFormattedDescription(text) {
+            const html = markdownToHtml(text);
+            if (!html) {
+                return '<p class="text-gray-500 italic">Job description will appear here...</p>';
+            }
+
+            return html;
+        }
+
+        function htmlToMarkdownFromNode(node) {
+            if (!node) {
+                return '';
+            }
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                return (node.nodeValue || '').replace(/\u00a0/g, ' ');
+            }
+
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return '';
+            }
+
+            const tag = node.tagName.toLowerCase();
+            const childContent = Array.from(node.childNodes).map(htmlToMarkdownFromNode).join('');
+
+            if (tag === 'br') {
+                return '\n';
+            }
+
+            if (tag === 'strong' || tag === 'b') {
+                return `**${childContent}**`;
+            }
+
+            if (tag === 'em' || tag === 'i') {
+                return `*${childContent}*`;
+            }
+
+            if (tag === 'ul') {
+                const items = Array.from(node.children)
+                    .filter(child => child.tagName && child.tagName.toLowerCase() === 'li')
+                    .map(li => `- ${htmlToMarkdownFromNode(li).trim()}`);
+                return `${items.join('\n')}\n`;
+            }
+
+            if (tag === 'li') {
+                return childContent;
+            }
+
+            if (tag === 'div' || tag === 'p') {
+                return `${childContent}\n`;
+            }
+
+            return childContent;
+        }
+
+        function normalizeMarkdown(value) {
+            return String(value || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function htmlToMarkdown(htmlElement) {
+            if (!htmlElement) {
+                return '';
+            }
+
+            const raw = Array.from(htmlElement.childNodes).map(htmlToMarkdownFromNode).join('');
+            return normalizeMarkdown(raw);
         }
 
         updateSkillsDisplay();
         updateSkillsHiddenField();
 
-        // Character count for description
         const descriptionTextarea = document.getElementById('job_description');
+        const descriptionEditor = document.getElementById('job_description_editor');
+        const descriptionWrapper = document.getElementById('job_description_wrapper');
         const charCount = document.getElementById('charCount');
+        const formatButtons = Array.from(document.querySelectorAll('[data-format]'));
 
-        descriptionTextarea.addEventListener('input', function() {
-            const length = this.value.length;
+        function updateDescriptionCharCount(length) {
             charCount.textContent = `${length}/5000 characters`;
 
             if (length > 5000) {
@@ -620,91 +762,123 @@
                 charCount.classList.remove('text-red-600');
                 charCount.classList.add('text-gray-500');
             }
-        });
-        descriptionTextarea.dispatchEvent(new Event('input'));
-
-        // Text formatting
-        function formatTextLegacy(type) {
-            const textarea = document.getElementById('job_description');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-
-            let formattedText = '';
-            switch (type) {
-                case 'bold':
-                    formattedText = `**${selectedText}**`;
-                    break;
-                case 'italic':
-                    formattedText = `*${selectedText}*`;
-                    break;
-                case 'ul':
-                    formattedText = `\n- ${selectedText}`;
-                    break;
-            }
-
-            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(start + formattedText.length, start + formattedText.length);
         }
 
-        function formatText(type) {
-            const textarea = document.getElementById('job_description');
-            if (!textarea) {
+        function syncDescriptionFromEditor() {
+            if (!descriptionEditor || !descriptionTextarea) {
                 return;
             }
 
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
+            const markdown = htmlToMarkdown(descriptionEditor);
+            descriptionTextarea.value = markdown;
+            updateDescriptionCharCount(markdown.length);
+        }
 
-            let formattedText = '';
-            let selectionStart = start;
-            let selectionEnd = start;
+        function setDescriptionEditorContent(markdown) {
+            if (!descriptionEditor) {
+                return;
+            }
+
+            const html = markdownToHtml(markdown);
+            descriptionEditor.innerHTML = html || '';
+        }
+
+        setDescriptionEditorContent(descriptionTextarea?.value || '');
+        syncDescriptionFromEditor();
+        updateFormatToolbarState();
+
+        descriptionEditor?.addEventListener('input', function() {
+            syncDescriptionFromEditor();
+            clearFieldValidationError('description');
+            updateFormatToolbarState();
+        });
+        descriptionEditor?.addEventListener('blur', function() {
+            if (!descriptionEditor.textContent?.trim()) {
+                descriptionEditor.innerHTML = '';
+                syncDescriptionFromEditor();
+            }
+            updateFormatToolbarState();
+        });
+        descriptionEditor?.addEventListener('keyup', updateFormatToolbarState);
+        descriptionEditor?.addEventListener('mouseup', updateFormatToolbarState);
+        descriptionEditor?.addEventListener('focus', updateFormatToolbarState);
+
+        document.addEventListener('selectionchange', function() {
+            if (!descriptionEditor || document.activeElement !== descriptionEditor) {
+                return;
+            }
+            updateFormatToolbarState();
+        });
+
+        function isSelectionInsideEditor() {
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) {
+                return false;
+            }
+
+            const range = selection.getRangeAt(0);
+            return descriptionEditor && descriptionEditor.contains(range.commonAncestorContainer);
+        }
+
+        function setFormatButtonState(button, isActive) {
+            if (!button) {
+                return;
+            }
+
+            button.classList.toggle('format-button-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        }
+
+        function updateFormatToolbarState() {
+            if (!descriptionEditor || formatButtons.length === 0) {
+                return;
+            }
+
+            if (!isSelectionInsideEditor()) {
+                formatButtons.forEach((button) => setFormatButtonState(button, false));
+                return;
+            }
+
+            formatButtons.forEach((button) => {
+                const format = button.dataset.format;
+                let isActive = false;
+
+                if (format === 'bold') {
+                    isActive = document.queryCommandState('bold');
+                } else if (format === 'italic') {
+                    isActive = document.queryCommandState('italic');
+                } else if (format === 'ul') {
+                    isActive = document.queryCommandState('insertUnorderedList');
+                }
+
+                setFormatButtonState(button, isActive);
+            });
+        }
+
+        // Text formatting
+        function formatText(type) {
+            if (!descriptionEditor) {
+                return;
+            }
+
+            descriptionEditor.focus();
 
             switch (type) {
                 case 'bold':
-                    formattedText = selectedText ? `**${selectedText}**` : '**bold text**';
-                    if (!selectedText) {
-                        selectionStart = start + 2;
-                        selectionEnd = start + formattedText.length - 2;
-                    } else {
-                        selectionStart = start + formattedText.length;
-                        selectionEnd = selectionStart;
-                    }
+                    document.execCommand('bold');
                     break;
                 case 'italic':
-                    formattedText = selectedText ? `*${selectedText}*` : '*italic text*';
-                    if (!selectedText) {
-                        selectionStart = start + 1;
-                        selectionEnd = start + formattedText.length - 1;
-                    } else {
-                        selectionStart = start + formattedText.length;
-                        selectionEnd = selectionStart;
-                    }
+                    document.execCommand('italic');
                     break;
                 case 'ul':
-                    if (selectedText) {
-                        formattedText = selectedText
-                            .split('\n')
-                            .map(line => (line.trim() ? `- ${line}` : '- '))
-                            .join('\n');
-                        selectionStart = start + formattedText.length;
-                        selectionEnd = selectionStart;
-                    } else {
-                        formattedText = '- ';
-                        selectionStart = start + formattedText.length;
-                        selectionEnd = selectionStart;
-                    }
+                    document.execCommand('insertUnorderedList');
                     break;
                 default:
                     return;
             }
 
-            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(selectionStart, selectionEnd);
-            textarea.dispatchEvent(new Event('input'));
+            syncDescriptionFromEditor();
+            updateFormatToolbarState();
         }
 
         // Toggle budget fields based on job type
@@ -800,6 +974,7 @@
         // Preview functionality
         function previewJob() {
             const form = document.getElementById('jobPostForm');
+            syncDescriptionFromEditor();
             const formData = new FormData(form);
             const previewContent = document.getElementById('previewContent');
 
@@ -814,8 +989,8 @@
 
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">${formData.get('title') || 'Job Title'}</h2>
 
-                    <div class="prose max-w-none">
-                        <p class="text-gray-600 mb-4">${renderFormattedDescription(formData.get('description'))}</p>
+                    <div class="prose max-w-none text-gray-600 mb-4">
+                        ${renderFormattedDescription(formData.get('description'))}
                     </div>
 
                     <div class="flex flex-wrap gap-2 mb-6">
@@ -1027,7 +1202,7 @@
 
         const validationFieldMap = {
             title: '#job_title',
-            description: '#job_description',
+            description: '#job_description_editor',
             type: '#typeOptions',
             skills_required: '#skillsSearchWrapper',
             experience_level: '#experience_level',
@@ -1089,6 +1264,11 @@
                 return;
             }
 
+            if (normalized === 'description') {
+                descriptionWrapper?.classList.remove('border-red-500');
+                return;
+            }
+
             const target = getValidationTarget(normalized);
             const inputTarget = normalized === 'skills_required' ? document.getElementById('skillInput') : target;
             if (!inputTarget) {
@@ -1130,6 +1310,11 @@
                 return;
             }
 
+            if (normalized === 'description') {
+                descriptionWrapper?.classList.add('border-red-500');
+                return;
+            }
+
             const inputTarget = normalized === 'skills_required' ? document.getElementById('skillInput') : target;
             inputTarget?.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
         }
@@ -1167,6 +1352,8 @@
 
                 if (['INPUT', 'SELECT', 'TEXTAREA'].includes(firstTarget.tagName)) {
                     firstTarget.focus();
+                } else if (firstTarget.getAttribute && firstTarget.getAttribute('contenteditable') === 'true') {
+                    firstTarget.focus();
                 }
             }
         }
@@ -1183,7 +1370,8 @@
 
             document.getElementById('job_status').value = 'open';
             updateBudgetFields();
-            descriptionTextarea.dispatchEvent(new Event('input'));
+            setDescriptionEditorContent('');
+            syncDescriptionFromEditor();
         }
 
         // Save as draft
@@ -1201,6 +1389,7 @@
             clearFieldValidationErrors();
             document.getElementById('job_status').value = status;
             updateSkillsHiddenField();
+            syncDescriptionFromEditor();
 
             const form = document.getElementById('jobPostForm');
             const formData = new FormData(form);
@@ -1260,7 +1449,7 @@
 
             if (target.id === 'job_title') {
                 clearFieldValidationError('title');
-            } else if (target.id === 'job_description') {
+            } else if (target.id === 'job_description' || target.id === 'job_description_editor') {
                 clearFieldValidationError('description');
             } else if (target.id === 'budget_min') {
                 clearFieldValidationError('budget_min');
