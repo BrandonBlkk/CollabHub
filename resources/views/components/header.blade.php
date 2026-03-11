@@ -103,7 +103,7 @@
 
             @if (Auth::user()->role === 'client')
                 <a href="{{ route('my-jobs.create') }}"
-                    class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-black transition duration-300 font-medium text-sm">
+                    class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-black transition duration-300 font-medium text-sm text-nowrap">
                     Post a Job
                 </a>
             @endif

@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 /* Apply to everything */
+* {
+    scroll-behavior: smooth;
+}
+
 ::-webkit-scrollbar {
     width: 6px;
 }

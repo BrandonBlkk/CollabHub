@@ -35,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
 
+    // Skill search (available to authenticated users)
+    Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
+    Route::get('/skills/{skill}/related', [SkillController::class, 'relatedSkills'])->name('skills.related');
+
     // Public client profile (for authenticated users, including freelancers)
     Route::get('/clients/{id}/profile', [ProfileController::class, 'publicShow'])->name('clients.profile.show');
 
@@ -68,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('find-freelancers');
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
+        Route::get('/my-jobs/jobs', [JobController::class, 'getJobs'])->name('my-jobs.jobs');
         Route::resource('my-jobs', JobController::class);
 
         // Profile
@@ -99,8 +104,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/jobs/proposals/{id}/withdraw', [FindJobsController::class, 'withdrawProposal'])->name('find-jobs.proposals.withdraw');
 
         // Skill
-        Route::get('/skills/search', [SkillController::class, 'searchSkill'])->name('skills.search');
-        Route::get('/skills/{skill}/related', [SkillController::class, 'relatedSkills'])->name('skills.related');
         Route::post('/skills/store', [SkillController::class, 'storeSkills'])->name('skills.store');
         Route::delete('/skills/{skill}', [SkillController::class, 'removeSkill'])->name('skills.remove');
 

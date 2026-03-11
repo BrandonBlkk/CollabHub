@@ -30,6 +30,21 @@ class DashboardController extends Controller
             'profileViewsTrend' => 'neutral',
             'statsPeriodLabel' => 'from last month',
             'freelancerActiveJobs' => collect(),
+            'clientJobPostings' => collect(),
+            'clientActiveJobs' => 0,
+            'clientActiveJobsChangePercent' => 0,
+            'clientActiveJobsTrend' => 'neutral',
+            'clientTotalSpent' => 0,
+            'clientTotalSpentChangePercent' => 0,
+            'clientTotalSpentTrend' => 'neutral',
+            'clientFreelancersHired' => 0,
+            'clientFreelancersHiredChangePercent' => 0,
+            'clientFreelancersHiredTrend' => 'neutral',
+            'clientProposalsReceived' => 0,
+            'clientProposalsReceivedChangePercent' => 0,
+            'clientProposalsReceivedTrend' => 'neutral',
+            'clientAvgProposalsPerJob' => 0,
+            'clientRecentApplications' => collect(),
         ];
 
         if ($user->role === 'freelancer' && $user->freelancer) {
@@ -116,7 +131,7 @@ class DashboardController extends Controller
             $currentMonthEnd = now()->endOfMonth();
             $previousMonthStart = now()->subMonthNoOverflow()->startOfMonth();
             $previousMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
-
+            $clientId = $user->client->id;
             $currentMonthProfileViews = 0;
             $previousMonthProfileViews = 0;
 
@@ -132,11 +147,124 @@ class DashboardController extends Controller
                     ->count();
             }
 
+            $clientJobsQuery = $user->client->jobs();
+
+            $clientActiveJobs = (clone $clientJobsQuery)
+                ->whereIn('status', ['open', 'in_progress'])
+                ->count();
+            $currentMonthActiveJobs = (clone $clientJobsQuery)
+                ->whereIn('status', ['open', 'in_progress'])
+                ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+                ->count();
+            $previousMonthActiveJobs = (clone $clientJobsQuery)
+                ->whereIn('status', ['open', 'in_progress'])
+                ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+                ->count();
+
+            $clientTotalSpent = (float) Payment::query()
+                ->whereHas('contract', fn($query) => $query->where('client_id', $clientId))
+                ->sum('amount');
+            $currentMonthSpent = (float) Payment::query()
+                ->whereHas('contract', fn($query) => $query->where('client_id', $clientId))
+                ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+                ->sum('amount');
+            $previousMonthSpent = (float) Payment::query()
+                ->whereHas('contract', fn($query) => $query->where('client_id', $clientId))
+                ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+                ->sum('amount');
+
+            $clientFreelancersHired = Contract::query()
+                ->where('client_id', $clientId)
+                ->distinct()
+                ->count('freelancer_id');
+            $currentMonthFreelancersHired = Contract::query()
+                ->where('client_id', $clientId)
+                ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+                ->distinct()
+                ->count('freelancer_id');
+            $previousMonthFreelancersHired = Contract::query()
+                ->where('client_id', $clientId)
+                ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+                ->distinct()
+                ->count('freelancer_id');
+
+            $clientProposalsReceived = Proposal::query()
+                ->whereHas('job', fn($query) => $query->where('client_id', $clientId))
+                ->count();
+            $currentMonthProposalsReceived = Proposal::query()
+                ->whereHas('job', fn($query) => $query->where('client_id', $clientId))
+                ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+                ->count();
+            $previousMonthProposalsReceived = Proposal::query()
+                ->whereHas('job', fn($query) => $query->where('client_id', $clientId))
+                ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+                ->count();
+
+            $totalClientJobs = (clone $clientJobsQuery)->count();
+            $clientAvgProposalsPerJob = $totalClientJobs > 0
+                ? round($clientProposalsReceived / $totalClientJobs, 1)
+                : 0;
+
+            $clientJobPostings = $user->client
+                ->jobs()
+                ->with([
+                    'category:id,name',
+                ])
+                ->withCount('proposals')
+                ->latest('created_at')
+                ->limit(5)
+                ->get([
+                    'id',
+                    'client_id',
+                    'title',
+                    'description',
+                    'type',
+                    'status',
+                    'budget_min',
+                    'budget_max',
+                    'category_id',
+                    'created_at',
+                ]);
+
+            $clientRecentApplications = Proposal::query()
+                ->whereHas('job', fn($query) => $query->where('client_id', $clientId))
+                ->with([
+                    'job:id,client_id,title',
+                    'freelancer:id,user_id,rating,rating_count',
+                    'freelancer.user:id,name,profile_photo_path',
+                ])
+                ->latest('created_at')
+                ->limit(5)
+                ->get([
+                    'id',
+                    'job_id',
+                    'freelancer_id',
+                    'proposal_text',
+                    'bid_amount',
+                    'estimated_timeline',
+                    'created_at',
+                ]);
+
             $dashboardData = array_replace($dashboardData, [
+                'clientActiveJobs' => $clientActiveJobs,
+                'clientActiveJobsChangePercent' => $this->calculateChangePercent($currentMonthActiveJobs, $previousMonthActiveJobs),
+                'clientActiveJobsTrend' => $this->resolveTrend($currentMonthActiveJobs, $previousMonthActiveJobs),
+                'clientTotalSpent' => $clientTotalSpent,
+                'clientTotalSpentChangePercent' => $this->calculateChangePercent($currentMonthSpent, $previousMonthSpent),
+                'clientTotalSpentTrend' => $this->resolveTrend($currentMonthSpent, $previousMonthSpent),
+                'clientFreelancersHired' => $clientFreelancersHired,
+                'clientFreelancersHiredChangePercent' => $this->calculateChangePercent($currentMonthFreelancersHired, $previousMonthFreelancersHired),
+                'clientFreelancersHiredTrend' => $this->resolveTrend($currentMonthFreelancersHired, $previousMonthFreelancersHired),
+                'clientProposalsReceived' => $clientProposalsReceived,
+                'clientProposalsReceivedChangePercent' => $this->calculateChangePercent($currentMonthProposalsReceived, $previousMonthProposalsReceived),
+                'clientProposalsReceivedTrend' => $this->resolveTrend($currentMonthProposalsReceived, $previousMonthProposalsReceived),
+                'clientAvgProposalsPerJob' => $clientAvgProposalsPerJob,
                 'profileViews' => $currentMonthProfileViews,
                 'profileViewsChangePercent' => $this->calculateChangePercent($currentMonthProfileViews, $previousMonthProfileViews),
                 'profileViewsTrend' => $this->resolveTrend($currentMonthProfileViews, $previousMonthProfileViews),
                 'statsPeriodLabel' => 'from last month',
+                'clientJobPostings' => $clientJobPostings,
+                'clientRecentApplications' => $clientRecentApplications,
             ]);
         }
 

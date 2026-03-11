@@ -2,6 +2,45 @@
 
 @section('title', 'Post a New Job')
 
+@push('styles')
+    <style>
+        #job_description_editor:empty::before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+
+        #job_description_editor ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+        }
+
+        #job_description_editor li {
+            margin: 0.25rem 0;
+        }
+
+        .format-button-active {
+            background-color: #e5e7eb;
+        }
+
+        .format-button-active svg {
+            color: #111827;
+        }
+
+        .description-error {
+            border-color: #ef4444;
+        }
+
+        .description-error:hover {
+            border-color: #ef4444;
+        }
+
+        .description-error:focus-within {
+            --tw-ring-color: #ef4444;
+            border-color: #ef4444;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="mb-3">
         <div class="flex items-center justify-between">
@@ -22,12 +61,13 @@
     </div>
 
     <!-- Job Post Form -->
-    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-6">
+    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-3">
         @csrf
+        <input type="hidden" id="job_status" name="status" value="{{ old('status', 'open') }}">
+        <div id="jobPostFeedback" class="hidden rounded-lg border px-4 py-3 text-sm"></div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-3">Basic Information</h2>
 
-            <input type="hidden" name="client_id" value="{{ Auth::user()->client->id }}">
             <!-- Job Title -->
             <div class="mb-3">
                 <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
@@ -36,7 +76,8 @@
                 <div class="relative">
                     <input type="text" id="job_title" name="title"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        placeholder="e.g., Senior React Developer with TypeScript Experience" maxlength="255">
+                        placeholder="e.g., Senior React Developer with TypeScript Experience" maxlength="255"
+                        value="{{ old('title') }}">
                     @error('title')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                             {{ $message }}
@@ -48,33 +89,31 @@
 
             <!-- Job Description -->
             <div class="mb-3">
-                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="job_description_editor" class="block text-sm font-medium text-gray-700 mb-2">
                     Job Description <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
-                    <div class="border border-gray-300 rounded-lg overflow-hidden">
+                    <div id="job_description_wrapper"
+                        class="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 hover:border-gray-400 transition-all duration-200">
                         <div class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center space-x-2">
-                            <button type="button" onclick="formatText('bold')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
+                            <button type="button" onclick="formatText('bold')" data-format="bold" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-bold text-lg"></i>
                             </button>
-                            <button type="button" onclick="formatText('italic')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                </svg>
+                            <button type="button" onclick="formatText('italic')" data-format="italic" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-italic text-lg"></i>
                             </button>
-                            <button type="button" onclick="formatText('ul')" class="p-1 hover:bg-gray-200 rounded">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
+                            <button type="button" onclick="formatText('ul')" data-format="ul" aria-pressed="false"
+                                class="p-1 hover:bg-gray-200 rounded">
+                                <i class="ri-list-unordered text-lg"></i>
                             </button>
                         </div>
-                        <textarea id="job_description" name="description" rows="8" class="w-full px-4 py-3 focus:outline-none resize-none"
-                            placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals..."></textarea>
+                        <div id="job_description_editor" contenteditable="true" role="textbox" aria-multiline="true"
+                            class="w-full px-4 py-3 focus:outline-none resize-none min-h-[200px] whitespace-pre-wrap"
+                            data-placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals...">
+                        </div>
+                        <textarea id="job_description" name="description" rows="8" class="hidden">{{ old('description') }}</textarea>
                     </div>
                     @error('description')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -93,9 +132,10 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     Job Type <span class="text-red-500">*</span>
                 </label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="typeOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="relative">
-                        <input type="radio" name="type" value="fixed" checked class="peer sr-only">
+                        <input type="radio" name="type" value="fixed"
+                            {{ old('type', 'fixed') === 'fixed' ? 'checked' : '' }} class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-200">
                             <div class="flex items-center">
@@ -113,7 +153,8 @@
                         </div>
                     </label>
                     <label class="relative">
-                        <input type="radio" name="type" value="hourly" class="peer sr-only">
+                        <input type="radio" name="type" value="hourly" {{ old('type') === 'hourly' ? 'checked' : '' }}
+                            class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
                             <div class="flex items-center">
@@ -146,24 +187,24 @@
                     <div id="skillsContainer" class="flex flex-wrap gap-2 mb-3">
                         <!-- Skills will be added here dynamically -->
                     </div>
-                    <div class="relative">
-                        <div class="flex">
-                            <input type="text" id="skillInput"
-                                class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                placeholder="Type a skill and press Enter (e.g., React, Python, UI/UX Design)">
-                            <button type="button" onclick="addSkill()"
-                                class="px-4 py-2 bg-gray-800 text-white rounded-r-lg hover:bg-black transition duration-200 select-none">
-                                Add
-                            </button>
+                    <div class="relative" id="skillsSearchWrapper">
+                        <input type="text" id="skillInput"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Search skills by name (e.g., React, Laravel, Figma)" autocomplete="off">
+                        <div id="skillsSuggestions"
+                            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                            <!-- Suggestions will be populated here -->
                         </div>
                         @error('skills_required')
-                            <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
+                            <p class="mt-2 text-xs text-red-600">
                                 {{ $message }}
                             </p>
                         @enderror
                     </div>
-                    <p class="text-gray-500 text-xs mt-2">Add at least 3 skills that are required for this
-                        job</p>
+                    <p class="text-gray-500 text-xs mt-2">Search and select skills you required for this job, then remove
+                        any skill you
+                        don't
+                        need.</p>
                 </div>
                 <input type="hidden" id="skills_required" name="skills_required">
             </div>
@@ -177,9 +218,13 @@
                     <select id="experience_level" name="experience_level"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                         <option value="">Select experience level</option>
-                        <option value="entry">Entry Level (0-2 years)</option>
-                        <option value="intermediate" selected>Intermediate (2-5 years)</option>
-                        <option value="expert">Expert (5+ years)</option>
+                        <option value="entry" {{ old('experience_level') === 'entry' ? 'selected' : '' }}>Entry Level
+                            (0-2 years)</option>
+                        <option value="intermediate"
+                            {{ old('experience_level', 'intermediate') === 'intermediate' ? 'selected' : '' }}>
+                            Intermediate (2-5 years)</option>
+                        <option value="expert" {{ old('experience_level') === 'expert' ? 'selected' : '' }}>Expert (5+
+                            years)</option>
                     </select>
                     @error('experience_level')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -197,10 +242,16 @@
                 <select id="duration" name="duration"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                     <option value="">Select expected duration</option>
-                    <option value="less_than_1_month">Less than 1 month</option>
-                    <option value="1_to_3_months">1 to 3 months</option>
-                    <option value="3_to_6_months">3 to 6 months</option>
-                    <option value="more_than_6_months">More than 6 months</option>
+                    <option value="less_than_1_month" {{ old('duration') === 'less_than_1_month' ? 'selected' : '' }}>Less
+                        than 1
+                        month</option>
+                    <option value="1_to_3_months" {{ old('duration') === '1_to_3_months' ? 'selected' : '' }}>1 to 3
+                        months</option>
+                    <option value="3_to_6_months" {{ old('duration') === '3_to_6_months' ? 'selected' : '' }}>3 to 6
+                        months</option>
+                    <option value="more_than_6_months" {{ old('duration') === 'more_than_6_months' ? 'selected' : '' }}>
+                        More than 6
+                        months</option>
                 </select>
             </div>
         </div>
@@ -230,7 +281,7 @@
                                         <input type="number" id="budget_min" name="budget_min" min="0"
                                             step="0.01"
                                             class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            placeholder="e.g., 1000">
+                                            placeholder="e.g., 1000" value="{{ old('budget_min') }}">
                                         @error('budget_min')
                                             <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                                                 {{ $message }}
@@ -251,7 +302,7 @@
                                         <input type="number" id="budget_max" name="budget_max" min="0"
                                             step="0.01"
                                             class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            placeholder="e.g., 5000">
+                                            placeholder="e.g., 5000" value="{{ old('budget_max') }}">
                                         @error('budget_max')
                                             <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                                                 {{ $message }}
@@ -274,7 +325,7 @@
                 </label>
                 <input type="date" id="expires_at" name="expires_at"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    min="{{ date('Y-m-d') }}">
+                    min="{{ date('Y-m-d') }}" value="{{ old('expires_at') }}">
                 <p class="text-gray-500 text-xs mt-2">Set a deadline for freelancer applications</p>
             </div>
 
@@ -285,13 +336,15 @@
                 </label>
                 <div class="space-y-3 inline-block">
                     <label class="flex items-center space-x-3">
-                        <input type="checkbox" id="is_featured" name="is_featured"
+                        <input type="checkbox" id="is_featured" name="is_featured" value="1"
+                            {{ old('is_featured') ? 'checked' : '' }}
                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                         <span class="text-sm text-gray-900">Feature this job (extra $50)</span>
                         <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Recommended</span>
                     </label>
                     <label class="flex items-center space-x-3">
-                        <input type="checkbox" id="is_private" name="is_private"
+                        <input type="checkbox" id="is_private" name="is_private" value="1"
+                            {{ old('is_private') ? 'checked' : '' }}
                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                         <span class="text-sm text-gray-900">Make job private (only invited freelancers can
                             apply)</span>
@@ -310,7 +363,9 @@
 
                     {{-- Get all categories --}}
                     @forelse ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        <option value="{{ $category->id }}"
+                            {{ (string) old('category_id') === (string) $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}</option>
                     @empty
                         <option value="" disabled>No categories found</option>
                     @endforelse
@@ -321,7 +376,7 @@
         <!-- Form Actions -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center justify-between select-none">
-                <button type="button" onclick="saveAsDraft()"
+                <button id="saveDraftBtn" type="button" onclick="saveAsDraft()"
                     class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
                     Save as Draft
                 </button>
@@ -330,8 +385,8 @@
                         class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
                         Preview
                     </button>
-                    <button type="submit"
-                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition duration-200">
+                    <button id="publishBtn" type="submit"
+                        class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
                         Publish Job
                     </button>
                 </div>
@@ -344,28 +399,36 @@
     </form>
 
     <!-- Preview Modal (Hidden by default) -->
-    <div id="previewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-xl bg-white">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
-                <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
-                <!-- Preview content will be inserted here -->
-            </div>
-            <div class="mt-6 flex justify-end space-x-4">
-                <button onclick="closePreview()"
-                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
-                    Close
-                </button>
-                <button onclick="submitForm()"
-                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                    Publish Job
-                </button>
+    <div id="previewModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+        <div id="previewBackdrop" class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out">
+        </div>
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div id="previewModalContent"
+                class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-lg transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-4xl w-full translate-y-4 opacity-0 scale-95">
+                <div class="p-5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
+                        <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
+                        <!-- Preview content will be inserted here -->
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-4 select-none">
+                        <button onclick="closePreview()"
+                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
+                            Close
+                        </button>
+                        <button id="modalPublishBtn" type="button" onclick="submitForm()"
+                            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
+                            Publish Job
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -374,33 +437,69 @@
 @push('scripts')
     <script>
         // Skills Management
-        let skills = [];
-
-        function addSkill() {
-            const skillInput = document.getElementById('skillInput');
-            const skill = skillInput.value.trim();
-
-            if (skill && !skills.includes(skill)) {
-                skills.push(skill);
-                updateSkillsDisplay();
-                updateSkillsHiddenField();
-                skillInput.value = '';
+        let skills = @json(old('skills_required', []));
+        if (!Array.isArray(skills)) {
+            try {
+                skills = JSON.parse(skills || '[]');
+            } catch (error) {
+                skills = [];
             }
+        }
+        if (!Array.isArray(skills)) {
+            skills = [];
+        }
+        let skillSearchTimeout = null;
+        let skillSearchResults = [];
+        let activeSkillSuggestionIndex = -1;
+
+        function normalizeSkill(skillName) {
+            return (skillName || '').toString().trim().toLowerCase();
+        }
+
+        function hasSelectedSkill(skillName) {
+            const normalized = normalizeSkill(skillName);
+            return skills.some(existing => normalizeSkill(existing) === normalized);
+        }
+
+        function addSkillByName(skillName) {
+            const cleanSkillName = (skillName || '').toString().trim();
+
+            if (!cleanSkillName || hasSelectedSkill(cleanSkillName)) {
+                return false;
+            }
+
+            skills.push(cleanSkillName);
+            updateSkillsDisplay();
+            updateSkillsHiddenField();
+            clearFieldValidationError('skills_required');
+            return true;
         }
 
         function removeSkill(index) {
             skills.splice(index, 1);
             updateSkillsDisplay();
             updateSkillsHiddenField();
+            if (skills.length > 0) {
+                clearFieldValidationError('skills_required');
+            }
         }
 
         function updateSkillsDisplay() {
             const container = document.getElementById('skillsContainer');
             container.innerHTML = '';
 
+            if (skills.length === 0) {
+                const emptyState = document.createElement('p');
+                emptyState.className = 'text-gray-500 text-sm';
+                emptyState.textContent = 'No skill selected yet.';
+                container.appendChild(emptyState);
+                return;
+            }
+
             skills.forEach((skill, index) => {
                 const skillElement = document.createElement('div');
-                skillElement.className = 'flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg';
+                skillElement.className =
+                    'flex items-center bg-blue-50 text-blue-700 text-sm px-3 py-1.5 rounded-lg select-none';
                 skillElement.innerHTML = `
                     ${skill}
                     <button type="button" onclick="removeSkill(${index})" class="ml-2 text-blue-700 hover:text-blue-900">
@@ -417,12 +516,264 @@
             document.getElementById('skills_required').value = JSON.stringify(skills);
         }
 
-        // Character count for description
-        const descriptionTextarea = document.getElementById('job_description');
-        const charCount = document.getElementById('charCount');
+        function hideSkillSuggestions() {
+            const suggestions = document.getElementById('skillsSuggestions');
+            suggestions.classList.add('hidden');
+            suggestions.innerHTML = '';
+            activeSkillSuggestionIndex = -1;
+        }
 
-        descriptionTextarea.addEventListener('input', function() {
-            const length = this.value.length;
+        function renderSkillSuggestions() {
+            const suggestions = document.getElementById('skillsSuggestions');
+            suggestions.innerHTML = '';
+
+            if (skillSearchResults.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'px-4 py-3 text-sm text-gray-500';
+                noResults.textContent = 'No skills found.';
+                suggestions.appendChild(noResults);
+                suggestions.classList.remove('hidden');
+                return;
+            }
+
+            skillSearchResults.forEach((skill, index) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className =
+                    'w-full text-left px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 border-b border-gray-100 last:border-b-0';
+                item.setAttribute('data-index', String(index));
+                item.textContent = skill.name;
+                item.addEventListener('mouseenter', () => {
+                    activeSkillSuggestionIndex = index;
+                    updateActiveSuggestion();
+                });
+                item.addEventListener('click', () => {
+                    selectSkillSuggestion(index);
+                });
+                suggestions.appendChild(item);
+            });
+
+            activeSkillSuggestionIndex = -1;
+            suggestions.classList.remove('hidden');
+        }
+
+        function updateActiveSuggestion() {
+            const suggestionItems = document.querySelectorAll('#skillsSuggestions button[data-index]');
+            suggestionItems.forEach((item, index) => {
+                if (index === activeSkillSuggestionIndex) {
+                    item.classList.add('bg-blue-50', 'text-blue-700');
+                } else {
+                    item.classList.remove('bg-blue-50', 'text-blue-700');
+                }
+            });
+        }
+
+        function selectSkillSuggestion(index) {
+            const selected = skillSearchResults[index];
+            if (!selected || !selected.name) {
+                return;
+            }
+
+            addSkillByName(selected.name);
+            document.getElementById('skillInput').value = '';
+            skillSearchResults = [];
+            hideSkillSuggestions();
+        }
+
+        async function fetchSkillSuggestions(query) {
+            const normalizedQuery = query.trim();
+
+            if (normalizedQuery.length < 2) {
+                skillSearchResults = [];
+                hideSkillSuggestions();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/skills/search?q=${encodeURIComponent(normalizedQuery)}`, {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Unable to fetch skills.');
+                }
+
+                const payload = await response.json();
+                const rawResults = Array.isArray(payload) ? payload : (payload.skills || payload.data || []);
+
+                skillSearchResults = rawResults.filter(skill => {
+                    return !!skill?.name && !hasSelectedSkill(skill.name);
+                });
+
+                renderSkillSuggestions();
+            } catch (error) {
+                skillSearchResults = [];
+                hideSkillSuggestions();
+                console.error('Skill search failed:', error);
+            }
+        }
+
+        function debounceSkillSearch(query) {
+            if (skillSearchTimeout) {
+                clearTimeout(skillSearchTimeout);
+            }
+
+            skillSearchTimeout = setTimeout(() => {
+                fetchSkillSuggestions(query);
+            }, 250);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function applyInlineFormatting(value) {
+            let formatted = value;
+            formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            return formatted;
+        }
+
+        function markdownToHtml(text) {
+            if (!text) {
+                return '';
+            }
+
+            const lines = escapeHtml(String(text)).replace(/\r\n/g, '\n').split('\n');
+            const output = [];
+            let paragraphLines = [];
+            let inList = false;
+
+            const flushParagraph = () => {
+                if (paragraphLines.length === 0) {
+                    return;
+                }
+
+                output.push(`<p>${paragraphLines.join('<br>')}</p>`);
+                paragraphLines = [];
+            };
+
+            lines.forEach((line) => {
+                const listMatch = line.match(/^\s*-\s+(.*)$/);
+                if (listMatch) {
+                    flushParagraph();
+                    if (!inList) {
+                        output.push('<ul class="list-disc pl-6 space-y-1">');
+                        inList = true;
+                    }
+                    output.push(`<li>${applyInlineFormatting(listMatch[1])}</li>`);
+                    return;
+                }
+
+                if (inList) {
+                    output.push('</ul>');
+                    inList = false;
+                }
+
+                if (line.trim() === '') {
+                    flushParagraph();
+                    return;
+                }
+
+                paragraphLines.push(applyInlineFormatting(line));
+            });
+
+            flushParagraph();
+            if (inList) {
+                output.push('</ul>');
+            }
+
+            return output.join('');
+        }
+
+        function renderFormattedDescription(text) {
+            const html = markdownToHtml(text);
+            if (!html) {
+                return '<p class="text-gray-500 italic">Job description will appear here...</p>';
+            }
+
+            return html;
+        }
+
+        function htmlToMarkdownFromNode(node) {
+            if (!node) {
+                return '';
+            }
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                return (node.nodeValue || '').replace(/\u00a0/g, ' ');
+            }
+
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return '';
+            }
+
+            const tag = node.tagName.toLowerCase();
+            const childContent = Array.from(node.childNodes).map(htmlToMarkdownFromNode).join('');
+
+            if (tag === 'br') {
+                return '\n';
+            }
+
+            if (tag === 'strong' || tag === 'b') {
+                return `**${childContent}**`;
+            }
+
+            if (tag === 'em' || tag === 'i') {
+                return `*${childContent}*`;
+            }
+
+            if (tag === 'ul') {
+                const items = Array.from(node.children)
+                    .filter(child => child.tagName && child.tagName.toLowerCase() === 'li')
+                    .map(li => `- ${htmlToMarkdownFromNode(li).trim()}`);
+                return `${items.join('\n')}\n`;
+            }
+
+            if (tag === 'li') {
+                return childContent;
+            }
+
+            if (tag === 'div' || tag === 'p') {
+                return `${childContent}\n`;
+            }
+
+            return childContent;
+        }
+
+        function normalizeMarkdown(value) {
+            return String(value || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function htmlToMarkdown(htmlElement) {
+            if (!htmlElement) {
+                return '';
+            }
+
+            const raw = Array.from(htmlElement.childNodes).map(htmlToMarkdownFromNode).join('');
+            return normalizeMarkdown(raw);
+        }
+
+        updateSkillsDisplay();
+        updateSkillsHiddenField();
+
+        const descriptionTextarea = document.getElementById('job_description');
+        const descriptionEditor = document.getElementById('job_description_editor');
+        const descriptionWrapper = document.getElementById('job_description_wrapper');
+        const charCount = document.getElementById('charCount');
+        const formatButtons = Array.from(document.querySelectorAll('[data-format]'));
+
+        function updateDescriptionCharCount(length) {
             charCount.textContent = `${length}/5000 characters`;
 
             if (length > 5000) {
@@ -432,31 +783,123 @@
                 charCount.classList.remove('text-red-600');
                 charCount.classList.add('text-gray-500');
             }
+        }
+
+        function syncDescriptionFromEditor() {
+            if (!descriptionEditor || !descriptionTextarea) {
+                return;
+            }
+
+            const markdown = htmlToMarkdown(descriptionEditor);
+            descriptionTextarea.value = markdown;
+            updateDescriptionCharCount(markdown.length);
+        }
+
+        function setDescriptionEditorContent(markdown) {
+            if (!descriptionEditor) {
+                return;
+            }
+
+            const html = markdownToHtml(markdown);
+            descriptionEditor.innerHTML = html || '';
+        }
+
+        setDescriptionEditorContent(descriptionTextarea?.value || '');
+        syncDescriptionFromEditor();
+        updateFormatToolbarState();
+
+        descriptionEditor?.addEventListener('input', function() {
+            syncDescriptionFromEditor();
+            clearFieldValidationError('description');
+            updateFormatToolbarState();
         });
+        descriptionEditor?.addEventListener('blur', function() {
+            if (!descriptionEditor.textContent?.trim()) {
+                descriptionEditor.innerHTML = '';
+                syncDescriptionFromEditor();
+            }
+            updateFormatToolbarState();
+        });
+        descriptionEditor?.addEventListener('keyup', updateFormatToolbarState);
+        descriptionEditor?.addEventListener('mouseup', updateFormatToolbarState);
+        descriptionEditor?.addEventListener('focus', updateFormatToolbarState);
+
+        document.addEventListener('selectionchange', function() {
+            if (!descriptionEditor || document.activeElement !== descriptionEditor) {
+                return;
+            }
+            updateFormatToolbarState();
+        });
+
+        function isSelectionInsideEditor() {
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) {
+                return false;
+            }
+
+            const range = selection.getRangeAt(0);
+            return descriptionEditor && descriptionEditor.contains(range.commonAncestorContainer);
+        }
+
+        function setFormatButtonState(button, isActive) {
+            if (!button) {
+                return;
+            }
+
+            button.classList.toggle('format-button-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        }
+
+        function updateFormatToolbarState() {
+            if (!descriptionEditor || formatButtons.length === 0) {
+                return;
+            }
+
+            if (!isSelectionInsideEditor()) {
+                formatButtons.forEach((button) => setFormatButtonState(button, false));
+                return;
+            }
+
+            formatButtons.forEach((button) => {
+                const format = button.dataset.format;
+                let isActive = false;
+
+                if (format === 'bold') {
+                    isActive = document.queryCommandState('bold');
+                } else if (format === 'italic') {
+                    isActive = document.queryCommandState('italic');
+                } else if (format === 'ul') {
+                    isActive = document.queryCommandState('insertUnorderedList');
+                }
+
+                setFormatButtonState(button, isActive);
+            });
+        }
 
         // Text formatting
         function formatText(type) {
-            const textarea = document.getElementById('job_description');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-
-            let formattedText = '';
-            switch (type) {
-                case 'bold':
-                    formattedText = `**${selectedText}**`;
-                    break;
-                case 'italic':
-                    formattedText = `*${selectedText}*`;
-                    break;
-                case 'ul':
-                    formattedText = `\n• ${selectedText}`;
-                    break;
+            if (!descriptionEditor) {
+                return;
             }
 
-            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(start + formattedText.length, start + formattedText.length);
+            descriptionEditor.focus();
+
+            switch (type) {
+                case 'bold':
+                    document.execCommand('bold');
+                    break;
+                case 'italic':
+                    document.execCommand('italic');
+                    break;
+                case 'ul':
+                    document.execCommand('insertUnorderedList');
+                    break;
+                default:
+                    return;
+            }
+
+            syncDescriptionFromEditor();
+            updateFormatToolbarState();
         }
 
         // Toggle budget fields based on job type
@@ -465,6 +908,8 @@
 
         function updateBudgetFields() {
             const selectedType = document.querySelector('input[name="type"]:checked').value;
+            const currentMin = document.getElementById('budget_min')?.value ?? '';
+            const currentMax = document.getElementById('budget_max')?.value ?? '';
 
             if (selectedType === 'fixed') {
                 budgetFields.innerHTML = `
@@ -480,7 +925,7 @@
                                     </div>
                                     <input type="number" id="budget_min" name="budget_min" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 1000">
+                                        placeholder="e.g., 1000" value="${currentMin}">
                                 </div>
                             </div>
                             <div>
@@ -493,7 +938,7 @@
                                     </div>
                                     <input type="number" id="budget_max" name="budget_max" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 5000">
+                                        placeholder="e.g., 5000" value="${currentMax}">
                                 </div>
                             </div>
                         </div>
@@ -514,7 +959,7 @@
                                     </div>
                                     <input type="number" id="budget_min" name="budget_min" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 20">
+                                        placeholder="e.g., 20" value="${currentMin}">
                                 </div>
                             </div>
                             <div>
@@ -527,7 +972,7 @@
                                     </div>
                                     <input type="number" id="budget_max" name="budget_max" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 50">
+                                        placeholder="e.g., 50" value="${currentMax}">
                                 </div>
                             </div>
                         </div>
@@ -538,7 +983,10 @@
         }
 
         jobTypeRadios.forEach(radio => {
-            radio.addEventListener('change', updateBudgetFields);
+            radio.addEventListener('change', function() {
+                updateBudgetFields();
+                clearFieldValidationError('type');
+            });
         });
 
         // Initialize budget fields
@@ -547,6 +995,7 @@
         // Preview functionality
         function previewJob() {
             const form = document.getElementById('jobPostForm');
+            syncDescriptionFromEditor();
             const formData = new FormData(form);
             const previewContent = document.getElementById('previewContent');
 
@@ -561,8 +1010,8 @@
 
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">${formData.get('title') || 'Job Title'}</h2>
 
-                    <div class="prose max-w-none">
-                        <p class="text-gray-600 mb-4">${formData.get('description') || 'Job description will appear here...'}</p>
+                    <div class="prose max-w-none text-gray-600 mb-4">
+                        ${renderFormattedDescription(formData.get('description'))}
                     </div>
 
                     <div class="flex flex-wrap gap-2 mb-6">
@@ -702,55 +1151,463 @@
             `;
 
             previewContent.innerHTML = previewHTML;
-            document.getElementById('previewModal').classList.remove('hidden');
+            openPreviewModal();
+        }
+
+        function openPreviewModal() {
+            if (!previewModal || !previewBackdrop || !previewModalContent) {
+                return;
+            }
+
+            previewModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            void previewModal.offsetWidth;
+
+            setTimeout(() => {
+                previewBackdrop.classList.remove('opacity-0');
+                previewBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                previewModalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                previewModalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+            }, 10);
         }
 
         function closePreview() {
-            document.getElementById('previewModal').classList.add('hidden');
+            if (!previewModal || !previewBackdrop || !previewModalContent) {
+                return;
+            }
+
+            previewModalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+            previewModalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+
+            previewBackdrop.classList.remove('opacity-100');
+            previewBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                previewModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        let isSubmittingJob = false;
+
+        function setJobSubmittingState(isSubmitting) {
+            isSubmittingJob = isSubmitting;
+
+            const actionButtons = [
+                document.getElementById('saveDraftBtn'),
+                document.getElementById('publishBtn'),
+                document.getElementById('modalPublishBtn'),
+            ];
+
+            actionButtons.forEach(button => {
+                if (!button) {
+                    return;
+                }
+
+                button.disabled = isSubmitting;
+                button.classList.toggle('opacity-60', isSubmitting);
+                button.classList.toggle('cursor-not-allowed', isSubmitting);
+            });
+        }
+
+        function showJobPostFeedback(type, message, shouldScroll = true) {
+            const feedback = document.getElementById('jobPostFeedback');
+            if (!feedback) {
+                return;
+            }
+
+            feedback.classList.remove(
+                'hidden',
+                'border-red-200',
+                'bg-red-50',
+                'text-red-700',
+                'border-green-200',
+                'bg-green-50',
+                'text-green-700'
+            );
+
+            if (type === 'success') {
+                feedback.classList.add('border-green-200', 'bg-green-50', 'text-green-700');
+            } else {
+                feedback.classList.add('border-red-200', 'bg-red-50', 'text-red-700');
+            }
+
+            feedback.textContent = message;
+            if (shouldScroll) {
+                feedback.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                });
+            }
+        }
+
+        function clearJobPostFeedback() {
+            const feedback = document.getElementById('jobPostFeedback');
+            if (!feedback) {
+                return;
+            }
+
+            feedback.textContent = '';
+            feedback.classList.add('hidden');
+        }
+
+        const validationFieldMap = {
+            title: '#job_title',
+            description: '#job_description_editor',
+            type: '#typeOptions',
+            skills_required: '#skillsSearchWrapper',
+            experience_level: '#experience_level',
+            duration: '#duration',
+            budget_min: '#budget_min',
+            budget_max: '#budget_max',
+            expires_at: '#expires_at',
+            category_id: '#category_id',
+        };
+
+        function normalizeValidationFieldName(fieldName) {
+            if (!fieldName) {
+                return '';
+            }
+
+            const normalized = fieldName.replace(/\.\d+/g, '');
+            if (normalized.startsWith('skills_required')) {
+                return 'skills_required';
+            }
+
+            return normalized;
+        }
+
+        function getValidationTarget(fieldName) {
+            const normalized = normalizeValidationFieldName(fieldName);
+            const selector = validationFieldMap[normalized];
+            return selector ? document.querySelector(selector) : null;
+        }
+
+        function getValidationAnchor(fieldName, target) {
+            if (!target) {
+                return null;
+            }
+
+            const normalized = normalizeValidationFieldName(fieldName);
+            if (normalized === 'type' || normalized === 'skills_required') {
+                return target;
+            }
+
+            if (['title', 'description', 'experience_level', 'budget_min', 'budget_max'].includes(normalized)) {
+                return target.closest('.relative') || target;
+            }
+
+            return target;
+        }
+
+        function clearFieldValidationError(fieldName) {
+            const normalized = normalizeValidationFieldName(fieldName);
+            if (!normalized) {
+                return;
+            }
+
+            document.querySelectorAll(`.js-validation-error[data-field="${normalized}"]`).forEach(error => error.remove());
+
+            if (normalized === 'type') {
+                document.querySelectorAll('#typeOptions label > div').forEach(card => {
+                    card.classList.remove('border-red-500');
+                });
+                return;
+            }
+
+            if (normalized === 'description') {
+                descriptionWrapper?.classList.remove('description-error');
+                return;
+            }
+
+            const target = getValidationTarget(normalized);
+            const inputTarget = normalized === 'skills_required' ? document.getElementById('skillInput') : target;
+            if (!inputTarget) {
+                return;
+            }
+
+            inputTarget.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        }
+
+        function clearFieldValidationErrors() {
+            document.querySelectorAll('.js-validation-error').forEach(error => error.remove());
+            Object.keys(validationFieldMap).forEach(fieldName => clearFieldValidationError(fieldName));
+        }
+
+        function showFieldValidationError(fieldName, message) {
+            const normalized = normalizeValidationFieldName(fieldName);
+            if (!normalized || !message) {
+                return;
+            }
+
+            clearFieldValidationError(normalized);
+
+            const target = getValidationTarget(normalized);
+            const anchor = getValidationAnchor(normalized, target);
+            if (!target || !anchor) {
+                return;
+            }
+
+            const error = document.createElement('p');
+            error.className = 'js-validation-error mt-2 text-xs text-red-600';
+            error.dataset.field = normalized;
+            error.textContent = message;
+            anchor.insertAdjacentElement('afterend', error);
+
+            if (normalized === 'type') {
+                document.querySelectorAll('#typeOptions label > div').forEach(card => {
+                    card.classList.add('border-red-500');
+                });
+                return;
+            }
+
+            if (normalized === 'description') {
+                descriptionWrapper?.classList.add('description-error');
+                return;
+            }
+
+            const inputTarget = normalized === 'skills_required' ? document.getElementById('skillInput') : target;
+            inputTarget?.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        }
+
+        function renderFieldValidationErrors(errors) {
+            if (!errors || typeof errors !== 'object') {
+                return;
+            }
+
+            clearFieldValidationErrors();
+
+            let firstTarget = null;
+            Object.entries(errors).forEach(([fieldName, messages]) => {
+                const message = Array.isArray(messages) ? messages[0] : messages;
+                const normalized = normalizeValidationFieldName(fieldName);
+
+                showFieldValidationError(normalized, message);
+
+                if (!firstTarget) {
+                    if (normalized === 'skills_required') {
+                        firstTarget = document.getElementById('skillInput');
+                    } else if (normalized === 'type') {
+                        firstTarget = document.querySelector('input[name="type"]');
+                    } else {
+                        firstTarget = getValidationTarget(normalized);
+                    }
+                }
+            });
+
+            if (firstTarget) {
+                firstTarget.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+
+                if (['INPUT', 'SELECT', 'TEXTAREA'].includes(firstTarget.tagName)) {
+                    firstTarget.focus();
+                } else if (firstTarget.getAttribute && firstTarget.getAttribute('contenteditable') === 'true') {
+                    firstTarget.focus();
+                }
+            }
+        }
+
+        function resetJobPostForm() {
+            const form = document.getElementById('jobPostForm');
+            form.reset();
+            clearFieldValidationErrors();
+
+            skills = [];
+            updateSkillsDisplay();
+            updateSkillsHiddenField();
+            hideSkillSuggestions();
+
+            document.getElementById('job_status').value = 'open';
+            updateBudgetFields();
+            setDescriptionEditorContent('');
+            syncDescriptionFromEditor();
         }
 
         // Save as draft
         function saveAsDraft() {
-            if (validateForm(true)) {
-                alert('Job saved as draft successfully!');
-                // In a real application, you would submit the form with draft status
-                // document.getElementById('jobPostForm').submit();
-            }
+            submitForm('draft');
         }
 
         // Submit form
-        function submitForm() {
-            document.getElementById('jobPostForm').submit();
+        async function submitForm(status = 'open') {
+            if (isSubmittingJob) {
+                return;
+            }
+
+            clearJobPostFeedback();
+            clearFieldValidationErrors();
+            document.getElementById('job_status').value = status;
+            updateSkillsHiddenField();
+            syncDescriptionFromEditor();
+
+            const form = document.getElementById('jobPostForm');
+            const formData = new FormData(form);
+            const csrfToken = form.querySelector('input[name="_token"]')?.value;
+
+            setJobSubmittingState(true);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken ? {
+                            'X-CSRF-TOKEN': csrfToken
+                        } : {}),
+                    },
+                    body: formData,
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    if (response.status === 422 && payload?.errors) {
+                        renderFieldValidationErrors(payload.errors);
+                        showJobPostFeedback('error', payload?.message ||
+                            'Please fix the highlighted fields and try again.',
+                            false);
+                        return;
+                    }
+
+                    showJobPostFeedback('error', payload?.message || 'Unable to save job right now.');
+                    return;
+                }
+
+                showJobPostFeedback('success', payload?.message || 'Job saved successfully.');
+                closePreview();
+                resetJobPostForm();
+            } catch (error) {
+                console.error('Job submit failed:', error);
+                showJobPostFeedback('error', 'Network error. Please try again.');
+            } finally {
+                setJobSubmittingState(false);
+            }
         }
 
+        const jobPostForm = document.getElementById('jobPostForm');
+
         // Handle form submission
-        document.getElementById('jobPostForm').addEventListener('submit', function(e) {
+        jobPostForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            submitForm();
+            submitForm('open');
         });
 
-        // Allow adding skills with Enter key
-        document.getElementById('skillInput').addEventListener('keypress', function(e) {
+        jobPostForm.addEventListener('input', function(e) {
+            const target = e.target;
+
+            if (target.id === 'job_title') {
+                clearFieldValidationError('title');
+            } else if (target.id === 'job_description' || target.id === 'job_description_editor') {
+                clearFieldValidationError('description');
+            } else if (target.id === 'budget_min') {
+                clearFieldValidationError('budget_min');
+            } else if (target.id === 'budget_max') {
+                clearFieldValidationError('budget_max');
+            }
+        });
+
+        jobPostForm.addEventListener('change', function(e) {
+            const target = e.target;
+
+            if (target.name === 'type') {
+                clearFieldValidationError('type');
+            } else if (target.id === 'experience_level') {
+                clearFieldValidationError('experience_level');
+            } else if (target.id === 'duration') {
+                clearFieldValidationError('duration');
+            } else if (target.id === 'expires_at') {
+                clearFieldValidationError('expires_at');
+            } else if (target.id === 'category_id') {
+                clearFieldValidationError('category_id');
+            }
+        });
+
+        const skillInput = document.getElementById('skillInput');
+        const skillsSearchWrapper = document.getElementById('skillsSearchWrapper');
+
+        skillInput.addEventListener('input', function() {
+            clearFieldValidationError('skills_required');
+            debounceSkillSearch(this.value);
+        });
+
+        skillInput.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (skillSearchResults.length === 0) {
+                    return;
+                }
+
+                activeSkillSuggestionIndex = Math.min(activeSkillSuggestionIndex + 1, skillSearchResults.length -
+                    1);
+                updateActiveSuggestion();
+                return;
+            }
+
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (skillSearchResults.length === 0) {
+                    return;
+                }
+
+                activeSkillSuggestionIndex = Math.max(activeSkillSuggestionIndex - 1, 0);
+                updateActiveSuggestion();
+                return;
+            }
+
             if (e.key === 'Enter') {
                 e.preventDefault();
-                addSkill();
+
+                if (activeSkillSuggestionIndex >= 0) {
+                    selectSkillSuggestion(activeSkillSuggestionIndex);
+                    return;
+                }
+
+                if (skillSearchResults.length > 0) {
+                    selectSkillSuggestion(0);
+                }
+                return;
+            }
+
+            if (e.key === 'Escape') {
+                hideSkillSuggestions();
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (skillsSearchWrapper && !skillsSearchWrapper.contains(e.target)) {
+                hideSkillSuggestions();
             }
         });
 
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closePreview();
+                const suggestions = document.getElementById('skillsSuggestions');
+                if (suggestions && !suggestions.classList.contains('hidden')) {
+                    hideSkillSuggestions();
+                    return;
+                }
+
+                const previewModalElement = document.getElementById('previewModal');
+                if (previewModalElement && !previewModalElement.classList.contains('hidden')) {
+                    closePreview();
+                }
             }
         });
 
         // Close preview modal when clicking the dark overlay
         const previewModal = document.getElementById('previewModal');
-        previewModal?.addEventListener('click', function(e) {
-            if (e.target === previewModal) {
-                closePreview();
-            }
-        });
+        const previewBackdrop = document.getElementById('previewBackdrop');
+        const previewModalContent = document.getElementById('previewModalContent');
+
+        previewBackdrop?.addEventListener('click', closePreview);
 
         // Toggle sidebar on mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
