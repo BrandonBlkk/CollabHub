@@ -25,6 +25,19 @@
         .format-button-active svg {
             color: #111827;
         }
+
+        .description-error {
+            border-color: #ef4444;
+        }
+
+        .description-error:hover {
+            border-color: #ef4444;
+        }
+
+        .description-error:focus-within {
+            --tw-ring-color: #ef4444;
+            border-color: #ef4444;
+        }
     </style>
 @endpush
 
@@ -81,7 +94,7 @@
                 </label>
                 <div class="relative">
                     <div id="job_description_wrapper"
-                        class="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-200">
+                        class="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 hover:border-gray-400 transition-all duration-200">
                         <div class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center space-x-2">
                             <button type="button" onclick="formatText('bold')" data-format="bold" aria-pressed="false"
                                 class="p-1 hover:bg-gray-200 rounded">
@@ -386,28 +399,36 @@
     </form>
 
     <!-- Preview Modal (Hidden by default) -->
-    <div id="previewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-xl bg-white">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
-                <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
-                <!-- Preview content will be inserted here -->
-            </div>
-            <div class="mt-6 flex justify-end space-x-4 select-none">
-                <button onclick="closePreview()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
-                    Close
-                </button>
-                <button id="modalPublishBtn" type="button" onclick="submitForm()"
-                    class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
-                    Publish Job
-                </button>
+    <div id="previewModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+        <div id="previewBackdrop" class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out">
+        </div>
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div id="previewModalContent"
+                class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-lg transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-4xl w-full translate-y-4 opacity-0 scale-95">
+                <div class="p-5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900">Job Preview</h3>
+                        <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="previewContent" class="space-y-6 max-h-[70vh] overflow-y-auto">
+                        <!-- Preview content will be inserted here -->
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-4 select-none">
+                        <button onclick="closePreview()"
+                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
+                            Close
+                        </button>
+                        <button id="modalPublishBtn" type="button" onclick="submitForm()"
+                            class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
+                            Publish Job
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1130,11 +1151,45 @@
             `;
 
             previewContent.innerHTML = previewHTML;
-            document.getElementById('previewModal').classList.remove('hidden');
+            openPreviewModal();
+        }
+
+        function openPreviewModal() {
+            if (!previewModal || !previewBackdrop || !previewModalContent) {
+                return;
+            }
+
+            previewModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            void previewModal.offsetWidth;
+
+            setTimeout(() => {
+                previewBackdrop.classList.remove('opacity-0');
+                previewBackdrop.classList.add('opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                previewModalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                previewModalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+            }, 10);
         }
 
         function closePreview() {
-            document.getElementById('previewModal').classList.add('hidden');
+            if (!previewModal || !previewBackdrop || !previewModalContent) {
+                return;
+            }
+
+            previewModalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+            previewModalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+
+            previewBackdrop.classList.remove('opacity-100');
+            previewBackdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                previewModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
         }
 
         let isSubmittingJob = false;
@@ -1265,7 +1320,7 @@
             }
 
             if (normalized === 'description') {
-                descriptionWrapper?.classList.remove('border-red-500');
+                descriptionWrapper?.classList.remove('description-error');
                 return;
             }
 
@@ -1311,7 +1366,7 @@
             }
 
             if (normalized === 'description') {
-                descriptionWrapper?.classList.add('border-red-500');
+                descriptionWrapper?.classList.add('description-error');
                 return;
             }
 
@@ -1549,11 +1604,10 @@
 
         // Close preview modal when clicking the dark overlay
         const previewModal = document.getElementById('previewModal');
-        previewModal?.addEventListener('click', function(e) {
-            if (e.target === previewModal) {
-                closePreview();
-            }
-        });
+        const previewBackdrop = document.getElementById('previewBackdrop');
+        const previewModalContent = document.getElementById('previewModalContent');
+
+        previewBackdrop?.addEventListener('click', closePreview);
 
         // Toggle sidebar on mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {

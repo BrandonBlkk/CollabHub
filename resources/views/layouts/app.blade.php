@@ -333,7 +333,8 @@
 
                     currencyMenuButton.disabled = true;
                     currencyMenuButton.classList.add('opacity-60', 'cursor-not-allowed');
-                    currencyMenuItems.forEach((menuItem) => menuItem.setAttribute('disabled', 'disabled'));
+                    currencyMenuItems.forEach((menuItem) => menuItem.setAttribute('disabled',
+                        'disabled'));
 
                     try {
                         const response = await fetch(settingsUpdateUrl, {
@@ -463,7 +464,8 @@
                         /(^|[^A-Za-z])([+-]?)\$(\d[\d,]*(?:\.\d+)?)\s*-\s*([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
                     const singleRegex = /(^|[^A-Za-z])([+-]?)\$(\d[\d,]*(?:\.\d+)?)(\s*\/hr)?/g;
 
-                    let convertedText = text.replace(rangeRegex, (match, prefix, minSign, minValue, maxSign, maxValue, suffix = '') => {
+                    let convertedText = text.replace(rangeRegex, (match, prefix, minSign, minValue, maxSign, maxValue,
+                        suffix = '') => {
                         const parsedMin = parseUsdAmount(minValue);
                         const parsedMax = parseUsdAmount(maxValue);
 
@@ -651,7 +653,8 @@
                     convertSubtree(document.body);
                     startCurrencyObserver();
                 });
-            })();
+            })
+            ();
         </script>
     @endauth
 
