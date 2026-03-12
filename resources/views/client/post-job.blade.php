@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Post a New Job')
+@php
+    $job = $job ?? null;
+    $isEdit = $job !== null;
+@endphp
+
+@section('title', $isEdit ? 'Edit Job' : 'Post a New Job')
 
 @push('styles')
     <style>
@@ -45,9 +50,11 @@
     <div class="mb-3">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Post a New Job</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ $isEdit ? 'Edit Job' : 'Post a New Job' }}</h1>
                 <p class="text-gray-600 mt-1">
-                    Fill out the form below to post a new job and find the perfect freelancer
+                    {{ $isEdit
+                        ? 'Update the details of your job posting.'
+                        : 'Fill out the form below to post a new job and find the perfect freelancer' }}
                 </p>
             </div>
             <button onclick="window.location.href='{{ route('my-jobs.index') }}'"
@@ -61,9 +68,13 @@
     </div>
 
     <!-- Job Post Form -->
-    <form id="jobPostForm" method="POST" action="{{ route('my-jobs.store') }}" class="space-y-3">
+    <form id="jobPostForm" method="POST"
+        action="{{ $isEdit ? route('my-jobs.update', $job->id) : route('my-jobs.store') }}" class="space-y-3">
         @csrf
-        <input type="hidden" id="job_status" name="status" value="{{ old('status', 'open') }}">
+        @if ($isEdit)
+            @method('PUT')
+        @endif
+        <input type="hidden" id="job_status" name="status" value="{{ old('status', $job?->status ?? 'open') }}">
         <div id="jobPostFeedback" class="hidden rounded-lg border px-4 py-3 text-sm"></div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-3">Basic Information</h2>
@@ -77,7 +88,7 @@
                     <input type="text" id="job_title" name="title"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="e.g., Senior React Developer with TypeScript Experience" maxlength="255"
-                        value="{{ old('title') }}">
+                        value="{{ old('title', $job?->title ?? '') }}">
                     @error('title')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                             {{ $message }}
@@ -113,7 +124,8 @@
                             class="w-full px-4 py-3 focus:outline-none resize-none min-h-[200px] whitespace-pre-wrap"
                             data-placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals...">
                         </div>
-                        <textarea id="job_description" name="description" rows="8" class="hidden">{{ old('description') }}</textarea>
+                        <textarea id="job_description" name="description" rows="8"
+                            class="hidden">{{ old('description', $job?->description ?? '') }}</textarea>
                     </div>
                     @error('description')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -135,7 +147,8 @@
                 <div id="typeOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="relative">
                         <input type="radio" name="type" value="fixed"
-                            {{ old('type', 'fixed') === 'fixed' ? 'checked' : '' }} class="peer sr-only">
+                            {{ old('type', $job?->type ?? 'fixed') === 'fixed' ? 'checked' : '' }}
+                            class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-200">
                             <div class="flex items-center">
@@ -153,7 +166,8 @@
                         </div>
                     </label>
                     <label class="relative">
-                        <input type="radio" name="type" value="hourly" {{ old('type') === 'hourly' ? 'checked' : '' }}
+                        <input type="radio" name="type" value="hourly"
+                            {{ old('type', $job?->type ?? '') === 'hourly' ? 'checked' : '' }}
                             class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
@@ -218,13 +232,16 @@
                     <select id="experience_level" name="experience_level"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                         <option value="">Select experience level</option>
-                        <option value="entry" {{ old('experience_level') === 'entry' ? 'selected' : '' }}>Entry Level
+                        <option value="entry"
+                            {{ old('experience_level', $job?->experience_level ?? 'intermediate') === 'entry' ? 'selected' : '' }}>
+                            Entry Level
                             (0-2 years)</option>
                         <option value="intermediate"
-                            {{ old('experience_level', 'intermediate') === 'intermediate' ? 'selected' : '' }}>
+                            {{ old('experience_level', $job?->experience_level ?? 'intermediate') === 'intermediate' ? 'selected' : '' }}>
                             Intermediate (2-5 years)</option>
-                        <option value="expert" {{ old('experience_level') === 'expert' ? 'selected' : '' }}>Expert (5+
-                            years)</option>
+                        <option value="expert"
+                            {{ old('experience_level', $job?->experience_level ?? 'intermediate') === 'expert' ? 'selected' : '' }}>
+                            Expert (5+ years)</option>
                     </select>
                     @error('experience_level')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -242,14 +259,18 @@
                 <select id="duration" name="duration"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                     <option value="">Select expected duration</option>
-                    <option value="less_than_1_month" {{ old('duration') === 'less_than_1_month' ? 'selected' : '' }}>Less
+                    <option value="less_than_1_month"
+                        {{ old('duration', $job?->duration ?? '') === 'less_than_1_month' ? 'selected' : '' }}>Less
                         than 1
                         month</option>
-                    <option value="1_to_3_months" {{ old('duration') === '1_to_3_months' ? 'selected' : '' }}>1 to 3
+                    <option value="1_to_3_months"
+                        {{ old('duration', $job?->duration ?? '') === '1_to_3_months' ? 'selected' : '' }}>1 to 3
                         months</option>
-                    <option value="3_to_6_months" {{ old('duration') === '3_to_6_months' ? 'selected' : '' }}>3 to 6
+                    <option value="3_to_6_months"
+                        {{ old('duration', $job?->duration ?? '') === '3_to_6_months' ? 'selected' : '' }}>3 to 6
                         months</option>
-                    <option value="more_than_6_months" {{ old('duration') === 'more_than_6_months' ? 'selected' : '' }}>
+                    <option value="more_than_6_months"
+                        {{ old('duration', $job?->duration ?? '') === 'more_than_6_months' ? 'selected' : '' }}>
                         More than 6
                         months</option>
                 </select>
@@ -281,7 +302,8 @@
                                         <input type="number" id="budget_min" name="budget_min" min="0"
                                             step="0.01"
                                             class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            placeholder="e.g., 1000" value="{{ old('budget_min') }}">
+                                            placeholder="e.g., 1000"
+                                            value="{{ old('budget_min', $job?->budget_min ?? '') }}">
                                         @error('budget_min')
                                             <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                                                 {{ $message }}
@@ -302,7 +324,8 @@
                                         <input type="number" id="budget_max" name="budget_max" min="0"
                                             step="0.01"
                                             class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            placeholder="e.g., 5000" value="{{ old('budget_max') }}">
+                                            placeholder="e.g., 5000"
+                                            value="{{ old('budget_max', $job?->budget_max ?? '') }}">
                                         @error('budget_max')
                                             <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
                                                 {{ $message }}
@@ -325,7 +348,8 @@
                 </label>
                 <input type="date" id="expires_at" name="expires_at"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    min="{{ date('Y-m-d') }}" value="{{ old('expires_at') }}">
+                    min="{{ date('Y-m-d') }}"
+                    value="{{ old('expires_at', $job?->expires_at?->format('Y-m-d')) }}">
                 <p class="text-gray-500 text-xs mt-2">Set a deadline for freelancer applications</p>
             </div>
 
@@ -337,14 +361,14 @@
                 <div class="space-y-3 inline-block">
                     <label class="flex items-center space-x-3">
                         <input type="checkbox" id="is_featured" name="is_featured" value="1"
-                            {{ old('is_featured') ? 'checked' : '' }}
+                            {{ old('is_featured', $job?->is_featured ?? false) ? 'checked' : '' }}
                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                         <span class="text-sm text-gray-900">Feature this job (extra $50)</span>
                         <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Recommended</span>
                     </label>
                     <label class="flex items-center space-x-3">
                         <input type="checkbox" id="is_private" name="is_private" value="1"
-                            {{ old('is_private') ? 'checked' : '' }}
+                            {{ old('is_private', $job?->is_private ?? false) ? 'checked' : '' }}
                             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                         <span class="text-sm text-gray-900">Make job private (only invited freelancers can
                             apply)</span>
@@ -364,7 +388,7 @@
                     {{-- Get all categories --}}
                     @forelse ($categories as $category)
                         <option value="{{ $category->id }}"
-                            {{ (string) old('category_id') === (string) $category->id ? 'selected' : '' }}>
+                            {{ (string) old('category_id', $job?->category_id ?? '') === (string) $category->id ? 'selected' : '' }}>
                             {{ $category->name }}</option>
                     @empty
                         <option value="" disabled>No categories found</option>
@@ -387,12 +411,12 @@
                     </button>
                     <button id="publishBtn" type="submit"
                         class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
-                        Publish Job
+                        {{ $isEdit ? 'Update Job' : 'Publish Job' }}
                     </button>
                 </div>
             </div>
             <p class="text-gray-500 text-sm text-center mt-4">
-                By clicking "Publish Job", you agree to our <a href="#"
+                By clicking "{{ $isEdit ? 'Update Job' : 'Publish Job' }}", you agree to our <a href="#"
                     class="text-blue-600 hover:text-blue-800">Terms of Service</a>
             </p>
         </div>
@@ -425,7 +449,7 @@
                         </button>
                         <button id="modalPublishBtn" type="button" onclick="submitForm()"
                             class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium">
-                            Publish Job
+                            {{ $isEdit ? 'Update Job' : 'Publish Job' }}
                         </button>
                     </div>
                 </div>
@@ -436,8 +460,10 @@
 
 @push('scripts')
     <script>
+        const isEditMode = @json($isEdit);
+
         // Skills Management
-        let skills = @json(old('skills_required', []));
+        let skills = @json(old('skills_required', $job?->skills_required ?? []));
         if (!Array.isArray(skills)) {
             try {
                 skills = JSON.parse(skills || '[]');
@@ -1482,7 +1508,9 @@
 
                 showJobPostFeedback('success', payload?.message || 'Job saved successfully.');
                 closePreview();
-                resetJobPostForm();
+                if (!isEditMode) {
+                    resetJobPostForm();
+                }
             } catch (error) {
                 console.error('Job submit failed:', error);
                 showJobPostFeedback('error', 'Network error. Please try again.');

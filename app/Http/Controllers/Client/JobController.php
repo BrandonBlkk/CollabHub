@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\PostJobRequest;
+use App\Http\Requests\Client\UpdateJobRequest;
 use App\Models\Category;
 use App\Models\Job;
 use Illuminate\Http\JsonResponse;
@@ -188,15 +189,74 @@ class JobController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            abort(404);
+        }
+
+        $job = $client->jobs()->findOrFail($id);
+        $categories = Category::orderBy('name')->get();
+
+        return view('client.post-job', compact('categories', 'job'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateJobRequest $request, string $id)
     {
-        //
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Client account not found.',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('my-jobs.index')
+                ->withErrors(['client' => 'Client account not found.']);
+        }
+
+        $job = $client->jobs()->whereKey($id)->first();
+
+        if (!$job) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job not found.',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('my-jobs.index')
+                ->withErrors(['job' => 'Job not found.']);
+        }
+
+        $validated = $request->validated();
+        $job->update($validated);
+
+        $successMessage = 'Job updated successfully.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'job' => [
+                    'id' => $job->id,
+                    'title' => $job->title,
+                    'status' => $job->status,
+                    'updated_at' => optional($job->updated_at)->toIso8601String(),
+                ],
+            ]);
+        }
+
+        return redirect()
+            ->route('my-jobs.index')
+            ->with('success', $successMessage);
     }
 
     /**

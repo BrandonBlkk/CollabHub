@@ -272,6 +272,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const jobsEndpoint = @json(route('my-jobs.jobs'));
+            const editJobRouteTemplate = @json(route('my-jobs.edit', ['my_job' => '__JOB__']));
 
             const tabs = document.querySelectorAll('[data-tab]');
             const jobsLoading = document.getElementById('jobs-loading');
@@ -495,6 +496,10 @@
                             `<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">${escapeHtml(skill)}</span>`
                         ).join('') :
                         '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">No skills specified</span>';
+                    const jobId = job?.id ?? '';
+                    const editUrl = jobId ?
+                        editJobRouteTemplate.replace('__JOB__', encodeURIComponent(String(jobId))) :
+                        '#';
 
                     return `
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
@@ -539,10 +544,10 @@
                                         View Proposals
                                         <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${Number(job.proposals_count || 0)}</span>
                                     </button>
-                                    <button type="button"
+                                    <a href="${editUrl}"
                                         class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
                                         Edit
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -489,7 +489,7 @@
                                                     class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-all duration-200">
                                                     View Proposals
                                                 </a>
-                                                <a href="{{ route('my-jobs.index') }}"
+                                                <a href="{{ route('my-jobs.edit', $job->id) }}"
                                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200">
                                                     Edit
                                                 </a>
