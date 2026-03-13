@@ -24,6 +24,23 @@
 
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        @php
+            $formatTrend = function ($trend, $percent) {
+                $isDown = $trend === 'down';
+                $isNeutral = $trend === 'neutral';
+
+                return [
+                    'direction' => $isDown ? "\u{2193}" : ($isNeutral ? "\u{2192}" : "\u{2191}"),
+                    'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
+                    'percent' => number_format(abs($percent ?? 0), 2),
+                ];
+            };
+
+            $totalJobsUi = $formatTrend($totalJobsTrend ?? 'neutral', $totalJobsChangePercent ?? 0);
+            $activeJobsUi = $formatTrend($activeJobsTrend ?? 'neutral', $activeJobsChangePercent ?? 0);
+            $totalProposalsUi = $formatTrend($totalProposalsTrend ?? 'neutral', $totalProposalsChangePercent ?? 0);
+            $avgBudgetUi = $formatTrend($avgBudgetTrend ?? 'neutral', $avgBudgetChangePercent ?? 0);
+        @endphp
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
@@ -39,7 +56,10 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Across all statuses</span>
+                    <span class="{{ $totalJobsUi['color'] }} font-medium">{{ $totalJobsUi['direction'] }}
+                        {{ $totalJobsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
+                        {{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -59,7 +79,9 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Open and in progress</span>
+                    <span class="{{ $activeJobsUi['color'] }} font-medium">{{ $activeJobsUi['direction'] }}
+                        {{ $activeJobsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -79,10 +101,11 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">
+                    <span class="{{ $totalProposalsUi['color'] }} font-medium">{{ $totalProposalsUi['direction'] }}
+                        {{ $totalProposalsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
                         {{ $client->all_jobs > 0 ? number_format($client->total_proposals / $client->all_jobs, 1) : 0 }}
-                        avg.
-                        per job
+                        avg. per job | {{ $statsPeriodLabel ?? 'from last month' }}
                     </span>
                 </div>
             </div>
@@ -103,7 +126,10 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Based on posted jobs</span>
+                    <span class="{{ $avgBudgetUi['color'] }} font-medium">{{ $avgBudgetUi['direction'] }}
+                        {{ $avgBudgetUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
+                        {{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -203,7 +229,7 @@
                 <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
                     Clear All
                 </button>
-                <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                <button id="apply-filters" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm">
                     Apply Filters
                 </button>
             </div>
@@ -790,7 +816,7 @@
                                     Message
                                 </button>
                                 ${profileUrl ? `<a href="${escapeHtml(profileUrl)}"
-                                                                                                class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition">View Profile</a>` : ''}
+                                                                                                                class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition">View Profile</a>` : ''}
                             </div>
                         </div>
                     `;

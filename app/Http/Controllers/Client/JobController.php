@@ -20,7 +20,64 @@ class JobController extends Controller
      */
     public function index()
     {
-        return view('client.my-jobs');
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            abort(404);
+        }
+
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+        $previousMonthStart = now()->subMonthNoOverflow()->startOfMonth();
+        $previousMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
+
+        $clientJobsQuery = $client->jobs();
+
+        $currentMonthJobs = (clone $clientJobsQuery)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthJobs = (clone $clientJobsQuery)
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthActiveJobs = (clone $clientJobsQuery)
+            ->whereIn('status', ['open', 'in_progress'])
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthActiveJobs = (clone $clientJobsQuery)
+            ->whereIn('status', ['open', 'in_progress'])
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthProposals = Proposal::query()
+            ->whereHas('job', fn($query) => $query->where('client_id', $client->id))
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthProposals = Proposal::query()
+            ->whereHas('job', fn($query) => $query->where('client_id', $client->id))
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthAvgBudget = (float) ((clone $clientJobsQuery)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->selectRaw('AVG(COALESCE(budget_max, budget_min, 0)) as average_budget')
+            ->value('average_budget') ?? 0);
+        $previousMonthAvgBudget = (float) ((clone $clientJobsQuery)
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->selectRaw('AVG(COALESCE(budget_max, budget_min, 0)) as average_budget')
+            ->value('average_budget') ?? 0);
+
+        return view('client.my-jobs', [
+            'statsPeriodLabel' => 'from last month',
+            'totalJobsChangePercent' => $this->calculateChangePercent($currentMonthJobs, $previousMonthJobs),
+            'totalJobsTrend' => $this->resolveTrend($currentMonthJobs, $previousMonthJobs),
+            'activeJobsChangePercent' => $this->calculateChangePercent($currentMonthActiveJobs, $previousMonthActiveJobs),
+            'activeJobsTrend' => $this->resolveTrend($currentMonthActiveJobs, $previousMonthActiveJobs),
+            'totalProposalsChangePercent' => $this->calculateChangePercent($currentMonthProposals, $previousMonthProposals),
+            'totalProposalsTrend' => $this->resolveTrend($currentMonthProposals, $previousMonthProposals),
+            'avgBudgetChangePercent' => $this->calculateChangePercent($currentMonthAvgBudget, $previousMonthAvgBudget),
+            'avgBudgetTrend' => $this->resolveTrend($currentMonthAvgBudget, $previousMonthAvgBudget),
+        ]);
     }
 
     public function getJobs(Request $request): JsonResponse
@@ -386,6 +443,28 @@ class JobController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function calculateChangePercent(float|int $current, float|int $previous): float
+    {
+        if ((float) $previous === 0.0) {
+            return (float) $current > 0 ? 100.0 : 0.0;
+        }
+
+        return round((((float) $current - (float) $previous) / (float) $previous) * 100, 2);
+    }
+
+    private function resolveTrend(float|int $current, float|int $previous): string
+    {
+        if ((float) $current > (float) $previous) {
+            return 'up';
+        }
+
+        if ((float) $current < (float) $previous) {
+            return 'down';
+        }
+
+        return 'neutral';
     }
 
     private function transformJobs(Collection $jobs): array
