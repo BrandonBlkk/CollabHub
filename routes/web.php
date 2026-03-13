@@ -73,6 +73,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/freelancer/{id}', [FindFreelancersController::class, 'freelancerProfile'])
             ->name('freelancer-profile');
         Route::get('/my-jobs/jobs', [JobController::class, 'getJobs'])->name('my-jobs.jobs');
+        Route::get('/my-jobs/{my_job}/proposals', [JobController::class, 'getProposals'])
+            ->name('my-jobs.proposals');
+        Route::patch('/my-jobs/{my_job}/proposals/{proposal}/status', [JobController::class, 'updateProposalStatus'])
+            ->name('my-jobs.proposals.status');
         Route::resource('my-jobs', JobController::class);
 
         // Profile

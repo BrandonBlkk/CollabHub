@@ -300,6 +300,7 @@ class FindJobsController extends Controller
                 'freelancer_id' => $freelancer->id,
                 'proposal_text' => $validated['proposal_text'],
                 'bid_amount' => $validated['bid_amount'],
+                'status' => 'pending',
             ]);
 
             AppliedJob::create([
