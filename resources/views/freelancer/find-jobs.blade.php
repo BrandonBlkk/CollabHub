@@ -1540,6 +1540,19 @@
                 applyJobBtn.disabled = false;
                 applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
 
+                // If the freelancer has not applied, show the apply button only.
+                if (!job.applied_status) {
+                    applyJobBtn.classList.remove('hidden');
+                    applyJobBtn.classList.add('inline-flex');
+                    applyJobBtn.textContent = i18n.applyJob;
+                    applyJobBtn.disabled = false;
+                    applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+
+                    updateJobBtn.classList.remove('inline-flex');
+                    updateJobBtn.classList.add('hidden');
+                    return;
+                }
+
                 // Define status behaviors
                 const statusConfig = {
                     'submitted': {
