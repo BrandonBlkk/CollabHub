@@ -104,6 +104,7 @@ class FindJobsController extends Controller
             'category:id,name',
             'client.user:id,name,profile_photo_path,location',
         ])
+            ->where('status', 'open')
             ->withCount(['proposals', 'views'])
             ->latest()
             ->get();
