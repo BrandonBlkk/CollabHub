@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', __('dashboard.meta.title'))
 
@@ -485,11 +485,15 @@
                                                 <span class="text-gray-500 text-sm">{{ $typeLabel }}</span>
                                             </div>
                                             <div class="flex items-center space-x-2 select-none">
-                                                <a href="{{ route('my-jobs.index') }}"
-                                                    class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-all duration-200">
+                                                <a href="{{ route('my-jobs.index') }}" data-action="view-proposals"
+                                                    data-job-id="{{ $job->id }}"
+                                                    data-job-title="{{ $job->title ?? 'Untitled Job' }}"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-all duration-200">
                                                     View Proposals
+                                                    <span data-proposals-count
+                                                        class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{{ $proposalsCount }}</span>
                                                 </a>
-                                                <a href="{{ route('my-jobs.index') }}"
+                                                <a href="{{ route('my-jobs.edit', $job->id) }}"
                                                     class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200">
                                                     Edit
                                                 </a>
@@ -665,6 +669,7 @@
             </div>
         </div>
     </div>
+    <x-proposals-modal />
 @endsection
 
 @push('scripts')
@@ -853,3 +858,4 @@
         });
     </script>
 @endpush
+

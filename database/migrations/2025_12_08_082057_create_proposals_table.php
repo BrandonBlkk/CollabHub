@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->text('proposal_text');
             $table->decimal('bid_amount', 10, 2);
             $table->string('estimated_timeline');
+            $table->string('status')->default('pending');
             $table->timestamps();
             $table->softDeletes();
         });

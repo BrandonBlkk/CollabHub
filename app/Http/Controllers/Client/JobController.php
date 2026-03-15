@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\PostJobRequest;
+use App\Http\Requests\Client\UpdateJobRequest;
 use App\Models\Category;
 use App\Models\Job;
+use App\Models\Proposal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
@@ -18,7 +20,64 @@ class JobController extends Controller
      */
     public function index()
     {
-        return view('client.my-jobs');
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            abort(404);
+        }
+
+        $currentMonthStart = now()->startOfMonth();
+        $currentMonthEnd = now()->endOfMonth();
+        $previousMonthStart = now()->subMonthNoOverflow()->startOfMonth();
+        $previousMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
+
+        $clientJobsQuery = $client->jobs();
+
+        $currentMonthJobs = (clone $clientJobsQuery)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthJobs = (clone $clientJobsQuery)
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthActiveJobs = (clone $clientJobsQuery)
+            ->whereIn('status', ['open', 'in_progress'])
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthActiveJobs = (clone $clientJobsQuery)
+            ->whereIn('status', ['open', 'in_progress'])
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthProposals = Proposal::query()
+            ->whereHas('job', fn($query) => $query->where('client_id', $client->id))
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+        $previousMonthProposals = Proposal::query()
+            ->whereHas('job', fn($query) => $query->where('client_id', $client->id))
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->count();
+
+        $currentMonthAvgBudget = (float) ((clone $clientJobsQuery)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->selectRaw('AVG(COALESCE(budget_max, budget_min, 0)) as average_budget')
+            ->value('average_budget') ?? 0);
+        $previousMonthAvgBudget = (float) ((clone $clientJobsQuery)
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->selectRaw('AVG(COALESCE(budget_max, budget_min, 0)) as average_budget')
+            ->value('average_budget') ?? 0);
+
+        return view('client.my-jobs', [
+            'statsPeriodLabel' => 'from last month',
+            'totalJobsChangePercent' => $this->calculateChangePercent($currentMonthJobs, $previousMonthJobs),
+            'totalJobsTrend' => $this->resolveTrend($currentMonthJobs, $previousMonthJobs),
+            'activeJobsChangePercent' => $this->calculateChangePercent($currentMonthActiveJobs, $previousMonthActiveJobs),
+            'activeJobsTrend' => $this->resolveTrend($currentMonthActiveJobs, $previousMonthActiveJobs),
+            'totalProposalsChangePercent' => $this->calculateChangePercent($currentMonthProposals, $previousMonthProposals),
+            'totalProposalsTrend' => $this->resolveTrend($currentMonthProposals, $previousMonthProposals),
+            'avgBudgetChangePercent' => $this->calculateChangePercent($currentMonthAvgBudget, $previousMonthAvgBudget),
+            'avgBudgetTrend' => $this->resolveTrend($currentMonthAvgBudget, $previousMonthAvgBudget),
+        ]);
     }
 
     public function getJobs(Request $request): JsonResponse
@@ -43,7 +102,6 @@ class JobController extends Controller
 
         $query = $client->jobs()
             ->with('category:id,name')
-            ->withCount('proposals')
             ->select([
                 'id',
                 'client_id',
@@ -58,7 +116,8 @@ class JobController extends Controller
                 'skills_required',
                 'category_id',
                 'created_at',
-            ]);
+            ])
+            ->withCount('proposals');
 
         $status = $validated['status'] ?? 'all';
         if ($status !== 'all') {
@@ -114,6 +173,126 @@ class JobController extends Controller
                 'in_progress' => (int) $client->jobs()->where('status', 'in_progress')->count(),
                 'completed' => (int) $client->jobs()->where('status', 'completed')->count(),
                 'draft' => (int) $client->jobs()->where('status', 'draft')->count(),
+            ],
+        ]);
+    }
+
+    public function getProposals(Request $request, string $id): JsonResponse
+    {
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client account not found.',
+            ], 404);
+        }
+
+        $job = $client->jobs()->whereKey($id)->first();
+
+        if (!$job) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job not found.',
+            ], 404);
+        }
+
+        $proposals = $job->proposals()
+            ->with(['freelancer.user'])
+            ->latest('created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'job' => [
+                'id' => $job->id,
+                'title' => $job->title,
+                'status' => $job->status,
+                'proposals_count' => $proposals->count(),
+                'budget_min' => $job->budget_min,
+                'budget_max' => $job->budget_max,
+                'type' => $job->type,
+            ],
+            'proposals' => $proposals
+                ->map(function (Proposal $proposal) {
+                    $freelancer = $proposal->freelancer;
+                    $user = $freelancer?->user;
+
+                    return [
+                        'id' => $proposal->id,
+                        'proposal_text' => $proposal->proposal_text,
+                        'bid_amount' => $proposal->bid_amount,
+                        'estimated_timeline' => $proposal->estimated_timeline,
+                        'status' => $proposal->status ?? 'pending',
+                        'created_at' => optional($proposal->created_at)->toIso8601String(),
+                        'freelancer' => $freelancer ? [
+                            'id' => $freelancer->id,
+                            'user_id' => $user?->id,
+                            'name' => $user?->name,
+                            'profile_photo_url' => $user?->profile_photo_url,
+                            'job_title' => $freelancer->job_title,
+                            'hourly_rate' => $freelancer->hourly_rate,
+                            'rating' => $freelancer->rating,
+                            'rating_count' => $freelancer->rating_count,
+                            'job_success_rate' => $freelancer->job_success_rate,
+                            'total_earned' => $freelancer->total_earned,
+                            'total_hours' => $freelancer->total_hours,
+                            'completed_projects' => $freelancer->completed_projects,
+                            'total_projects' => $freelancer->total_projects,
+                            'availability' => $freelancer->availability,
+                            'years_experience' => $freelancer->years_experience,
+                            'response_time' => $freelancer->response_time,
+                            'languages' => $freelancer->languages,
+                            'profile_url' => $user ? route('freelancer-profile', $user->id) : null,
+                        ] : null,
+                    ];
+                })
+                ->values(),
+        ]);
+    }
+
+    public function updateProposalStatus(Request $request, string $jobId, string $proposalId): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:accepted,declined',
+        ]);
+
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client account not found.',
+            ], 404);
+        }
+
+        $job = $client->jobs()->whereKey($jobId)->first();
+
+        if (!$job) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job not found.',
+            ], 404);
+        }
+
+        $proposal = $job->proposals()->whereKey($proposalId)->first();
+
+        if (!$proposal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Proposal not found.',
+            ], 404);
+        }
+
+        $proposal->status = $validated['status'];
+        $proposal->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Proposal status updated.',
+            'proposal' => [
+                'id' => $proposal->id,
+                'status' => $proposal->status,
             ],
         ]);
     }
@@ -188,15 +367,74 @@ class JobController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            abort(404);
+        }
+
+        $job = $client->jobs()->findOrFail($id);
+        $categories = Category::orderBy('name')->get();
+
+        return view('client.post-job', compact('categories', 'job'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateJobRequest $request, string $id)
     {
-        //
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Client account not found.',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('my-jobs.index')
+                ->withErrors(['client' => 'Client account not found.']);
+        }
+
+        $job = $client->jobs()->whereKey($id)->first();
+
+        if (!$job) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job not found.',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('my-jobs.index')
+                ->withErrors(['job' => 'Job not found.']);
+        }
+
+        $validated = $request->validated();
+        $job->update($validated);
+
+        $successMessage = 'Job updated successfully.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'job' => [
+                    'id' => $job->id,
+                    'title' => $job->title,
+                    'status' => $job->status,
+                    'updated_at' => optional($job->updated_at)->toIso8601String(),
+                ],
+            ]);
+        }
+
+        return redirect()
+            ->route('my-jobs.index')
+            ->with('success', $successMessage);
     }
 
     /**
@@ -205,6 +443,28 @@ class JobController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function calculateChangePercent(float|int $current, float|int $previous): float
+    {
+        if ((float) $previous === 0.0) {
+            return (float) $current > 0 ? 100.0 : 0.0;
+        }
+
+        return round((((float) $current - (float) $previous) / (float) $previous) * 100, 2);
+    }
+
+    private function resolveTrend(float|int $current, float|int $previous): string
+    {
+        if ((float) $current > (float) $previous) {
+            return 'up';
+        }
+
+        if ((float) $current < (float) $previous) {
+            return 'down';
+        }
+
+        return 'neutral';
     }
 
     private function transformJobs(Collection $jobs): array

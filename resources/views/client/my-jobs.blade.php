@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'My Jobs')
 
@@ -24,6 +24,23 @@
 
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        @php
+            $formatTrend = function ($trend, $percent) {
+                $isDown = $trend === 'down';
+                $isNeutral = $trend === 'neutral';
+
+                return [
+                    'direction' => $isDown ? "\u{2193}" : ($isNeutral ? "\u{2192}" : "\u{2191}"),
+                    'color' => $isDown ? 'text-red-600' : ($isNeutral ? 'text-gray-600' : 'text-green-600'),
+                    'percent' => number_format(abs($percent ?? 0), 2),
+                ];
+            };
+
+            $totalJobsUi = $formatTrend($totalJobsTrend ?? 'neutral', $totalJobsChangePercent ?? 0);
+            $activeJobsUi = $formatTrend($activeJobsTrend ?? 'neutral', $activeJobsChangePercent ?? 0);
+            $totalProposalsUi = $formatTrend($totalProposalsTrend ?? 'neutral', $totalProposalsChangePercent ?? 0);
+            $avgBudgetUi = $formatTrend($avgBudgetTrend ?? 'neutral', $avgBudgetChangePercent ?? 0);
+        @endphp
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
@@ -39,7 +56,10 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Across all statuses</span>
+                    <span class="{{ $totalJobsUi['color'] }} font-medium">{{ $totalJobsUi['direction'] }}
+                        {{ $totalJobsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
+                        {{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -59,7 +79,9 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Open and in progress</span>
+                    <span class="{{ $activeJobsUi['color'] }} font-medium">{{ $activeJobsUi['direction'] }}
+                        {{ $activeJobsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">{{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -79,10 +101,11 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">
+                    <span class="{{ $totalProposalsUi['color'] }} font-medium">{{ $totalProposalsUi['direction'] }}
+                        {{ $totalProposalsUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
                         {{ $client->all_jobs > 0 ? number_format($client->total_proposals / $client->all_jobs, 1) : 0 }}
-                        avg.
-                        per job
+                        avg. per job | {{ $statsPeriodLabel ?? 'from last month' }}
                     </span>
                 </div>
             </div>
@@ -103,7 +126,10 @@
             </div>
             <div class="mt-4">
                 <div class="flex items-center text-sm">
-                    <span class="text-gray-500">Based on posted jobs</span>
+                    <span class="{{ $avgBudgetUi['color'] }} font-medium">{{ $avgBudgetUi['direction'] }}
+                        {{ $avgBudgetUi['percent'] }}%</span>
+                    <span class="text-gray-500 ml-2">
+                        {{ $statsPeriodLabel ?? 'from last month' }}</span>
                 </div>
             </div>
         </div>
@@ -203,7 +229,7 @@
                 <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
                     Clear All
                 </button>
-                <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                <button id="apply-filters" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm">
                     Apply Filters
                 </button>
             </div>
@@ -226,16 +252,18 @@
                     <div class="h-6 bg-gray-200 rounded w-20"></div>
                     <div class="h-6 bg-gray-200 rounded w-14"></div>
                 </div>
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div class="pt-4 border-t border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-2">
                         <div class="h-4 bg-gray-200 rounded w-32"></div>
                         <div class="h-4 bg-gray-200 rounded w-24"></div>
                     </div>
-                    <div class="flex gap-2">
-                        <div class="h-9 bg-gray-200 rounded w-28"></div>
-                        <div class="h-9 bg-gray-200 rounded w-16"></div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <div class="h-9 bg-gray-200 rounded w-full sm:w-28"></div>
+                        <div class="h-9 bg-gray-200 rounded w-full sm:w-16"></div>
                     </div>
                 </div>
+            </div>
             </div>
         @endfor
     </div>
@@ -266,12 +294,15 @@
             Showing <span id="showing-count">0</span> of <span id="total-jobs">{{ $client->all_jobs }}</span> jobs
         </div>
     </div>
+
+    <x-proposals-modal />
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const jobsEndpoint = @json(route('my-jobs.jobs'));
+            const editJobRouteTemplate = @json(route('my-jobs.edit', ['my_job' => '__JOB__']));
 
             const tabs = document.querySelectorAll('[data-tab]');
             const jobsLoading = document.getElementById('jobs-loading');
@@ -495,6 +526,10 @@
                             `<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">${escapeHtml(skill)}</span>`
                         ).join('') :
                         '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">No skills specified</span>';
+                    const jobId = job?.id ?? '';
+                    const editUrl = jobId ?
+                        editJobRouteTemplate.replace('__JOB__', encodeURIComponent(String(jobId))) :
+                        '#';
 
                     return `
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
@@ -515,34 +550,39 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                                <div class="flex items-center space-x-6">
-                                    <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                                        </svg>
-                                        <span class="font-semibold text-gray-900">${formatBudget(job)}</span>
-                                        <span class="text-gray-500 text-sm ml-2">${getTypeLabel(job.type)}</span>
+                            <div class="pt-4 border-t border-gray-100">
+                                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                    <div
+                                        class="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-3 sm:space-y-0 min-w-0 flex-1">
+                                        <div class="flex items-center min-w-0 flex-wrap">
+                                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                            </svg>
+                                            <span class="font-semibold text-gray-900">${formatBudget(job)}</span>
+                                            <span class="text-gray-500 text-sm ml-2">${getTypeLabel(job.type)}</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-gray-600 text-sm">${getDurationLabel(job.duration)}</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span class="text-gray-600 text-sm">${getDurationLabel(job.duration)}</span>
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 select-none w-full sm:w-auto">
+                                        <button type="button" data-action="view-proposals"
+                                            data-job-id="${jobId}" data-job-title="${escapeHtml(job.title || 'Untitled job')}"
+                                            class="w-full sm:w-auto px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200 flex items-center justify-center">
+                                            View Proposals
+                                            <span data-proposals-count
+                                                class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${Number(job.proposals_count || 0)}</span>
+                                        </button>
+                                        <a href="${editUrl}"
+                                            class="w-full sm:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200 text-center">
+                                            Edit
+                                        </a>
                                     </div>
-                                </div>
-                                <div class="flex items-center space-x-2 select-none">
-                                    <button type="button"
-                                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition duration-200">
-                                        View Proposals
-                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${Number(job.proposals_count || 0)}</span>
-                                    </button>
-                                    <button type="button"
-                                        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
-                                        Edit
-                                    </button>
                                 </div>
                             </div>
                         </div>
