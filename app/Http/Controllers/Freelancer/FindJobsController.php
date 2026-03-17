@@ -131,10 +131,18 @@ class FindJobsController extends Controller
             ->limit(3)
             ->get();
 
+        $appliedStatuses = [];
+        if (Auth::check() && $jobs->isNotEmpty()) {
+            $appliedStatuses = AppliedJob::where('user_id', Auth::id())
+                ->whereIn('job_id', $jobs->pluck('id'))
+                ->pluck('status', 'job_id')
+                ->toArray();
+        }
+
         return response()->json(
             [
                 'success' => true,
-                'jobs' => $this->transformJobs($jobs)
+                'jobs' => $this->transformJobs($jobs, false, [], $appliedStatuses)
             ]
         );
     }
@@ -505,16 +513,17 @@ class FindJobsController extends Controller
         }
     }
 
-    private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = []): Collection
+    private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = [], array $appliedStatuses = []): Collection
     {
         $savedSet = array_flip($savedJobIds);
 
-        return $jobs->map(function ($job) use ($isSaved, $savedSet) {
+        return $jobs->map(function ($job) use ($isSaved, $savedSet, $appliedStatuses) {
             $jobData = $job->toArray();
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
 
             $jobData['is_saved'] = $savedSet[$job->id] ?? $isSaved;
+            $jobData['applied_status'] = $appliedStatuses[$job->id] ?? null;
             $jobData['client_profile'] = [
                 'id' => $clientUser?->id,
                 'name' => $clientName,
