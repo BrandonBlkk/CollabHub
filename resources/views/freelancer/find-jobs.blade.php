@@ -500,9 +500,26 @@
         let inProgressJobsData = [];
         let appliedJobsData = [];
         let currentTab = 'all';
-        let isInitialLoad = true;
         let jobViewsRealtimeInterval = null;
         let dismissedJobIds = new Set();
+        const loadedTabs = {
+            all: false,
+            saved: false,
+            in_progress: false,
+            applied: false,
+        };
+        const SERVER_SIDE_THRESHOLD = 250;
+        const SEARCH_DEBOUNCE_MS = 300;
+        const searchTextCache = new Map();
+        const serverFilterState = {
+            active: false,
+            total: 0,
+        };
+        const perfMetrics = {
+            logs: [],
+            last: {},
+        };
+        window.findJobsPerf = perfMetrics;
         const queryParams = new URLSearchParams(window.location.search);
         const deepLinkJobId = queryParams.get('job');
         let hasHandledDeepLinkJob = false;
@@ -625,6 +642,161 @@
             },
         };
 
+        function recordPerf(label, duration, meta = {}) {
+            const entry = {
+                label,
+                duration: Math.round(duration * 100) / 100,
+                meta,
+                ts: Date.now(),
+            };
+
+            perfMetrics.logs.push(entry);
+            perfMetrics.last[label] = entry;
+
+            if (perfMetrics.logs.length > 50) {
+                perfMetrics.logs.shift();
+            }
+
+            if (window.__FIND_JOBS_DEBUG__) {
+                console.info(`[FindJobs] ${label}`, entry);
+            }
+        }
+
+        function debounce(fn, delay) {
+            let timerId = null;
+            return (...args) => {
+                if (timerId) {
+                    clearTimeout(timerId);
+                }
+                timerId = setTimeout(() => {
+                    timerId = null;
+                    fn(...args);
+                }, delay);
+            };
+        }
+
+        function buildSearchText(job) {
+            const parts = [];
+
+            if (job?.title) {
+                parts.push(job.title);
+            }
+
+            if (job?.description) {
+                parts.push(job.description);
+            }
+
+            if (job?.category?.name) {
+                parts.push(job.category.name);
+            }
+
+            if (job?.client_profile?.name) {
+                parts.push(job.client_profile.name);
+            }
+
+            if (job?.client_profile?.company) {
+                parts.push(job.client_profile.company);
+            }
+
+            let skillsText = '';
+            if (job?.skills_required) {
+                if (Array.isArray(job.skills_required)) {
+                    skillsText = job.skills_required.join(' ');
+                } else if (typeof job.skills_required === 'string') {
+                    try {
+                        const parsed = JSON.parse(job.skills_required);
+                        if (Array.isArray(parsed)) {
+                            skillsText = parsed.join(' ');
+                        } else {
+                            skillsText = job.skills_required;
+                        }
+                    } catch (e) {
+                        skillsText = job.skills_required;
+                    }
+                }
+            }
+
+            if (skillsText) {
+                parts.push(skillsText);
+            }
+
+            return parts.join(' ').toLowerCase();
+        }
+
+        function primeSearchCache(jobs = []) {
+            jobs.forEach(job => {
+                if (!job || typeof job.id === 'undefined' || job.id === null) {
+                    return;
+                }
+
+                searchTextCache.set(job.id, buildSearchText(job));
+            });
+        }
+
+        function removeFromSearchCache(jobId) {
+            if (jobId === null || typeof jobId === 'undefined') {
+                return;
+            }
+
+            searchTextCache.delete(jobId);
+        }
+
+        function getSearchText(job) {
+            if (!job || typeof job.id === 'undefined' || job.id === null) {
+                return '';
+            }
+
+            if (!searchTextCache.has(job.id)) {
+                searchTextCache.set(job.id, buildSearchText(job));
+            }
+
+            return searchTextCache.get(job.id) || '';
+        }
+
+        function getCurrentTabData() {
+            if (currentTab === 'saved') {
+                return savedJobsData;
+            }
+            if (currentTab === 'in_progress') {
+                return inProgressJobsData;
+            }
+            if (currentTab === 'applied') {
+                return appliedJobsData;
+            }
+
+            return allJobsData;
+        }
+
+        function getFilterValues() {
+            const searchRaw = document.getElementById('job-search')?.value || '';
+            return {
+                type: document.getElementById('filter-type')?.value || '',
+                experience: document.getElementById('filter-experience')?.value || '',
+                duration: document.getElementById('filter-duration')?.value || '',
+                sort: document.getElementById('filter-sort')?.value || 'newest',
+                search: searchRaw.trim(),
+                searchLower: searchRaw.trim().toLowerCase(),
+            };
+        }
+
+        function hasActiveFilters(filters) {
+            if (filters.search) {
+                return true;
+            }
+            if (filters.type || filters.experience || filters.duration) {
+                return true;
+            }
+            return filters.sort && filters.sort !== 'newest';
+        }
+
+        function shouldUseServerFiltering(dataLength, filters) {
+            if (!hasActiveFilters(filters)) {
+                return false;
+            }
+
+            return dataLength >= SERVER_SIDE_THRESHOLD;
+        }
+
         function getJobsRouteByType(type = 'all') {
             const routes = {
                 'all': '{{ route('find-jobs.jobs') }}',
@@ -634,6 +806,33 @@
             };
 
             return routes[type] || routes.all;
+        }
+
+        function buildJobsUrl(type, filters = null) {
+            const baseUrl = getJobsRouteByType(type);
+            if (!filters) {
+                return baseUrl;
+            }
+
+            const params = new URLSearchParams();
+            if (filters.search) {
+                params.set('search', filters.search);
+            }
+            if (filters.type) {
+                params.set('type', filters.type);
+            }
+            if (filters.experience) {
+                params.set('experience', filters.experience);
+            }
+            if (filters.duration) {
+                params.set('duration', filters.duration);
+            }
+            if (filters.sort && filters.sort !== 'newest') {
+                params.set('sort', filters.sort);
+            }
+
+            const query = params.toString();
+            return query ? `${baseUrl}?${query}` : baseUrl;
         }
 
         function removeJobQueryParam() {
@@ -755,40 +954,38 @@
 
             // Call appropriate function based on tab
             if (status === 'saved') {
-                // If we already have saved jobs data, just display it
-                if (savedJobsData.length > 0 && !isInitialLoad) {
-                    displayJobs(savedJobsData);
-                    applyCurrentFilters();
+                if (loadedTabs.saved) {
+                    void applyCurrentFilters({
+                        source: 'tab-change'
+                    });
                 } else {
                     fetchJobs('saved');
                 }
             } else if (status === 'all') {
-                // If we already have all jobs data, just display it
-                if (allJobsData.length > 0 && !isInitialLoad) {
-                    displayJobs(allJobsData);
-                    applyCurrentFilters();
+                if (loadedTabs.all) {
+                    void applyCurrentFilters({
+                        source: 'tab-change'
+                    });
                 } else {
                     fetchJobs('all');
                 }
             } else if (status === 'in_progress') {
-                // If we already have in progress jobs data, just display it
-                if (inProgressJobsData.length > 0 && !isInitialLoad) {
-                    displayJobs(inProgressJobsData);
-                    applyCurrentFilters();
+                if (loadedTabs.in_progress) {
+                    void applyCurrentFilters({
+                        source: 'tab-change'
+                    });
                 } else {
                     fetchJobs('in_progress');
                 }
             } else if (status === 'applied') {
-                // If we already have applied jobs data, just display it
-                if (appliedJobsData.length > 0 && !isInitialLoad) {
-                    displayJobs(appliedJobsData);
-                    applyCurrentFilters();
+                if (loadedTabs.applied) {
+                    void applyCurrentFilters({
+                        source: 'tab-change'
+                    });
                 } else {
                     fetchJobs('applied');
                 }
             }
-
-            isInitialLoad = false;
         }
 
         // Separate function for status filtering
@@ -822,128 +1019,64 @@
         }
 
         // Search functionality
-        document.getElementById('job-search')?.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
+        const debouncedSearch = debounce(() => {
+            void applyCurrentFilters({
+                source: 'search'
+            });
+        }, SEARCH_DEBOUNCE_MS);
 
-            // Apply filters based on current tab
-            if (currentTab === 'saved') {
-                // Filter saved jobs
-                const filteredSavedJobs = savedJobsData.filter(job => {
-                    const title = job.title ? job.title.toLowerCase() : '';
-                    const description = job.description ? job.description.toLowerCase() : '';
-                    const skills = job.skills_required ?
-                        (Array.isArray(job.skills_required) ?
-                            job.skills_required.join(' ').toLowerCase() :
-                            job.skills_required.toLowerCase()) : '';
-
-                    return title.includes(searchTerm) ||
-                        description.includes(searchTerm) ||
-                        skills.includes(searchTerm);
-                });
-
-                displayJobs(filteredSavedJobs);
-            } else if (currentTab === 'in_progress') {
-                // Filter in progress jobs
-                const filteredInProgressJobs = inProgressJobsData.filter(job => {
-                    const title = job.title ? job.title.toLowerCase() : '';
-                    const description = job.description ? job.description.toLowerCase() : '';
-                    const skills = job.skills_required ?
-                        (Array.isArray(job.skills_required) ?
-                            job.skills_required.join(' ').toLowerCase() :
-                            job.skills_required.toLowerCase()) : '';
-
-                    return title.includes(searchTerm) ||
-                        description.includes(searchTerm) ||
-                        skills.includes(searchTerm);
-                });
-
-                displayJobs(filteredInProgressJobs);
-            } else if (currentTab === 'applied') {
-                // Filter applied jobs
-                const filteredAppliedJobs = appliedJobsData.filter(job => {
-                    const title = job.title ? job.title.toLowerCase() : '';
-                    const description = job.description ? job.description.toLowerCase() : '';
-                    const skills = job.skills_required ?
-                        (Array.isArray(job.skills_required) ?
-                            job.skills_required.join(' ').toLowerCase() :
-                            job.skills_required.toLowerCase()) : '';
-
-                    return title.includes(searchTerm) ||
-                        description.includes(searchTerm) ||
-                        skills.includes(searchTerm);
-                });
-
-                displayJobs(filteredAppliedJobs);
-            } else {
-                // Filter all jobs
-                const filteredJobs = allJobsData.filter(job => {
-                    const title = job.title ? job.title.toLowerCase() : '';
-                    const description = job.description ? job.description.toLowerCase() : '';
-                    const skills = job.skills_required ?
-                        (Array.isArray(job.skills_required) ?
-                            job.skills_required.join(' ').toLowerCase() :
-                            job.skills_required.toLowerCase()) : '';
-
-                    return title.includes(searchTerm) ||
-                        description.includes(searchTerm) ||
-                        skills.includes(searchTerm);
-                });
-
-                displayJobs(filteredJobs);
-            }
-        });
+        document.getElementById('job-search')?.addEventListener('input', debouncedSearch);
 
         // Advanced filtering
         document.getElementById('apply-filters')?.addEventListener('click', function() {
-            applyCurrentFilters();
+            void applyCurrentFilters({
+                source: 'filters'
+            });
         });
 
         // Function to apply current filters
-        function applyCurrentFilters() {
-            const type = document.getElementById('filter-type').value;
-            const experience = document.getElementById('filter-experience').value;
-            const duration = document.getElementById('filter-duration').value;
-            const sort = document.getElementById('filter-sort').value;
-            const searchTerm = document.getElementById('job-search').value.toLowerCase();
+        async function applyCurrentFilters(options = {}) {
+            const filters = getFilterValues();
+            const dataToFilter = [...getCurrentTabData()];
+            const activeFilters = hasActiveFilters(filters);
 
-            // Get data based on current tab
-            let dataToFilter = [];
-            if (currentTab === 'saved') {
-                dataToFilter = [...savedJobsData];
-            } else if (currentTab === 'in_progress') {
-                dataToFilter = [...inProgressJobsData];
-            } else if (currentTab === 'applied') {
-                dataToFilter = [...appliedJobsData];
-            } else {
-                dataToFilter = [...allJobsData];
+            if (!activeFilters) {
+                serverFilterState.active = false;
+                serverFilterState.total = 0;
+                displayJobs(dataToFilter);
+                return;
             }
 
-            // Apply filters
+            if (shouldUseServerFiltering(dataToFilter.length, filters)) {
+                serverFilterState.active = true;
+                serverFilterState.total = 0;
+                await fetchJobs(currentTab, {
+                    filters,
+                    updateCache: false,
+                    showSkeleton: false,
+                    reason: options.source || 'server-filter'
+                });
+                return;
+            }
+
+            serverFilterState.active = false;
+            serverFilterState.total = 0;
+
+            const filterStart = performance.now();
+            const searchTerm = filters.searchLower;
+
             let filteredJobs = dataToFilter.filter(job => {
-                const matchesType = !type || job.type === type;
-                const matchesExperience = !experience || job.experience_level === experience;
-                const matchesDuration = !duration || job.duration === duration;
-
-                // Search filter
-                const title = job.title ? job.title.toLowerCase() : '';
-                const description = job.description ? job.description.toLowerCase() : '';
-                const skills = job.skills_required ?
-                    (Array.isArray(job.skills_required) ?
-                        job.skills_required.join(' ').toLowerCase() :
-                        job.skills_required.toLowerCase()) : '';
-
-                const matchesSearch = !searchTerm ||
-                    title.includes(searchTerm) ||
-                    description.includes(searchTerm) ||
-                    skills.includes(searchTerm);
+                const matchesType = !filters.type || job.type === filters.type;
+                const matchesExperience = !filters.experience || job.experience_level === filters.experience;
+                const matchesDuration = !filters.duration || job.duration === filters.duration;
+                const matchesSearch = !searchTerm || getSearchText(job).includes(searchTerm);
 
                 return matchesType && matchesExperience && matchesDuration && matchesSearch;
             });
 
-            // Apply sorting
-            if (sort) {
+            if (filters.sort) {
                 filteredJobs.sort((a, b) => {
-                    switch (sort) {
+                    switch (filters.sort) {
                         case 'newest':
                             return new Date(b.created_at) - new Date(a.created_at);
                         case 'oldest':
@@ -962,7 +1095,13 @@
                 });
             }
 
-            // Display filtered jobs
+            recordPerf('client-filter', performance.now() - filterStart, {
+                tab: currentTab,
+                total: dataToFilter.length,
+                filtered: filteredJobs.length,
+                searchLength: searchTerm.length,
+            });
+
             displayJobs(filteredJobs);
         }
 
@@ -975,11 +1114,16 @@
             document.getElementById('job-search').value = '';
             document.getElementById('advanced-filters').classList.add('hidden');
 
+            serverFilterState.active = false;
+            serverFilterState.total = 0;
+
             // Reset to show all jobs based on current tab
             if (currentTab === 'saved') {
                 displayJobs(savedJobsData);
             } else if (currentTab === 'in_progress') {
                 displayJobs(inProgressJobsData);
+            } else if (currentTab === 'applied') {
+                displayJobs(appliedJobsData);
             } else {
                 displayJobs(allJobsData);
             }
@@ -992,11 +1136,16 @@
             document.getElementById('filter-sort').value = 'newest';
             document.getElementById('job-search').value = '';
 
+            serverFilterState.active = false;
+            serverFilterState.total = 0;
+
             // Reset to show all jobs based on current tab
             if (currentTab === 'saved') {
                 displayJobs(savedJobsData);
             } else if (currentTab === 'in_progress') {
                 displayJobs(inProgressJobsData);
+            } else if (currentTab === 'applied') {
+                displayJobs(appliedJobsData);
             } else {
                 displayJobs(allJobsData);
             }
@@ -1005,10 +1154,14 @@
         // Update showing counts
         function updateShowingCounts(visibleCount) {
             let totalJobs = 0;
-            if (currentTab === 'saved') {
+            if (serverFilterState.active) {
+                totalJobs = serverFilterState.total;
+            } else if (currentTab === 'saved') {
                 totalJobs = savedJobsData.length;
             } else if (currentTab === 'in_progress') {
                 totalJobs = inProgressJobsData.length;
+            } else if (currentTab === 'applied') {
+                totalJobs = appliedJobsData.length;
             } else {
                 totalJobs = allJobsData.length;
             }
@@ -1444,6 +1597,7 @@
         }
 
         function displayJobs(jobs) {
+            const renderStart = performance.now();
             const visibleJobs = (jobs || []).filter(job => !dismissedJobIds.has(job.id));
 
             if (visibleJobs.length === 0) {
@@ -1456,6 +1610,11 @@
 
                 updateEmptyState(0);
                 updateShowingCounts(0);
+                recordPerf('render', performance.now() - renderStart, {
+                    tab: currentTab,
+                    count: 0,
+                    serverFiltered: serverFilterState.active,
+                });
                 return;
             }
 
@@ -1655,6 +1814,7 @@
                     savedJobsData = savedJobsData.filter(item => item.id !== job.id);
                     inProgressJobsData = inProgressJobsData.filter(item => item.id !== job.id);
                     appliedJobsData = appliedJobsData.filter(item => item.id !== job.id);
+                    removeFromSearchCache(job.id);
 
                     cardElement.remove();
                     const remainingCards = document.querySelectorAll('#jobs-container [data-id]').length;
@@ -1669,10 +1829,24 @@
 
             updateEmptyState(visibleJobs.length);
             updateShowingCounts(visibleJobs.length);
+            recordPerf('render', performance.now() - renderStart, {
+                tab: currentTab,
+                count: visibleJobs.length,
+                serverFiltered: serverFilterState.active,
+            });
         }
 
-        async function fetchJobs(type = 'all') {
-            showSkeletonLoading();
+        async function fetchJobs(type = 'all', options = {}) {
+            const {
+                filters = null,
+                    updateCache = true,
+                    showSkeleton = true,
+                    reason = 'fetch'
+            } = options;
+
+            if (showSkeleton) {
+                showSkeletonLoading();
+            }
 
             const errorMessages = {
                 'all': i18n.errorLoadingJobs,
@@ -1689,7 +1863,8 @@
             };
 
             try {
-                const response = await fetch(getJobsRouteByType(type), {
+                const fetchStart = performance.now();
+                const response = await fetch(buildJobsUrl(type, filters), {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
@@ -1706,16 +1881,32 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store data based on type
-                    if (type === 'all') {
-                        allJobsData = data.jobs;
-                    } else if (type === 'saved') {
-                        savedJobsData = data.jobs;
-                    } else if (type === 'in_progress') {
-                        inProgressJobsData = data.jobs;
-                    } else if (type === 'applied') {
-                        appliedJobsData = data.jobs;
+                    recordPerf('fetch', performance.now() - fetchStart, {
+                        tab: type,
+                        filtered: !!filters,
+                        reason,
+                        count: Array.isArray(data.jobs) ? data.jobs.length : 0,
+                    });
+
+                    if (updateCache) {
+                        if (type === 'all') {
+                            allJobsData = data.jobs;
+                        } else if (type === 'saved') {
+                            savedJobsData = data.jobs;
+                        } else if (type === 'in_progress') {
+                            inProgressJobsData = data.jobs;
+                        } else if (type === 'applied') {
+                            appliedJobsData = data.jobs;
+                        }
+
+                        loadedTabs[type] = true;
+                        if (Array.isArray(data.jobs)) {
+                            primeSearchCache(data.jobs);
+                        }
                     }
+
+                    serverFilterState.active = !!filters;
+                    serverFilterState.total = Array.isArray(data.jobs) ? data.jobs.length : 0;
 
                     displayJobs(data.jobs);
                     refreshJobViewsRealtime();
@@ -2340,6 +2531,7 @@
                         ...jobToAdd,
                         is_saved: true
                     });
+                    primeSearchCache([jobToAdd]);
                 }
             } else {
                 // Remove from savedJobsData

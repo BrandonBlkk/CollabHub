@@ -100,14 +100,15 @@ class FindJobsController extends Controller
     // Get all jobs
     public function getJobs(Request $request)
     {
-        $jobs = Job::with([
+        $jobsQuery = Job::with([
             'category:id,name',
             'client.user:id,name,profile_photo_path,location',
         ])
             ->where('status', 'open')
-            ->withCount(['proposals', 'views'])
-            ->latest()
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         return response()->json(
             [
@@ -163,13 +164,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $favoriteJobIds)
+        $jobsQuery = Job::whereIn('id', $favoriteJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         return response()->json([
             'success' => true,
@@ -187,13 +190,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $inProgressJobIds)
+        $jobsQuery = Job::whereIn('id', $inProgressJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
 
@@ -214,13 +219,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $appliedJobIds)
+        $jobsQuery = Job::whereIn('id', $appliedJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
 
@@ -523,6 +530,55 @@ class FindJobsController extends Controller
                 'success' => false,
                 'message' => 'Job not found'
             ], 404);
+        }
+    }
+
+    private function applyJobFilters(Request $request, $query): void
+    {
+        $type = trim((string) $request->query('type', ''));
+        $experience = trim((string) $request->query('experience', ''));
+        $duration = trim((string) $request->query('duration', ''));
+        $search = trim((string) $request->query('search', ''));
+        $sort = trim((string) $request->query('sort', 'newest'));
+
+        if ($type !== '') {
+            $query->where('type', $type);
+        }
+
+        if ($experience !== '') {
+            $query->where('experience_level', $experience);
+        }
+
+        if ($duration !== '') {
+            $query->where('duration', $duration);
+        }
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $query->where(function ($query) use ($like) {
+                $query->where('title', 'like', $like)
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('skills_required', 'like', $like)
+                    ->orWhereHas('category', function ($categoryQuery) use ($like) {
+                        $categoryQuery->where('name', 'like', $like);
+                    });
+            });
+        }
+
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'budget_high':
+                $query->orderByRaw('COALESCE(budget_max, budget_min, 0) desc');
+                break;
+            case 'budget_low':
+                $query->orderByRaw('COALESCE(budget_min, budget_max, 0) asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
         }
     }
 
