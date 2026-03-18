@@ -98,6 +98,7 @@ return [
         'untitled_job' => 'ခေါင်းစဉ်မရှိသော အလုပ်',
         'no_description' => 'ဖော်ပြချက် မရှိပါ။',
         'no_skills_required' => 'လိုအပ်သော ကျွမ်းကျင်မှု မရှိပါ',
+        'general' => 'General',
         'budget_not_specified' => 'ဘတ်ဂျက် မသတ်မှတ်ထားပါ',
         'not_specified' => 'မသတ်မှတ်ထားပါ',
         'duration_not_specified' => 'ကြာချိန် မသတ်မှတ်ထားပါ',

@@ -100,14 +100,15 @@ class FindJobsController extends Controller
     // Get all jobs
     public function getJobs(Request $request)
     {
-        $jobs = Job::with([
+        $jobsQuery = Job::with([
             'category:id,name',
             'client.user:id,name,profile_photo_path,location',
         ])
             ->where('status', 'open')
-            ->withCount(['proposals', 'views'])
-            ->latest()
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         return response()->json(
             [
@@ -131,10 +132,24 @@ class FindJobsController extends Controller
             ->limit(3)
             ->get();
 
+        $appliedStatuses = [];
+        $savedJobIds = [];
+        if (Auth::check() && $jobs->isNotEmpty()) {
+            $appliedStatuses = AppliedJob::where('user_id', Auth::id())
+                ->whereIn('job_id', $jobs->pluck('id'))
+                ->pluck('status', 'job_id')
+                ->toArray();
+
+            $savedJobIds = FavoriteJob::where('user_id', Auth::id())
+                ->whereIn('job_id', $jobs->pluck('id'))
+                ->pluck('job_id')
+                ->toArray();
+        }
+
         return response()->json(
             [
                 'success' => true,
-                'jobs' => $this->transformJobs($jobs)
+                'jobs' => $this->transformJobs($jobs, false, $savedJobIds, $appliedStatuses)
             ]
         );
     }
@@ -149,13 +164,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $favoriteJobIds)
+        $jobsQuery = Job::whereIn('id', $favoriteJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         return response()->json([
             'success' => true,
@@ -173,13 +190,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $inProgressJobIds)
+        $jobsQuery = Job::whereIn('id', $inProgressJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
 
@@ -200,13 +219,15 @@ class FindJobsController extends Controller
             ->pluck('job_id')
             ->toArray();
 
-        $jobs = Job::whereIn('id', $appliedJobIds)
+        $jobsQuery = Job::whereIn('id', $appliedJobIds)
             ->with([
                 'category:id,name',
                 'client.user:id,name,profile_photo_path,location',
             ])
-            ->withCount(['proposals', 'views'])
-            ->get();
+            ->withCount(['proposals', 'views']);
+
+        $this->applyJobFilters($request, $jobsQuery);
+        $jobs = $jobsQuery->get();
 
         $savedJobIds = FavoriteJob::where('user_id', $user->id)->pluck('job_id')->toArray();
 
@@ -447,7 +468,10 @@ class FindJobsController extends Controller
     public function getJob(Request $request, $id)
     {
         try {
-            $job = Job::with('client.user:id,name,profile_photo_path,location')
+            $job = Job::with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
                 ->withCount(['proposals', 'views'])
                 ->findOrFail($id);
 
@@ -473,6 +497,10 @@ class FindJobsController extends Controller
                     'description' => $job->description,
                     'type' => $job->type,
                     'status' => $job->status,
+                    'category' => $job->category ? [
+                        'id' => $job->category->id,
+                        'name' => $job->category->name,
+                    ] : null,
                     'budget_min' => $job->budget_min,
                     'budget_max' => $job->budget_max,
                     'duration' => $job->duration,
@@ -505,16 +533,66 @@ class FindJobsController extends Controller
         }
     }
 
-    private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = []): Collection
+    private function applyJobFilters(Request $request, $query): void
+    {
+        $type = trim((string) $request->query('type', ''));
+        $experience = trim((string) $request->query('experience', ''));
+        $duration = trim((string) $request->query('duration', ''));
+        $search = trim((string) $request->query('search', ''));
+        $sort = trim((string) $request->query('sort', 'newest'));
+
+        if ($type !== '') {
+            $query->where('type', $type);
+        }
+
+        if ($experience !== '') {
+            $query->where('experience_level', $experience);
+        }
+
+        if ($duration !== '') {
+            $query->where('duration', $duration);
+        }
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $query->where(function ($query) use ($like) {
+                $query->where('title', 'like', $like)
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('skills_required', 'like', $like)
+                    ->orWhereHas('category', function ($categoryQuery) use ($like) {
+                        $categoryQuery->where('name', 'like', $like);
+                    });
+            });
+        }
+
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'budget_high':
+                $query->orderByRaw('COALESCE(budget_max, budget_min, 0) desc');
+                break;
+            case 'budget_low':
+                $query->orderByRaw('COALESCE(budget_min, budget_max, 0) asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+    }
+
+    private function transformJobs(Collection $jobs, bool $isSaved = false, array $savedJobIds = [], array $appliedStatuses = []): Collection
     {
         $savedSet = array_flip($savedJobIds);
 
-        return $jobs->map(function ($job) use ($isSaved, $savedSet) {
+        return $jobs->map(function ($job) use ($isSaved, $savedSet, $appliedStatuses) {
             $jobData = $job->toArray();
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
 
-            $jobData['is_saved'] = $savedSet[$job->id] ?? $isSaved;
+            $jobData['is_saved'] = $isSaved || isset($savedSet[$job->id]);
+            $jobData['applied_status'] = $appliedStatuses[$job->id] ?? null;
             $jobData['client_profile'] = [
                 'id' => $clientUser?->id,
                 'name' => $clientName,

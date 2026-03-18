@@ -98,6 +98,7 @@ return [
         'untitled_job' => 'Untitled Job',
         'no_description' => 'No description provided.',
         'no_skills_required' => 'No Skills Required',
+        'general' => 'General',
         'budget_not_specified' => 'Budget not specified',
         'not_specified' => 'Not specified',
         'duration_not_specified' => 'Duration not specified',

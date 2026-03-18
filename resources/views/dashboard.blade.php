@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', __('dashboard.meta.title'))
 
@@ -669,7 +669,145 @@
             </div>
         </div>
     </div>
+    {{-- Proposals Modal For Client --}}
     <x-proposals-modal />
+
+    {{-- Proposal Submit Modal For Freelancer --}}
+    <x-proposal-submit-modal />
+
+    <!-- Proposal Update Modal -->
+    <div id="proposal-update-modal" class="fixed inset-0 z-[60] hidden transition-opacity duration-300">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-out"
+            id="update-proposal-backdrop">
+        </div>
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-2xl w-full translate-y-4 opacity-0 scale-95"
+                id="update-proposal-content">
+                <!-- Modal Header -->
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-200">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900">
+                                {{ __('find-jobs.modals.update_proposal.title') }}
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-600">{{ __('find-jobs.modals.proposal.job_label') }}: <span
+                                        id="update-proposal-job-title" class="font-medium"></span></p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.update_proposal.help_text') }}</p>
+                            </div>
+                        </div>
+                        <button type="button" id="close-update-proposal-modal"
+                            class="text-gray-400 hover:text-gray-500 rounded-lg p-2 transition-colors duration-200">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Content - Form -->
+                <form id="update-proposal-form">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pt-0 sm:pb-4 overflow-y-auto max-h-[60vh]">
+                        <div class="space-y-4">
+                            <!-- Hidden job ID and proposal ID -->
+                            <input type="hidden" id="update-proposal-job-id" name="job_id">
+                            <input type="hidden" id="update-proposal-id" name="proposal_id">
+
+                            <!-- Proposal Text -->
+                            <div>
+                                <label for="update-proposal-text" class="block text-sm font-medium text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.proposal.details_label') }} <span
+                                        class="text-red-500">*</span>
+                                </label>
+                                <textarea id="update-proposal-text" name="proposal_text" rows="6"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                    placeholder="{{ __('find-jobs.modals.proposal.details_placeholder') }}"></textarea>
+                            </div>
+
+                            <!-- Bid Amount -->
+                            <div>
+                                <label for="update-bid-amount" class="block text-sm font-medium text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_label') }} <span
+                                        class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">$</span>
+                                    </div>
+                                    <input type="number" id="update-bid-amount" name="bid_amount" step="0.01"
+                                        min="1"
+                                        class="pl-7 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm"
+                                        placeholder="{{ __('find-jobs.common.amount_placeholder') }}">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ __('find-jobs.modals.proposal.bid_amount_help') }}
+                                    <span id="update-min_max_budget"></span>
+                                </p>
+                            </div>
+
+                            <!-- Estimated Timeline (Optional) -->
+                            <div>
+                                <label for="update-estimated-timeline"
+                                    class="block text-sm font-medium text-gray-900 mb-2">
+                                    {{ __('find-jobs.modals.proposal.estimated_timeline_label') }}
+                                </label>
+                                <select name="estimated_timeline" id="update-estimated-timeline"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-sm">
+                                    <option value="2 weeks">{{ __('find-jobs.timeline.two_weeks') }}</option>
+                                    <option value="3-4 weeks">{{ __('find-jobs.timeline.three_four_weeks') }}</option>
+                                    <option value="1-2 months">{{ __('find-jobs.timeline.one_two_months') }}</option>
+                                    <option value="3-6 months">{{ __('find-jobs.timeline.three_six_months') }}</option>
+                                    <option value="more than 6 months">
+                                        {{ __('find-jobs.timeline.more_than_six_months') }}
+                                    </option>
+                                    <option value="not sure">{{ __('find-jobs.timeline.not_sure') }}</option>
+                                    <option value="ongoing support">{{ __('find-jobs.timeline.ongoing_support') }}
+                                    </option>
+                                    <option value="to be discussed">
+                                        {{ __('find-jobs.timeline.to_be_discussed_default') }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Error Message Container -->
+                            <div id="update-proposal-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600" id="update-proposal-error-text"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div
+                        class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3 border-t border-gray-200 select-none">
+                        <button type="submit" id="submit-update-proposal-btn"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div id="update-submitSpinner"
+                                class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
+                            </div>
+                            <span
+                                id="submit-update-proposal-text">{{ __('find-jobs.modals.update_proposal.submit_button') }}</span>
+                        </button>
+                        <button type="submit" id="submit-withdraw-proposal-btn"
+                            class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 sm:w-auto transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div id="withdraw-submitSpinner"
+                                class="hidden w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2">
+                            </div>
+                            <span
+                                id="submit-withdraw-proposal-text">{{ __('find-jobs.modals.update_proposal.withdraw_button') }}</span>
+                        </button>
+                        <button type="button" id="cancel-proposal-update-modal"
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 text-sm font-medium">
+                            {{ __('find-jobs.common.cancel') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <x-job-details-modal />
 @endsection
 
 @push('scripts')
@@ -689,12 +827,149 @@
                 noDescription: @json(__('dashboard.freelancer.recommended_jobs.no_description')),
                 reviews: @json(__('dashboard.freelancer.recommended_jobs.reviews')),
                 applyNow: @json(__('dashboard.freelancer.recommended_jobs.apply_now')),
+                viewJob: @json(__('find-jobs.job_card.view_job')),
                 networkError: @json(__('dashboard.freelancer.recommended_jobs.network_error')),
                 fetchFailed: @json(__('dashboard.freelancer.recommended_jobs.fetch_failed')),
                 failedLoad: @json(__('dashboard.freelancer.recommended_jobs.failed_load')),
                 retry: @json(__('dashboard.freelancer.recommended_jobs.retry')),
                 applyingForJobId: @json(__('dashboard.freelancer.recommended_jobs.applying_for_job_id', ['id' => ':id'])),
             };
+
+            const proposalI18n = {
+                untitledJob: @json(__('find-jobs.job_card.untitled_job')),
+                postedPrefix: @json(__('find-jobs.job_card.posted_prefix')),
+                budgetNotSpecified: @json(__('find-jobs.job_card.budget_not_specified')),
+                durationNotSpecified: @json(__('find-jobs.job_card.duration_not_specified')),
+                notSpecified: @json(__('find-jobs.job_card.not_specified')),
+                noDescription: @json(__('find-jobs.job_card.no_description')),
+                noSkillsRequired: @json(__('find-jobs.job_card.no_skills_required')),
+                general: @json(__('find-jobs.job_card.general')),
+                noSkillsSpecified: @json(__('find-jobs.js.no_skills_specified')),
+                experienceNotSpecified: @json(__('find-jobs.js.experience_not_specified')),
+                jobDetailsTitle: @json(__('find-jobs.modals.job_details.title')),
+                saveJob: @json(__('find-jobs.modals.job_details.save_job')),
+                unsaveJob: @json(__('find-jobs.modals.job_details.unsave_job')),
+                applyJob: @json(__('find-jobs.modals.job_details.apply_job')),
+                updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+                failedSaveJob: @json(__('find-jobs.js.failed_save_job')),
+                unableToSaveJob: @json(__('find-jobs.js.unable_save_job')),
+                proposalMinValidation: @json(__('find-jobs.js.proposal_min_validation', ['min' => ':min'])),
+                charactersCount: @json(__('find-jobs.js.characters_count', ['count' => ':count'])),
+                charactersCountMinimum: @json(__('find-jobs.js.characters_count_minimum', ['count' => ':count', 'min' => ':min'])),
+                validBidAmount: @json(__('find-jobs.js.valid_bid_amount')),
+                submitting: @json(__('find-jobs.js.submitting')),
+                submitProposal: @json(__('find-jobs.modals.proposal.submit_button')),
+                proposalSubmitted: @json(__('find-jobs.js.proposal_submitted')),
+                failedSubmitProposal: @json(__('find-jobs.js.failed_submit_proposal')),
+                failedSubmitProposalRetry: @json(__('find-jobs.js.failed_submit_proposal_retry')),
+                updating: @json(__('find-jobs.js.updating')),
+                updateProposalButton: @json(__('find-jobs.modals.update_proposal.submit_button')),
+                updateProposalLabel: @json(__('find-jobs.modals.job_details.update_proposal')),
+                proposalUpdated: @json(__('find-jobs.js.proposal_updated')),
+                failedUpdateProposal: @json(__('find-jobs.js.failed_update_proposal')),
+                failedUpdateProposalRetry: @json(__('find-jobs.js.failed_update_proposal_retry')),
+                withdrawConfirm: @json(__('find-jobs.js.withdraw_confirm')),
+                withdrawing: @json(__('find-jobs.js.withdrawing')),
+                withdrawProposalButton: @json(__('find-jobs.modals.update_proposal.withdraw_button')),
+                proposalWithdrawn: @json(__('find-jobs.js.proposal_withdrawn')),
+                failedWithdrawProposal: @json(__('find-jobs.js.failed_withdraw_proposal')),
+                failedWithdrawProposalRetry: @json(__('find-jobs.js.failed_withdraw_proposal_retry')),
+                failedFetchProposal: @json(__('find-jobs.js.failed_fetch_proposal')),
+                proposalNotFound: @json(__('find-jobs.js.proposal_not_found')),
+                failedLoadProposalDetails: @json(__('find-jobs.js.failed_load_proposal_details')),
+                timelineDefaultValue: @json(__('find-jobs.timeline.to_be_discussed_value')),
+                proposalsCount: @json(__('find-jobs.js.proposals_count', ['count' => ':count'])),
+                zeroProposal: @json(__('find-jobs.js.zero_proposal')),
+                time: {
+                    justNow: @json(__('find-jobs.time.just_now')),
+                    minuteAgo: @json(__('find-jobs.time.minute_ago', ['count' => ':count'])),
+                    minutesAgo: @json(__('find-jobs.time.minutes_ago', ['count' => ':count'])),
+                    hourAgo: @json(__('find-jobs.time.hour_ago', ['count' => ':count'])),
+                    hoursAgo: @json(__('find-jobs.time.hours_ago', ['count' => ':count'])),
+                    dayAgo: @json(__('find-jobs.time.day_ago', ['count' => ':count'])),
+                    daysAgo: @json(__('find-jobs.time.days_ago', ['count' => ':count'])),
+                    weekAgo: @json(__('find-jobs.time.week_ago', ['count' => ':count'])),
+                    weeksAgo: @json(__('find-jobs.time.weeks_ago', ['count' => ':count'])),
+                    monthAgo: @json(__('find-jobs.time.month_ago', ['count' => ':count'])),
+                    monthsAgo: @json(__('find-jobs.time.months_ago', ['count' => ':count'])),
+                },
+                durationMap: {
+                    less_than_1_month: @json(__('find-jobs.duration.less_than_1_month')),
+                    one_to_three_months: @json(__('find-jobs.duration.one_to_three_months')),
+                    three_to_six_months: @json(__('find-jobs.duration.three_to_six_months')),
+                    six_months_to_one_year: @json(__('find-jobs.duration.six_months_to_one_year')),
+                    more_than_one_year: @json(__('find-jobs.duration.more_than_one_year')),
+                },
+                experienceMap: {
+                    entry: @json(__('find-jobs.experience.entry')),
+                    intermediate: @json(__('find-jobs.experience.intermediate')),
+                    expert: @json(__('find-jobs.experience.expert')),
+                },
+                jobTypeMap: {
+                    fixed: @json(__('find-jobs.filters.fixed_price')),
+                    hourly: @json(__('find-jobs.filters.hourly')),
+                },
+                status: {
+                    open: @json(__('find-jobs.job_card.status.open')),
+                    closed: @json(__('find-jobs.job_card.status.closed')),
+                    in_progress: @json(__('find-jobs.job_card.status.in_progress')),
+                },
+                appliedStatus: {
+                    viewed: @json(__('find-jobs.js.applied_status.viewed')),
+                    shortlisted: @json(__('find-jobs.js.applied_status.shortlisted')),
+                    interviewing: @json(__('find-jobs.js.applied_status.interviewing')),
+                    revising: @json(__('find-jobs.js.applied_status.revising')),
+                    reapply: @json(__('find-jobs.js.applied_status.reapply')),
+                    offerAccepted: @json(__('find-jobs.js.applied_status.offer_accepted')),
+                },
+                updateStatusText: {
+                    updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+                    withdrawApplication: @json(__('find-jobs.js.update_status.withdraw_application')),
+                    updateApplication: @json(__('find-jobs.js.update_status.update_application')),
+                    updateRevision: @json(__('find-jobs.js.update_status.update_revision')),
+                },
+            };
+
+            const recommendedJobsById = new Map();
+            const jobDetailsUrlTemplate = @json(route('jobs.show', ['id' => '__ID__']));
+
+            const proposalModal = document.getElementById('proposal-modal');
+            const proposalBackdrop = document.getElementById('proposal-backdrop');
+            const proposalContent = document.getElementById('proposal-content');
+            const closeProposalModalBtn = document.getElementById('close-proposal-modal');
+            const cancelProposalModalBtn = document.getElementById('cancel-proposal-modal');
+            const proposalForm = document.getElementById('proposal-form');
+            const minMaxBudget = document.getElementById('min_max_budget');
+            const submitProposalBtn = document.getElementById('submit-proposal-btn');
+            const submitProposalText = document.getElementById('submit-proposal-text');
+            const submitProposalLoading = document.getElementById('submitSpinner');
+            const proposalError = document.getElementById('proposal-error');
+            const proposalErrorText = document.getElementById('proposal-error-text');
+            const proposalUpdateModal = document.getElementById('proposal-update-modal');
+            const updateProposalBackdrop = document.getElementById('update-proposal-backdrop');
+            const updateProposalContent = document.getElementById('update-proposal-content');
+            const closeUpdateProposalModalBtn = document.getElementById('close-update-proposal-modal');
+            const cancelUpdateProposalModalBtn = document.getElementById('cancel-proposal-update-modal');
+            const updateProposalForm = document.getElementById('update-proposal-form');
+            const updateMinMaxBudget = document.getElementById('update-min_max_budget');
+            const submitUpdateProposalBtn = document.getElementById('submit-update-proposal-btn');
+            const submitUpdateProposalText = document.getElementById('submit-update-proposal-text');
+            const submitUpdateProposalLoading = document.getElementById('update-submitSpinner');
+            const submitWithdrawProposalBtn = document.getElementById('submit-withdraw-proposal-btn');
+            const submitWithdrawProposalText = document.getElementById('submit-withdraw-proposal-text');
+            const submitWithdrawProposalLoading = document.getElementById('withdraw-submitSpinner');
+            const updateProposalError = document.getElementById('update-proposal-error');
+            const updateProposalErrorText = document.getElementById('update-proposal-error-text');
+            const jobDetailsModal = document.getElementById('job-details-modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const modalContent = document.getElementById('modal-content');
+            const closeModalBtn = document.getElementById('close-modal');
+            const cancelModalBtn = document.getElementById('cancel-modal');
+            const applyJobBtn = document.getElementById('apply-job-btn');
+            const updateJobBtn = document.getElementById('update-job-btn');
+            const saveJobBtn = document.getElementById('save-job-btn');
+
+            let currentJobForProposal = null;
 
             // Function to format date
             function formatDate(dateString) {
@@ -713,6 +988,1085 @@
                 }
             }
 
+            function formatBudgetRange(minUsd, maxUsd) {
+                const minAmount = parseFloat(minUsd);
+                const maxAmount = parseFloat(maxUsd);
+
+                if (!Number.isFinite(minAmount) || !Number.isFinite(maxAmount)) {
+                    return proposalI18n.budgetNotSpecified;
+                }
+
+                return `$${minAmount.toLocaleString()} - $${maxAmount.toLocaleString()}`;
+            }
+
+            function formatTimeAgo(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+
+                if (diffInSeconds < 60) return proposalI18n.time.justNow;
+                if (diffInSeconds < 3600) {
+                    const minutes = Math.floor(diffInSeconds / 60);
+                    const template = minutes === 1 ? proposalI18n.time.minuteAgo : proposalI18n.time.minutesAgo;
+                    return template.replace(':count', minutes);
+                }
+                if (diffInSeconds < 86400) {
+                    const hours = Math.floor(diffInSeconds / 3600);
+                    const template = hours === 1 ? proposalI18n.time.hourAgo : proposalI18n.time.hoursAgo;
+                    return template.replace(':count', hours);
+                }
+                if (diffInSeconds < 604800) {
+                    const days = Math.floor(diffInSeconds / 86400);
+                    const template = days === 1 ? proposalI18n.time.dayAgo : proposalI18n.time.daysAgo;
+                    return template.replace(':count', days);
+                }
+                if (diffInSeconds < 2592000) {
+                    const weeks = Math.floor(diffInSeconds / 604800);
+                    const template = weeks === 1 ? proposalI18n.time.weekAgo : proposalI18n.time.weeksAgo;
+                    return template.replace(':count', weeks);
+                }
+                const months = Math.floor(diffInSeconds / 2592000);
+                const template = months === 1 ? proposalI18n.time.monthAgo : proposalI18n.time.monthsAgo;
+                return template.replace(':count', months);
+            }
+
+            function formatDuration(duration) {
+                if (!duration) return proposalI18n.notSpecified;
+
+                const durationMap = {
+                    less_than_1_month: proposalI18n.durationMap.less_than_1_month,
+                    '1_to_3_months': proposalI18n.durationMap.one_to_three_months,
+                    '3_to_6_months': proposalI18n.durationMap.three_to_six_months,
+                    '6_months_to_1_year': proposalI18n.durationMap.six_months_to_one_year,
+                    more_than_1_year: proposalI18n.durationMap.more_than_one_year
+                };
+
+                return durationMap[duration] || duration.replace(/_/g, ' ');
+            }
+
+            function formatExperienceLevel(experience) {
+                if (!experience) return proposalI18n.notSpecified;
+
+                const experienceMap = {
+                    entry: proposalI18n.experienceMap.entry,
+                    intermediate: proposalI18n.experienceMap.intermediate,
+                    expert: proposalI18n.experienceMap.expert
+                };
+
+                return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
+            }
+
+            function getApplyButtonConfig(appliedStatus) {
+                if (!appliedStatus || appliedStatus === 'withdrawn') {
+                    return {
+                        label: freelancerI18n.applyNow,
+                        disabled: false,
+                        mode: 'apply'
+                    };
+                }
+
+                if (appliedStatus === 'rejected') {
+                    return {
+                        label: proposalI18n.appliedStatus.reapply,
+                        disabled: false,
+                        mode: 'apply'
+                    };
+                }
+
+                if (appliedStatus === 'accepted') {
+                    return {
+                        label: proposalI18n.appliedStatus.offerAccepted,
+                        disabled: true,
+                        mode: 'none'
+                    };
+                }
+
+                return {
+                    label: proposalI18n.updateProposalLabel,
+                    disabled: false,
+                    mode: 'update'
+                };
+            }
+
+            function updateCharCounter() {
+                const text = this.value || '';
+                const length = text.length;
+                const minLength = 100;
+
+                let counter = this.nextElementSibling;
+                if (!counter || !counter.classList.contains('char-counter')) {
+                    counter = document.createElement('div');
+                    counter.className = 'char-counter text-xs text-right mt-1';
+                    this.parentNode.insertBefore(counter, this.nextElementSibling);
+                }
+
+                counter.className = 'char-counter text-xs text-right mt-1';
+
+                if (length < minLength) {
+                    counter.classList.add('text-red-500');
+                    counter.textContent = proposalI18n.charactersCountMinimum.replace(':count', length).replace(
+                        ':min',
+                        minLength);
+                } else if (length < 150) {
+                    counter.classList.add('text-amber-500');
+                    counter.textContent = proposalI18n.charactersCount.replace(':count', length);
+                } else {
+                    counter.classList.add('text-emerald-500');
+                    counter.textContent = proposalI18n.charactersCount.replace(':count', length);
+                }
+            }
+
+            function updateUpdateCharCounter() {
+                const text = this.value || '';
+                const length = text.length;
+                const minLength = 100;
+
+                let counter = this.nextElementSibling;
+                if (!counter || !counter.classList.contains('char-counter')) {
+                    counter = document.createElement('div');
+                    counter.className = 'char-counter text-xs text-right mt-1';
+                    this.parentNode.insertBefore(counter, this.nextElementSibling);
+                }
+
+                counter.className = 'char-counter text-xs text-right mt-1';
+
+                if (length < minLength) {
+                    counter.classList.add('text-red-500');
+                    counter.textContent = proposalI18n.charactersCountMinimum.replace(':count', length).replace(
+                        ':min',
+                        minLength);
+                } else if (length < 150) {
+                    counter.classList.add('text-amber-500');
+                    counter.textContent = proposalI18n.charactersCount.replace(':count', length);
+                } else {
+                    counter.classList.add('text-emerald-500');
+                    counter.textContent = proposalI18n.charactersCount.replace(':count', length);
+                }
+            }
+
+            function showProposalError(message) {
+                if (!proposalError || !proposalErrorText) {
+                    return;
+                }
+
+                proposalErrorText.textContent = message;
+                proposalError.classList.remove('hidden');
+            }
+
+            function hideProposalError() {
+                if (!proposalError) {
+                    return;
+                }
+
+                proposalError.classList.add('hidden');
+            }
+
+            function showUpdateProposalError(message) {
+                if (!updateProposalError || !updateProposalErrorText) {
+                    return;
+                }
+
+                updateProposalErrorText.textContent = message;
+                updateProposalError.classList.remove('hidden');
+            }
+
+            function hideUpdateProposalError() {
+                if (!updateProposalError) {
+                    return;
+                }
+
+                updateProposalError.classList.add('hidden');
+            }
+
+            function validateProposalForm(formData) {
+                const errors = [];
+
+                const proposalTextValue = formData.get('proposal_text')?.trim() || '';
+                if (proposalTextValue.length < 100) {
+                    errors.push(proposalI18n.proposalMinValidation.replace(':min', 100));
+                }
+
+                const bidAmount = parseFloat(formData.get('bid_amount'));
+                if (!bidAmount || bidAmount <= 0) {
+                    errors.push(proposalI18n.validBidAmount);
+                }
+
+                return errors;
+            }
+
+            function validateUpdateProposalForm(formData) {
+                const errors = [];
+
+                const proposalTextValue = formData.get('proposal_text')?.trim() || '';
+                if (proposalTextValue.length < 100) {
+                    errors.push(proposalI18n.proposalMinValidation.replace(':min', 100));
+                }
+
+                const bidAmount = parseFloat(formData.get('bid_amount'));
+                if (!bidAmount || bidAmount <= 0) {
+                    errors.push(proposalI18n.validBidAmount);
+                }
+
+                return errors;
+            }
+
+            function showToast(message, type = 'success') {
+                const existingToasts = document.querySelectorAll('.custom-toast');
+                existingToasts.forEach(toast => toast.remove());
+
+                const toast = document.createElement('div');
+                toast.className =
+                    `custom-toast fixed bottom-4 right-3 px-4 py-3 rounded-md shadow-md text-white font-medium transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-400' : type === 'error' ? 'bg-red-400' : 'bg-blue-400'}`;
+                toast.textContent = message;
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateY(0)';
+                }, 10);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.remove();
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            function openProposalModal(job) {
+                if (!proposalModal || !proposalForm) {
+                    return;
+                }
+
+                currentJobForProposal = job;
+
+                const jobTitleElement = document.getElementById('proposal-job-title');
+                const jobIdInput = document.getElementById('proposal-job-id');
+                const proposalText = document.getElementById('proposal-text');
+                const bidAmount = document.getElementById('bid-amount');
+
+                if (jobTitleElement) {
+                    jobTitleElement.textContent = job.title || proposalI18n.untitledJob;
+                }
+                if (jobIdInput) {
+                    jobIdInput.value = job.id;
+                }
+
+                proposalForm.reset();
+                hideProposalError();
+
+                if (proposalText) {
+                    proposalText.addEventListener('input', updateCharCounter);
+                    updateCharCounter.call(proposalText);
+                }
+
+                const minBudget = parseFloat(job.budget_min);
+                const maxBudget = parseFloat(job.budget_max);
+                if (bidAmount) {
+                    if (Number.isFinite(minBudget)) {
+                        bidAmount.min = String(minBudget);
+                        bidAmount.value = minBudget;
+                    } else {
+                        bidAmount.removeAttribute('min');
+                        bidAmount.value = '';
+                    }
+
+                    if (Number.isFinite(maxBudget)) {
+                        bidAmount.max = String(maxBudget);
+                    } else {
+                        bidAmount.removeAttribute('max');
+                    }
+                }
+
+                if (minMaxBudget) {
+                    minMaxBudget.textContent = formatBudgetRange(job.budget_min, job.budget_max);
+                }
+
+                proposalModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                void proposalModal.offsetWidth;
+
+                setTimeout(() => {
+                    if (proposalBackdrop) {
+                        proposalBackdrop.classList.remove('opacity-0');
+                        proposalBackdrop.classList.add('opacity-100');
+                    }
+                }, 10);
+
+                setTimeout(() => {
+                    if (proposalContent) {
+                        proposalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                        proposalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                    }
+                }, 10);
+            }
+
+            function closeProposalModal() {
+                if (!proposalModal) {
+                    return;
+                }
+
+                if (proposalContent) {
+                    proposalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                    proposalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                }
+
+                if (proposalBackdrop) {
+                    proposalBackdrop.classList.remove('opacity-100');
+                    proposalBackdrop.classList.add('opacity-0');
+                }
+
+                setTimeout(() => {
+                    proposalModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    currentJobForProposal = null;
+
+                    const proposalText = document.getElementById('proposal-text');
+                    if (proposalText) {
+                        proposalText.removeEventListener('input', updateCharCounter);
+
+                        const existingCounter = proposalText.nextElementSibling;
+                        if (existingCounter && existingCounter.classList.contains('char-counter')) {
+                            existingCounter.remove();
+                        }
+                    }
+
+                    proposalForm?.reset();
+                }, 300);
+            }
+
+            async function openUpdateProposalModal(job, proposal) {
+                if (!proposalUpdateModal || !updateProposalForm) {
+                    return;
+                }
+
+                const updateJobTitle = document.getElementById('update-proposal-job-title');
+                const updateJobIdInput = document.getElementById('update-proposal-job-id');
+                const updateProposalIdInput = document.getElementById('update-proposal-id');
+                const updateProposalText = document.getElementById('update-proposal-text');
+                const updateBidAmount = document.getElementById('update-bid-amount');
+                const updateEstimatedTimeline = document.getElementById('update-estimated-timeline');
+
+                if (updateJobTitle) {
+                    updateJobTitle.textContent = job.title || proposalI18n.untitledJob;
+                }
+                if (updateJobIdInput) {
+                    updateJobIdInput.value = job.id;
+                }
+
+                if (proposal && updateProposalIdInput) {
+                    updateProposalIdInput.value = proposal.id;
+                }
+
+                if (proposal && updateProposalText) {
+                    updateProposalText.value = proposal.proposal_text || '';
+                }
+
+                if (updateBidAmount) {
+                    updateBidAmount.value = proposal?.bid_amount ?? job.budget_min ?? '';
+                    if (job.budget_min) {
+                        updateBidAmount.min = String(job.budget_min);
+                    } else {
+                        updateBidAmount.removeAttribute('min');
+                    }
+
+                    if (job.budget_max) {
+                        updateBidAmount.max = String(job.budget_max);
+                    } else {
+                        updateBidAmount.removeAttribute('max');
+                    }
+                }
+
+                if (updateEstimatedTimeline) {
+                    updateEstimatedTimeline.value = proposal?.estimated_timeline || proposalI18n
+                        .timelineDefaultValue;
+                }
+
+                if (updateMinMaxBudget) {
+                    updateMinMaxBudget.textContent = formatBudgetRange(job.budget_min, job.budget_max);
+                }
+
+                hideUpdateProposalError();
+
+                if (updateProposalText) {
+                    updateProposalText.addEventListener('input', updateUpdateCharCounter);
+                    updateUpdateCharCounter.call(updateProposalText);
+                }
+
+                proposalUpdateModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                void proposalUpdateModal.offsetWidth;
+
+                setTimeout(() => {
+                    if (updateProposalBackdrop) {
+                        updateProposalBackdrop.classList.remove('opacity-0');
+                        updateProposalBackdrop.classList.add('opacity-100');
+                    }
+                }, 10);
+
+                setTimeout(() => {
+                    if (updateProposalContent) {
+                        updateProposalContent.classList.remove('translate-y-4', 'opacity-0',
+                            'scale-95');
+                        updateProposalContent.classList.add('translate-y-0', 'opacity-100',
+                            'scale-100');
+                    }
+                }, 10);
+            }
+
+            function closeUpdateProposalModal() {
+                if (!proposalUpdateModal) {
+                    return;
+                }
+
+                if (updateProposalContent) {
+                    updateProposalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                    updateProposalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                }
+
+                if (updateProposalBackdrop) {
+                    updateProposalBackdrop.classList.remove('opacity-100');
+                    updateProposalBackdrop.classList.add('opacity-0');
+                }
+
+                setTimeout(() => {
+                    proposalUpdateModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+
+                    const updateProposalText = document.getElementById('update-proposal-text');
+                    if (updateProposalText) {
+                        updateProposalText.removeEventListener('input', updateUpdateCharCounter);
+
+                        const existingCounter = updateProposalText.nextElementSibling;
+                        if (existingCounter && existingCounter.classList.contains('char-counter')) {
+                            existingCounter.remove();
+                        }
+                    }
+
+                    updateProposalForm?.reset();
+                }, 300);
+            }
+
+            async function openUpdateProposalForJob(job) {
+                try {
+                    const response = await fetch(`/jobs/proposals/${job.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute(
+                                    'content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(proposalI18n.failedFetchProposal);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        openUpdateProposalModal(job, data.proposal);
+                    } else {
+                        throw new Error(data.message || proposalI18n.proposalNotFound);
+                    }
+                } catch (error) {
+                    console.error('Error fetching proposal:', error);
+                    showToast(error.message || proposalI18n.failedLoadProposalDetails, 'error');
+                }
+            }
+
+            async function toggleSaveJob(jobId) {
+                try {
+                    const response = await fetch('{{ route('find-jobs.toggle-save') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            job_id: jobId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || proposalI18n.failedSaveJob);
+                    }
+
+                    if (data.success) {
+                        return data;
+                    }
+
+                    throw new Error(data.message || proposalI18n.unableToSaveJob);
+                } catch (error) {
+                    showToast(error.message || proposalI18n.unableToSaveJob, 'error');
+                    return {
+                        success: false,
+                        message: error.message
+                    };
+                }
+            }
+
+            function displayJobDetails(job) {
+                const modalJobTitle = document.getElementById('modal-job-title');
+                if (!modalJobTitle) {
+                    return;
+                }
+
+                modalJobTitle.setAttribute('data-job-id', job.id);
+                const modalTitle = document.getElementById('modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = proposalI18n.jobDetailsTitle;
+                }
+                modalJobTitle.textContent = job.title || proposalI18n.untitledJob;
+
+                const statusBadge = document.getElementById('modal-status');
+                if (statusBadge) {
+                    statusBadge.textContent = proposalI18n.status[job.status] || proposalI18n.status.open;
+                    if (job.status === 'open') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none';
+                    } else if (job.status === 'closed') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 select-none';
+                    } else if (job.status === 'in_progress') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none';
+                    } else {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 select-none';
+                    }
+                }
+
+                const categoryBadge = document.getElementById('modal-category');
+                if (categoryBadge) {
+                    categoryBadge.textContent = (job.category && job.category.name) ? job.category.name :
+                        proposalI18n.general;
+                }
+
+                const postedTime = document.getElementById('modal-posted-time');
+                if (postedTime) {
+                    postedTime.textContent = `${proposalI18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
+                }
+
+                const budgetElement = document.getElementById('modal-budget');
+                if (budgetElement) {
+                    budgetElement.textContent = formatBudgetRange(job.budget_min, job.budget_max);
+                }
+
+                const typeElement = document.getElementById('modal-type');
+                if (typeElement) {
+                    typeElement.textContent = job.type ?
+                        (proposalI18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type
+                            .slice(1)) :
+                        proposalI18n.notSpecified;
+                }
+
+                const durationText = formatDuration(job.duration);
+                const modalDuration = document.getElementById('modal-duration');
+                if (modalDuration) {
+                    modalDuration.textContent = job.duration ? durationText : proposalI18n.durationNotSpecified;
+                }
+                const modalDetailDuration = document.getElementById('modal-detail-duration');
+                if (modalDetailDuration) {
+                    modalDetailDuration.textContent = job.duration ? durationText : proposalI18n.notSpecified;
+                }
+
+                const experienceText = job.experience_level ? formatExperienceLevel(job.experience_level) :
+                    proposalI18n.experienceNotSpecified;
+                const modalExperience = document.getElementById('modal-experience');
+                if (modalExperience) {
+                    modalExperience.textContent = experienceText;
+                }
+                const modalDetailExperience = document.getElementById('modal-detail-experience');
+                if (modalDetailExperience) {
+                    modalDetailExperience.textContent = job.experience_level ? experienceText : proposalI18n
+                        .notSpecified;
+                }
+
+                const descriptionElement = document.getElementById('modal-description');
+                if (descriptionElement) {
+                    descriptionElement.innerHTML = job.description ?
+                        job.description.replace(/\n/g, '<br>') :
+                        `<p class="text-gray-500 italic">${proposalI18n.noDescription}</p>`;
+                }
+
+                const skillsContainer = document.getElementById('modal-skills');
+                if (skillsContainer) {
+                    skillsContainer.innerHTML = '';
+                    if (job.skills_required && job.skills_required.length > 0) {
+                        let skills = job.skills_required;
+                        if (typeof skills === 'string') {
+                            try {
+                                skills = JSON.parse(skills);
+                            } catch (e) {
+                                skills = skills.split(',').map(skill => skill.trim());
+                            }
+                        }
+
+                        skills.forEach(skill => {
+                            const skillElement = document.createElement('span');
+                            skillElement.className =
+                                'px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100 select-none';
+                            skillElement.textContent = skill;
+                            skillsContainer.appendChild(skillElement);
+                        });
+                    } else {
+                        const noSkillElement = document.createElement('span');
+                        noSkillElement.className =
+                            'px-3 py-1.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-full border border-gray-200';
+                        noSkillElement.textContent = proposalI18n.noSkillsSpecified;
+                        skillsContainer.appendChild(noSkillElement);
+                    }
+                }
+
+                const detailTypeElement = document.getElementById('modal-detail-type');
+                if (detailTypeElement) {
+                    detailTypeElement.textContent = job.type ?
+                        (proposalI18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type
+                            .slice(1)) :
+                        proposalI18n.notSpecified;
+                }
+
+                const proposalsElement = document.getElementById('modal-proposals-count');
+                if (proposalsElement) {
+                    proposalsElement.textContent = job.proposals_count ?
+                        proposalI18n.proposalsCount.replace(':count', job.proposals_count) :
+                        proposalI18n.zeroProposal;
+                }
+
+                if (saveJobBtn) {
+                    saveJobBtn.textContent = job.is_saved ? proposalI18n.unsaveJob : proposalI18n.saveJob;
+                }
+
+                function updateButtonsBasedOnStatus(jobData) {
+                    if (!applyJobBtn || !updateJobBtn) {
+                        return;
+                    }
+
+                    applyJobBtn.classList.remove('hidden');
+                    applyJobBtn.classList.add('inline-flex');
+                    updateJobBtn.classList.remove('inline-flex');
+                    updateJobBtn.classList.add('hidden');
+                    applyJobBtn.disabled = false;
+                    applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+
+                    if (!jobData.applied_status) {
+                        applyJobBtn.textContent = proposalI18n.applyJob;
+                        updateJobBtn.classList.remove('inline-flex');
+                        updateJobBtn.classList.add('hidden');
+                        return;
+                    }
+
+                    const statusConfig = {
+                        submitted: {
+                            showApply: false,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateProposal
+                        },
+                        viewed: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.viewed,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateProposal
+                        },
+                        shortlisted: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.shortlisted,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.withdrawApplication
+                        },
+                        interviewing: {
+                            showApply: false,
+                            applyText: proposalI18n.appliedStatus.interviewing,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateApplication
+                        },
+                        revising: {
+                            showApply: false,
+                            applyText: proposalI18n.appliedStatus.revising,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateRevision
+                        },
+                        rejected: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.reapply,
+                            applyEnabled: true,
+                            showUpdate: false
+                        },
+                        accepted: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.offerAccepted,
+                            applyEnabled: false,
+                            showUpdate: false
+                        },
+                        withdrawn: {
+                            showApply: true,
+                            applyText: proposalI18n.applyJob,
+                            applyEnabled: true,
+                            showUpdate: false
+                        }
+                    };
+
+                    const config = statusConfig[jobData.applied_status] || statusConfig.submitted;
+
+                    if (config.showApply) {
+                        applyJobBtn.classList.remove('hidden');
+                        applyJobBtn.classList.add('inline-flex');
+                        applyJobBtn.textContent = config.applyText;
+                        applyJobBtn.disabled = !config.applyEnabled;
+
+                        if (!config.applyEnabled) {
+                            applyJobBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                        } else {
+                            applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                        }
+                    } else {
+                        applyJobBtn.classList.remove('inline-flex');
+                        applyJobBtn.classList.add('hidden');
+                    }
+
+                    if (config.showUpdate) {
+                        updateJobBtn.classList.remove('hidden');
+                        updateJobBtn.classList.add('inline-flex');
+                        updateJobBtn.textContent = config.updateText;
+                    } else {
+                        updateJobBtn.classList.remove('inline-flex');
+                        updateJobBtn.classList.add('hidden');
+                    }
+                }
+
+                updateButtonsBasedOnStatus(job);
+
+                if (applyJobBtn) {
+                    applyJobBtn.onclick = () => {
+                        closeJobDetailsModal();
+                        openProposalModal(job);
+                    };
+                }
+
+                if (updateJobBtn) {
+                    updateJobBtn.onclick = async () => {
+                        closeJobDetailsModal();
+                        await openUpdateProposalForJob(job);
+                    };
+                }
+
+                if (saveJobBtn) {
+                    saveJobBtn.onclick = async () => {
+                        const result = await toggleSaveJob(job.id);
+                        if (result.success) {
+                            const isSaved = result.action === 'saved';
+                            saveJobBtn.textContent = isSaved ? proposalI18n.unsaveJob : proposalI18n
+                                .saveJob;
+                            const jobData = recommendedJobsById.get(job.id);
+                            if (jobData) {
+                                jobData.is_saved = isSaved;
+                                recommendedJobsById.set(job.id, jobData);
+                            }
+                        }
+                    };
+                }
+            }
+
+            function openJobDetailsModal(job) {
+                if (!jobDetailsModal) {
+                    return;
+                }
+
+                displayJobDetails(job);
+                jobDetailsModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                void jobDetailsModal.offsetWidth;
+
+                setTimeout(() => {
+                    if (modalBackdrop) {
+                        modalBackdrop.classList.remove('opacity-0');
+                        modalBackdrop.classList.add('opacity-100');
+                    }
+                }, 10);
+
+                setTimeout(() => {
+                    if (modalContent) {
+                        modalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                        modalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                    }
+                }, 10);
+            }
+
+            function closeJobDetailsModal() {
+                if (!jobDetailsModal) {
+                    return;
+                }
+
+                if (modalContent) {
+                    modalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                    modalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.classList.remove('opacity-100');
+                    modalBackdrop.classList.add('opacity-0');
+                }
+
+                setTimeout(() => {
+                    jobDetailsModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
+            async function submitProposal(event) {
+                event.preventDefault();
+
+                if (!proposalForm) {
+                    return;
+                }
+
+                const formData = new FormData(proposalForm);
+                const errors = validateProposalForm(formData);
+                if (errors.length > 0) {
+                    showProposalError(errors.join(', '));
+                    return;
+                }
+
+                if (submitProposalText) {
+                    submitProposalText.textContent = proposalI18n.submitting;
+                }
+                submitProposalLoading?.classList.remove('hidden');
+                if (submitProposalBtn) {
+                    submitProposalBtn.disabled = true;
+                }
+                hideProposalError();
+
+                try {
+                    const response = await fetch('{{ route('find-jobs.proposals-save') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute(
+                                    'content'),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || proposalI18n.failedSubmitProposal);
+                    }
+
+                    if (data.success) {
+                        showToast(proposalI18n.proposalSubmitted);
+                        closeProposalModal();
+                        fetchRecommendedJobs();
+                    } else {
+                        throw new Error(data.message || proposalI18n.failedSubmitProposal);
+                    }
+                } catch (error) {
+                    console.error('Error submitting proposal:', error);
+                    showProposalError(error.message || proposalI18n.failedSubmitProposalRetry);
+                } finally {
+                    if (submitProposalText) {
+                        submitProposalText.textContent = proposalI18n.submitProposal;
+                    }
+                    submitProposalLoading?.classList.add('hidden');
+                    if (submitProposalBtn) {
+                        submitProposalBtn.disabled = false;
+                    }
+                }
+            }
+
+            async function submitUpdateProposal(event) {
+                event.preventDefault();
+
+                if (!updateProposalForm) {
+                    return;
+                }
+
+                const formData = new FormData(updateProposalForm);
+                const proposalId = document.getElementById('update-proposal-id')?.value;
+                if (!proposalId) {
+                    showUpdateProposalError(proposalI18n.failedUpdateProposal);
+                    return;
+                }
+
+                const errors = validateUpdateProposalForm(formData);
+                if (errors.length > 0) {
+                    showUpdateProposalError(errors.join(', '));
+                    return;
+                }
+
+                if (submitUpdateProposalText) {
+                    submitUpdateProposalText.textContent = proposalI18n.updating;
+                }
+                submitUpdateProposalLoading?.classList.remove('hidden');
+                if (submitUpdateProposalBtn) {
+                    submitUpdateProposalBtn.disabled = true;
+                }
+                hideUpdateProposalError();
+
+                try {
+                    const response = await fetch(`/jobs/proposals/${proposalId}/update`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute(
+                                    'content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            proposal_text: formData.get('proposal_text'),
+                            bid_amount: formData.get('bid_amount'),
+                            estimated_timeline: formData.get('estimated_timeline')
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || proposalI18n.failedUpdateProposal);
+                    }
+
+                    if (data.success) {
+                        showToast(proposalI18n.proposalUpdated);
+                        closeUpdateProposalModal();
+                        fetchRecommendedJobs();
+                    } else {
+                        throw new Error(data.message || proposalI18n.failedUpdateProposal);
+                    }
+                } catch (error) {
+                    console.error('Error updating proposal:', error);
+                    showUpdateProposalError(error.message || proposalI18n.failedUpdateProposalRetry);
+                } finally {
+                    if (submitUpdateProposalText) {
+                        submitUpdateProposalText.textContent = proposalI18n.updateProposalButton;
+                    }
+                    submitUpdateProposalLoading?.classList.add('hidden');
+                    if (submitUpdateProposalBtn) {
+                        submitUpdateProposalBtn.disabled = false;
+                    }
+                }
+            }
+
+            async function withdrawProposal(event) {
+                event.preventDefault();
+
+                const jobId = document.getElementById('update-proposal-job-id')?.value;
+                if (!jobId) {
+                    showUpdateProposalError(proposalI18n.failedWithdrawProposal);
+                    return;
+                }
+
+                if (!confirm(proposalI18n.withdrawConfirm)) {
+                    return;
+                }
+
+                if (submitWithdrawProposalText) {
+                    submitWithdrawProposalText.textContent = proposalI18n.withdrawing;
+                }
+                submitWithdrawProposalLoading?.classList.remove('hidden');
+                if (submitWithdrawProposalBtn) {
+                    submitWithdrawProposalBtn.disabled = true;
+                }
+                hideUpdateProposalError();
+
+                try {
+                    const response = await fetch(`/jobs/proposals/${jobId}/withdraw`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute(
+                                    'content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || proposalI18n.failedWithdrawProposal);
+                    }
+
+                    if (data.success) {
+                        showToast(proposalI18n.proposalWithdrawn);
+                        closeUpdateProposalModal();
+                        fetchRecommendedJobs();
+                    } else {
+                        throw new Error(data.message || proposalI18n.failedWithdrawProposal);
+                    }
+                } catch (error) {
+                    console.error('Error withdrawing proposal:', error);
+                    showUpdateProposalError(error.message || proposalI18n.failedWithdrawProposalRetry);
+                } finally {
+                    if (submitWithdrawProposalText) {
+                        submitWithdrawProposalText.textContent = proposalI18n.withdrawProposalButton;
+                    }
+                    submitWithdrawProposalLoading?.classList.add('hidden');
+                    if (submitWithdrawProposalBtn) {
+                        submitWithdrawProposalBtn.disabled = false;
+                    }
+                }
+            }
+
+            if (closeProposalModalBtn) {
+                closeProposalModalBtn.addEventListener('click', closeProposalModal);
+            }
+            if (cancelProposalModalBtn) {
+                cancelProposalModalBtn.addEventListener('click', closeProposalModal);
+            }
+            proposalForm?.addEventListener('submit', submitProposal);
+            proposalBackdrop?.addEventListener('click', closeProposalModal);
+            if (closeUpdateProposalModalBtn) {
+                closeUpdateProposalModalBtn.addEventListener('click', closeUpdateProposalModal);
+            }
+            if (cancelUpdateProposalModalBtn) {
+                cancelUpdateProposalModalBtn.addEventListener('click', closeUpdateProposalModal);
+            }
+            updateProposalForm?.addEventListener('submit', submitUpdateProposal);
+            submitWithdrawProposalBtn?.addEventListener('click', withdrawProposal);
+            updateProposalBackdrop?.addEventListener('click', closeUpdateProposalModal);
+            closeModalBtn?.addEventListener('click', closeJobDetailsModal);
+            cancelModalBtn?.addEventListener('click', closeJobDetailsModal);
+            modalBackdrop?.addEventListener('click', closeJobDetailsModal);
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && proposalModal && !proposalModal.classList.contains(
+                        'hidden')) {
+                    closeProposalModal();
+                }
+                if (event.key === 'Escape' && proposalUpdateModal && !proposalUpdateModal.classList
+                    .contains(
+                        'hidden')) {
+                    closeUpdateProposalModal();
+                }
+                if (event.key === 'Escape' && jobDetailsModal && !jobDetailsModal.classList.contains(
+                        'hidden')) {
+                    closeJobDetailsModal();
+                }
+            });
+
             // Function to render job cards
             function renderJobCards(jobs) {
                 const container = document.getElementById('recommended-jobs-container');
@@ -726,6 +2080,8 @@
                 // Clear existing content
                 container.innerHTML = '';
 
+                recommendedJobsById.clear();
+
                 if (jobs.length === 0) {
                     container.innerHTML = `
                     <div class="text-center py-8">
@@ -736,6 +2092,7 @@
                 }
 
                 jobs.forEach(job => {
+                    recommendedJobsById.set(job.id, job);
                     const jobCard = document.createElement('div');
                     jobCard.className =
                         'project-card p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200';
@@ -762,11 +2119,17 @@
                     // Get category name from server response
                     const categoryName = job.category?.name || freelancerI18n.general;
 
+                    const applyConfig = getApplyButtonConfig(job.applied_status);
+                    const applyButtonClasses = applyConfig.disabled ?
+                        'ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-300 text-sm font-medium select-none opacity-50 cursor-not-allowed' :
+                        'ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none';
+                    const applyButtonDisabled = applyConfig.disabled ? 'disabled' : '';
+
                     jobCard.innerHTML = `
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded select-none">
                                     ${categoryName}
                                 </span>
                                 <span class="text-gray-500 text-xs">&bull; ${formatDate(job.created_at)}</span>
@@ -782,15 +2145,21 @@
                                     <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
-                                    <span class="text-gray-600 text-sm ml-1">${job.average_rating || '4.5'}</span>
-                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '12'} ${freelancerI18n.reviews})</span>
+                                    <span class="text-gray-600 text-sm ml-1">${job.average_rating || '0.0'}</span>
+                                    <span class="text-gray-500 text-sm ml-2">(${job.review_count || '0  '} ${freelancerI18n.reviews})</span>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="applyForJob(${job.id})"
-                            class="ml-4 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition duration-300 text-sm font-medium select-none">
-                            ${freelancerI18n.applyNow}
-                        </button>
+                        <div class="flex flex-col items-end gap-2">
+                            <button onclick="applyForJob(${job.id})" ${applyButtonDisabled}
+                                class="${applyButtonClasses}">
+                                ${applyConfig.label}
+                            </button>
+                            <button onclick="viewJobDetails(${job.id})"
+                                class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                ${freelancerI18n.viewJob}
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -843,12 +2212,90 @@
                 }
             }
 
+            window.viewJobDetails = async function(jobId) {
+                const job = recommendedJobsById.get(jobId);
+                if (job) {
+                    openJobDetailsModal(job);
+                    return;
+                }
+
+                if (!jobDetailsUrlTemplate) {
+                    showToast(freelancerI18n.fetchFailed, 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(jobDetailsUrlTemplate.replace('__ID__', String(jobId)), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success || !data.job) {
+                        throw new Error(data.message || freelancerI18n.fetchFailed);
+                    }
+
+                    recommendedJobsById.set(data.job.id, data.job);
+                    openJobDetailsModal(data.job);
+                } catch (error) {
+                    console.error('Error fetching job details:', error);
+                    showToast(error.message || freelancerI18n.fetchFailed, 'error');
+                }
+            };
+
             // Function to handle job application
-            window.applyForJob = function(jobId) {
-                // Implement your job application logic here
-                alert(freelancerI18n.applyingForJobId.replace(':id', String(jobId)));
-                // You can redirect to application page or open a modal
-                // window.location.href = `/jobs/${jobId}/apply`;
+            window.applyForJob = async function(jobId) {
+                const job = recommendedJobsById.get(jobId);
+                if (job) {
+                    const applyConfig = getApplyButtonConfig(job.applied_status);
+                    if (applyConfig.disabled || applyConfig.mode === 'none') {
+                        return;
+                    }
+
+                    if (applyConfig.mode === 'update') {
+                        await openUpdateProposalForJob(job);
+                    } else {
+                        openProposalModal(job);
+                    }
+                    return;
+                }
+
+                if (!jobDetailsUrlTemplate) {
+                    showToast(freelancerI18n.fetchFailed, 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(jobDetailsUrlTemplate.replace('__ID__', String(jobId)), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success || !data.job) {
+                        throw new Error(data.message || freelancerI18n.fetchFailed);
+                    }
+
+                    const applyConfig = getApplyButtonConfig(data.job?.applied_status);
+                    if (applyConfig.disabled || applyConfig.mode === 'none') {
+                        return;
+                    }
+
+                    if (applyConfig.mode === 'update') {
+                        await openUpdateProposalForJob(data.job);
+                    } else {
+                        openProposalModal(data.job);
+                    }
+                } catch (error) {
+                    console.error('Error fetching job details for proposal:', error);
+                    showToast(error.message || freelancerI18n.fetchFailed, 'error');
+                }
             };
 
             // Fetch jobs when page loads (only for freelancers)
@@ -858,4 +2305,3 @@
         });
     </script>
 @endpush
-
