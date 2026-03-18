@@ -132,17 +132,23 @@ class FindJobsController extends Controller
             ->get();
 
         $appliedStatuses = [];
+        $savedJobIds = [];
         if (Auth::check() && $jobs->isNotEmpty()) {
             $appliedStatuses = AppliedJob::where('user_id', Auth::id())
                 ->whereIn('job_id', $jobs->pluck('id'))
                 ->pluck('status', 'job_id')
+                ->toArray();
+
+            $savedJobIds = FavoriteJob::where('user_id', Auth::id())
+                ->whereIn('job_id', $jobs->pluck('id'))
+                ->pluck('job_id')
                 ->toArray();
         }
 
         return response()->json(
             [
                 'success' => true,
-                'jobs' => $this->transformJobs($jobs, false, [], $appliedStatuses)
+                'jobs' => $this->transformJobs($jobs, false, $savedJobIds, $appliedStatuses)
             ]
         );
     }
@@ -522,7 +528,7 @@ class FindJobsController extends Controller
             $clientUser = $job->client?->user;
             $clientName = $clientUser?->name ?? 'Unknown Client';
 
-            $jobData['is_saved'] = $savedSet[$job->id] ?? $isSaved;
+            $jobData['is_saved'] = $isSaved || isset($savedSet[$job->id]);
             $jobData['applied_status'] = $appliedStatuses[$job->id] ?? null;
             $jobData['client_profile'] = [
                 'id' => $clientUser?->id,

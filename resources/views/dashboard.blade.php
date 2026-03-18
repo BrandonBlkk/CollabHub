@@ -806,6 +806,8 @@
             </div>
         </div>
     </div>
+
+    <x-job-details-modal />
 @endsection
 
 @push('scripts')
@@ -825,6 +827,7 @@
                 noDescription: @json(__('dashboard.freelancer.recommended_jobs.no_description')),
                 reviews: @json(__('dashboard.freelancer.recommended_jobs.reviews')),
                 applyNow: @json(__('dashboard.freelancer.recommended_jobs.apply_now')),
+                viewJob: @json(__('find-jobs.job_card.view_job')),
                 networkError: @json(__('dashboard.freelancer.recommended_jobs.network_error')),
                 fetchFailed: @json(__('dashboard.freelancer.recommended_jobs.fetch_failed')),
                 failedLoad: @json(__('dashboard.freelancer.recommended_jobs.failed_load')),
@@ -834,7 +837,21 @@
 
             const proposalI18n = {
                 untitledJob: @json(__('find-jobs.job_card.untitled_job')),
+                postedPrefix: @json(__('find-jobs.job_card.posted_prefix')),
                 budgetNotSpecified: @json(__('find-jobs.job_card.budget_not_specified')),
+                durationNotSpecified: @json(__('find-jobs.job_card.duration_not_specified')),
+                notSpecified: @json(__('find-jobs.job_card.not_specified')),
+                noDescription: @json(__('find-jobs.job_card.no_description')),
+                noSkillsRequired: @json(__('find-jobs.job_card.no_skills_required')),
+                noSkillsSpecified: @json(__('find-jobs.js.no_skills_specified')),
+                experienceNotSpecified: @json(__('find-jobs.js.experience_not_specified')),
+                jobDetailsTitle: @json(__('find-jobs.modals.job_details.title')),
+                saveJob: @json(__('find-jobs.modals.job_details.save_job')),
+                unsaveJob: @json(__('find-jobs.modals.job_details.unsave_job')),
+                applyJob: @json(__('find-jobs.modals.job_details.apply_job')),
+                updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+                failedSaveJob: @json(__('find-jobs.js.failed_save_job')),
+                unableToSaveJob: @json(__('find-jobs.js.unable_save_job')),
                 proposalMinValidation: @json(__('find-jobs.js.proposal_min_validation', ['min' => ':min'])),
                 charactersCount: @json(__('find-jobs.js.characters_count', ['count' => ':count'])),
                 charactersCountMinimum: @json(__('find-jobs.js.characters_count_minimum', ['count' => ':count', 'min' => ':min'])),
@@ -860,6 +877,42 @@
                 proposalNotFound: @json(__('find-jobs.js.proposal_not_found')),
                 failedLoadProposalDetails: @json(__('find-jobs.js.failed_load_proposal_details')),
                 timelineDefaultValue: @json(__('find-jobs.timeline.to_be_discussed_value')),
+                proposalsCount: @json(__('find-jobs.js.proposals_count', ['count' => ':count'])),
+                zeroProposal: @json(__('find-jobs.js.zero_proposal')),
+                time: {
+                    justNow: @json(__('find-jobs.time.just_now')),
+                    minuteAgo: @json(__('find-jobs.time.minute_ago', ['count' => ':count'])),
+                    minutesAgo: @json(__('find-jobs.time.minutes_ago', ['count' => ':count'])),
+                    hourAgo: @json(__('find-jobs.time.hour_ago', ['count' => ':count'])),
+                    hoursAgo: @json(__('find-jobs.time.hours_ago', ['count' => ':count'])),
+                    dayAgo: @json(__('find-jobs.time.day_ago', ['count' => ':count'])),
+                    daysAgo: @json(__('find-jobs.time.days_ago', ['count' => ':count'])),
+                    weekAgo: @json(__('find-jobs.time.week_ago', ['count' => ':count'])),
+                    weeksAgo: @json(__('find-jobs.time.weeks_ago', ['count' => ':count'])),
+                    monthAgo: @json(__('find-jobs.time.month_ago', ['count' => ':count'])),
+                    monthsAgo: @json(__('find-jobs.time.months_ago', ['count' => ':count'])),
+                },
+                durationMap: {
+                    less_than_1_month: @json(__('find-jobs.duration.less_than_1_month')),
+                    one_to_three_months: @json(__('find-jobs.duration.one_to_three_months')),
+                    three_to_six_months: @json(__('find-jobs.duration.three_to_six_months')),
+                    six_months_to_one_year: @json(__('find-jobs.duration.six_months_to_one_year')),
+                    more_than_one_year: @json(__('find-jobs.duration.more_than_one_year')),
+                },
+                experienceMap: {
+                    entry: @json(__('find-jobs.experience.entry')),
+                    intermediate: @json(__('find-jobs.experience.intermediate')),
+                    expert: @json(__('find-jobs.experience.expert')),
+                },
+                jobTypeMap: {
+                    fixed: @json(__('find-jobs.filters.fixed_price')),
+                    hourly: @json(__('find-jobs.filters.hourly')),
+                },
+                status: {
+                    open: @json(__('find-jobs.job_card.status.open')),
+                    closed: @json(__('find-jobs.job_card.status.closed')),
+                    in_progress: @json(__('find-jobs.job_card.status.in_progress')),
+                },
                 appliedStatus: {
                     viewed: @json(__('find-jobs.js.applied_status.viewed')),
                     shortlisted: @json(__('find-jobs.js.applied_status.shortlisted')),
@@ -867,6 +920,12 @@
                     revising: @json(__('find-jobs.js.applied_status.revising')),
                     reapply: @json(__('find-jobs.js.applied_status.reapply')),
                     offerAccepted: @json(__('find-jobs.js.applied_status.offer_accepted')),
+                },
+                updateStatusText: {
+                    updateProposal: @json(__('find-jobs.modals.job_details.update_proposal')),
+                    withdrawApplication: @json(__('find-jobs.js.update_status.withdraw_application')),
+                    updateApplication: @json(__('find-jobs.js.update_status.update_application')),
+                    updateRevision: @json(__('find-jobs.js.update_status.update_revision')),
                 },
             };
 
@@ -900,6 +959,14 @@
             const submitWithdrawProposalLoading = document.getElementById('withdraw-submitSpinner');
             const updateProposalError = document.getElementById('update-proposal-error');
             const updateProposalErrorText = document.getElementById('update-proposal-error-text');
+            const jobDetailsModal = document.getElementById('job-details-modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const modalContent = document.getElementById('modal-content');
+            const closeModalBtn = document.getElementById('close-modal');
+            const cancelModalBtn = document.getElementById('cancel-modal');
+            const applyJobBtn = document.getElementById('apply-job-btn');
+            const updateJobBtn = document.getElementById('update-job-btn');
+            const saveJobBtn = document.getElementById('save-job-btn');
 
             let currentJobForProposal = null;
 
@@ -929,6 +996,63 @@
                 }
 
                 return `$${minAmount.toLocaleString()} - $${maxAmount.toLocaleString()}`;
+            }
+
+            function formatTimeAgo(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+
+                if (diffInSeconds < 60) return proposalI18n.time.justNow;
+                if (diffInSeconds < 3600) {
+                    const minutes = Math.floor(diffInSeconds / 60);
+                    const template = minutes === 1 ? proposalI18n.time.minuteAgo : proposalI18n.time.minutesAgo;
+                    return template.replace(':count', minutes);
+                }
+                if (diffInSeconds < 86400) {
+                    const hours = Math.floor(diffInSeconds / 3600);
+                    const template = hours === 1 ? proposalI18n.time.hourAgo : proposalI18n.time.hoursAgo;
+                    return template.replace(':count', hours);
+                }
+                if (diffInSeconds < 604800) {
+                    const days = Math.floor(diffInSeconds / 86400);
+                    const template = days === 1 ? proposalI18n.time.dayAgo : proposalI18n.time.daysAgo;
+                    return template.replace(':count', days);
+                }
+                if (diffInSeconds < 2592000) {
+                    const weeks = Math.floor(diffInSeconds / 604800);
+                    const template = weeks === 1 ? proposalI18n.time.weekAgo : proposalI18n.time.weeksAgo;
+                    return template.replace(':count', weeks);
+                }
+                const months = Math.floor(diffInSeconds / 2592000);
+                const template = months === 1 ? proposalI18n.time.monthAgo : proposalI18n.time.monthsAgo;
+                return template.replace(':count', months);
+            }
+
+            function formatDuration(duration) {
+                if (!duration) return proposalI18n.notSpecified;
+
+                const durationMap = {
+                    less_than_1_month: proposalI18n.durationMap.less_than_1_month,
+                    '1_to_3_months': proposalI18n.durationMap.one_to_three_months,
+                    '3_to_6_months': proposalI18n.durationMap.three_to_six_months,
+                    '6_months_to_1_year': proposalI18n.durationMap.six_months_to_one_year,
+                    more_than_1_year: proposalI18n.durationMap.more_than_one_year
+                };
+
+                return durationMap[duration] || duration.replace(/_/g, ' ');
+            }
+
+            function formatExperienceLevel(experience) {
+                if (!experience) return proposalI18n.notSpecified;
+
+                const experienceMap = {
+                    entry: proposalI18n.experienceMap.entry,
+                    intermediate: proposalI18n.experienceMap.intermediate,
+                    expert: proposalI18n.experienceMap.expert
+                };
+
+                return experienceMap[experience] || experience.charAt(0).toUpperCase() + experience.slice(1);
             }
 
             function getApplyButtonConfig(appliedStatus) {
@@ -1360,6 +1484,347 @@
                 }
             }
 
+            async function toggleSaveJob(jobId) {
+                try {
+                    const response = await fetch('{{ route('find-jobs.toggle-save') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            job_id: jobId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || proposalI18n.failedSaveJob);
+                    }
+
+                    if (data.success) {
+                        return data;
+                    }
+
+                    throw new Error(data.message || proposalI18n.unableToSaveJob);
+                } catch (error) {
+                    showToast(error.message || proposalI18n.unableToSaveJob, 'error');
+                    return {
+                        success: false,
+                        message: error.message
+                    };
+                }
+            }
+
+            function displayJobDetails(job) {
+                const modalJobTitle = document.getElementById('modal-job-title');
+                if (!modalJobTitle) {
+                    return;
+                }
+
+                modalJobTitle.setAttribute('data-job-id', job.id);
+                const modalTitle = document.getElementById('modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = proposalI18n.jobDetailsTitle;
+                }
+                modalJobTitle.textContent = job.title || proposalI18n.untitledJob;
+
+                const statusBadge = document.getElementById('modal-status');
+                if (statusBadge) {
+                    statusBadge.textContent = proposalI18n.status[job.status] || proposalI18n.status.open;
+                    if (job.status === 'open') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none';
+                    } else if (job.status === 'closed') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 select-none';
+                    } else if (job.status === 'in_progress') {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none';
+                    } else {
+                        statusBadge.className =
+                            'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 select-none';
+                    }
+                }
+
+                const postedTime = document.getElementById('modal-posted-time');
+                if (postedTime) {
+                    postedTime.textContent = `${proposalI18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
+                }
+
+                const budgetElement = document.getElementById('modal-budget');
+                if (budgetElement) {
+                    budgetElement.textContent = formatBudgetRange(job.budget_min, job.budget_max);
+                }
+
+                const typeElement = document.getElementById('modal-type');
+                if (typeElement) {
+                    typeElement.textContent = job.type ?
+                        (proposalI18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type
+                            .slice(1)) :
+                        proposalI18n.notSpecified;
+                }
+
+                const durationText = formatDuration(job.duration);
+                const modalDuration = document.getElementById('modal-duration');
+                if (modalDuration) {
+                    modalDuration.textContent = job.duration ? durationText : proposalI18n.durationNotSpecified;
+                }
+                const modalDetailDuration = document.getElementById('modal-detail-duration');
+                if (modalDetailDuration) {
+                    modalDetailDuration.textContent = job.duration ? durationText : proposalI18n.notSpecified;
+                }
+
+                const experienceText = job.experience_level ? formatExperienceLevel(job.experience_level) :
+                    proposalI18n.experienceNotSpecified;
+                const modalExperience = document.getElementById('modal-experience');
+                if (modalExperience) {
+                    modalExperience.textContent = experienceText;
+                }
+                const modalDetailExperience = document.getElementById('modal-detail-experience');
+                if (modalDetailExperience) {
+                    modalDetailExperience.textContent = job.experience_level ? experienceText : proposalI18n.notSpecified;
+                }
+
+                const descriptionElement = document.getElementById('modal-description');
+                if (descriptionElement) {
+                    descriptionElement.innerHTML = job.description ?
+                        job.description.replace(/\n/g, '<br>') :
+                        `<p class="text-gray-500 italic">${proposalI18n.noDescription}</p>`;
+                }
+
+                const skillsContainer = document.getElementById('modal-skills');
+                if (skillsContainer) {
+                    skillsContainer.innerHTML = '';
+                    if (job.skills_required && job.skills_required.length > 0) {
+                        let skills = job.skills_required;
+                        if (typeof skills === 'string') {
+                            try {
+                                skills = JSON.parse(skills);
+                            } catch (e) {
+                                skills = skills.split(',').map(skill => skill.trim());
+                            }
+                        }
+
+                        skills.forEach(skill => {
+                            const skillElement = document.createElement('span');
+                            skillElement.className =
+                                'px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100 select-none';
+                            skillElement.textContent = skill;
+                            skillsContainer.appendChild(skillElement);
+                        });
+                    } else {
+                        const noSkillElement = document.createElement('span');
+                        noSkillElement.className =
+                            'px-3 py-1.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-full border border-gray-200';
+                        noSkillElement.textContent = proposalI18n.noSkillsSpecified;
+                        skillsContainer.appendChild(noSkillElement);
+                    }
+                }
+
+                const detailTypeElement = document.getElementById('modal-detail-type');
+                if (detailTypeElement) {
+                    detailTypeElement.textContent = job.type ?
+                        (proposalI18n.jobTypeMap[job.type] || job.type.charAt(0).toUpperCase() + job.type
+                            .slice(1)) :
+                        proposalI18n.notSpecified;
+                }
+
+                const proposalsElement = document.getElementById('modal-proposals-count');
+                if (proposalsElement) {
+                    proposalsElement.textContent = job.proposals_count ?
+                        proposalI18n.proposalsCount.replace(':count', job.proposals_count) :
+                        proposalI18n.zeroProposal;
+                }
+
+                if (saveJobBtn) {
+                    saveJobBtn.textContent = job.is_saved ? proposalI18n.unsaveJob : proposalI18n.saveJob;
+                }
+
+                function updateButtonsBasedOnStatus(jobData) {
+                    if (!applyJobBtn || !updateJobBtn) {
+                        return;
+                    }
+
+                    applyJobBtn.classList.remove('hidden');
+                    applyJobBtn.classList.add('inline-flex');
+                    updateJobBtn.classList.remove('inline-flex');
+                    updateJobBtn.classList.add('hidden');
+                    applyJobBtn.disabled = false;
+                    applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+
+                    if (!jobData.applied_status) {
+                        applyJobBtn.textContent = proposalI18n.applyJob;
+                        updateJobBtn.classList.remove('inline-flex');
+                        updateJobBtn.classList.add('hidden');
+                        return;
+                    }
+
+                    const statusConfig = {
+                        submitted: {
+                            showApply: false,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateProposal
+                        },
+                        viewed: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.viewed,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateProposal
+                        },
+                        shortlisted: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.shortlisted,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.withdrawApplication
+                        },
+                        interviewing: {
+                            showApply: false,
+                            applyText: proposalI18n.appliedStatus.interviewing,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateApplication
+                        },
+                        revising: {
+                            showApply: false,
+                            applyText: proposalI18n.appliedStatus.revising,
+                            applyEnabled: false,
+                            showUpdate: true,
+                            updateText: proposalI18n.updateStatusText.updateRevision
+                        },
+                        rejected: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.reapply,
+                            applyEnabled: true,
+                            showUpdate: false
+                        },
+                        accepted: {
+                            showApply: true,
+                            applyText: proposalI18n.appliedStatus.offerAccepted,
+                            applyEnabled: false,
+                            showUpdate: false
+                        },
+                        withdrawn: {
+                            showApply: true,
+                            applyText: proposalI18n.applyJob,
+                            applyEnabled: true,
+                            showUpdate: false
+                        }
+                    };
+
+                    const config = statusConfig[jobData.applied_status] || statusConfig.submitted;
+
+                    if (config.showApply) {
+                        applyJobBtn.classList.remove('hidden');
+                        applyJobBtn.classList.add('inline-flex');
+                        applyJobBtn.textContent = config.applyText;
+                        applyJobBtn.disabled = !config.applyEnabled;
+
+                        if (!config.applyEnabled) {
+                            applyJobBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                        } else {
+                            applyJobBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                        }
+                    } else {
+                        applyJobBtn.classList.remove('inline-flex');
+                        applyJobBtn.classList.add('hidden');
+                    }
+
+                    if (config.showUpdate) {
+                        updateJobBtn.classList.remove('hidden');
+                        updateJobBtn.classList.add('inline-flex');
+                        updateJobBtn.textContent = config.updateText;
+                    } else {
+                        updateJobBtn.classList.remove('inline-flex');
+                        updateJobBtn.classList.add('hidden');
+                    }
+                }
+
+                updateButtonsBasedOnStatus(job);
+
+                if (applyJobBtn) {
+                    applyJobBtn.onclick = () => {
+                        closeJobDetailsModal();
+                        openProposalModal(job);
+                    };
+                }
+
+                if (updateJobBtn) {
+                    updateJobBtn.onclick = async () => {
+                        closeJobDetailsModal();
+                        await openUpdateProposalForJob(job);
+                    };
+                }
+
+                if (saveJobBtn) {
+                    saveJobBtn.onclick = async () => {
+                        const result = await toggleSaveJob(job.id);
+                        if (result.success) {
+                            const isSaved = result.action === 'saved';
+                            saveJobBtn.textContent = isSaved ? proposalI18n.unsaveJob : proposalI18n.saveJob;
+                            const jobData = recommendedJobsById.get(job.id);
+                            if (jobData) {
+                                jobData.is_saved = isSaved;
+                                recommendedJobsById.set(job.id, jobData);
+                            }
+                        }
+                    };
+                }
+            }
+
+            function openJobDetailsModal(job) {
+                if (!jobDetailsModal) {
+                    return;
+                }
+
+                displayJobDetails(job);
+                jobDetailsModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                void jobDetailsModal.offsetWidth;
+
+                setTimeout(() => {
+                    if (modalBackdrop) {
+                        modalBackdrop.classList.remove('opacity-0');
+                        modalBackdrop.classList.add('opacity-100');
+                    }
+                }, 10);
+
+                setTimeout(() => {
+                    if (modalContent) {
+                        modalContent.classList.remove('translate-y-4', 'opacity-0', 'scale-95');
+                        modalContent.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                    }
+                }, 10);
+            }
+
+            function closeJobDetailsModal() {
+                if (!jobDetailsModal) {
+                    return;
+                }
+
+                if (modalContent) {
+                    modalContent.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                    modalContent.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.classList.remove('opacity-100');
+                    modalBackdrop.classList.add('opacity-0');
+                }
+
+                setTimeout(() => {
+                    jobDetailsModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
             async function submitProposal(event) {
                 event.preventDefault();
 
@@ -1573,6 +2038,9 @@
             updateProposalForm?.addEventListener('submit', submitUpdateProposal);
             submitWithdrawProposalBtn?.addEventListener('click', withdrawProposal);
             updateProposalBackdrop?.addEventListener('click', closeUpdateProposalModal);
+            closeModalBtn?.addEventListener('click', closeJobDetailsModal);
+            cancelModalBtn?.addEventListener('click', closeJobDetailsModal);
+            modalBackdrop?.addEventListener('click', closeJobDetailsModal);
 
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape' && proposalModal && !proposalModal.classList.contains(
@@ -1583,6 +2051,10 @@
                     .contains(
                         'hidden')) {
                     closeUpdateProposalModal();
+                }
+                if (event.key === 'Escape' && jobDetailsModal && !jobDetailsModal.classList.contains(
+                        'hidden')) {
+                    closeJobDetailsModal();
                 }
             });
 
@@ -1669,10 +2141,16 @@
                                 </div>
                             </div>
                         </div>
-                        <button onclick="applyForJob(${job.id})" ${applyButtonDisabled}
-                            class="${applyButtonClasses}">
-                            ${applyConfig.label}
-                        </button>
+                        <div class="flex flex-col items-end gap-2">
+                            <button onclick="applyForJob(${job.id})" ${applyButtonDisabled}
+                                class="${applyButtonClasses}">
+                                ${applyConfig.label}
+                            </button>
+                            <button onclick="viewJobDetails(${job.id})"
+                                class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                ${freelancerI18n.viewJob}
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -1724,6 +2202,40 @@
                     }
                 }
             }
+
+            window.viewJobDetails = async function(jobId) {
+                const job = recommendedJobsById.get(jobId);
+                if (job) {
+                    openJobDetailsModal(job);
+                    return;
+                }
+
+                if (!jobDetailsUrlTemplate) {
+                    showToast(freelancerI18n.fetchFailed, 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(jobDetailsUrlTemplate.replace('__ID__', String(jobId)), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success || !data.job) {
+                        throw new Error(data.message || freelancerI18n.fetchFailed);
+                    }
+
+                    recommendedJobsById.set(data.job.id, data.job);
+                    openJobDetailsModal(data.job);
+                } catch (error) {
+                    console.error('Error fetching job details:', error);
+                    showToast(error.message || freelancerI18n.fetchFailed, 'error');
+                }
+            };
 
             // Function to handle job application
             window.applyForJob = async function(jobId) {
