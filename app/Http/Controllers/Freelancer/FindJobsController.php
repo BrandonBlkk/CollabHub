@@ -461,7 +461,10 @@ class FindJobsController extends Controller
     public function getJob(Request $request, $id)
     {
         try {
-            $job = Job::with('client.user:id,name,profile_photo_path,location')
+            $job = Job::with([
+                'category:id,name',
+                'client.user:id,name,profile_photo_path,location',
+            ])
                 ->withCount(['proposals', 'views'])
                 ->findOrFail($id);
 
@@ -487,6 +490,10 @@ class FindJobsController extends Controller
                     'description' => $job->description,
                     'type' => $job->type,
                     'status' => $job->status,
+                    'category' => $job->category ? [
+                        'id' => $job->category->id,
+                        'name' => $job->category->name,
+                    ] : null,
                     'budget_min' => $job->budget_min,
                     'budget_max' => $job->budget_max,
                     'duration' => $job->duration,

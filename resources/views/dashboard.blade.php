@@ -843,6 +843,7 @@
                 notSpecified: @json(__('find-jobs.job_card.not_specified')),
                 noDescription: @json(__('find-jobs.job_card.no_description')),
                 noSkillsRequired: @json(__('find-jobs.job_card.no_skills_required')),
+                general: @json(__('find-jobs.job_card.general')),
                 noSkillsSpecified: @json(__('find-jobs.js.no_skills_specified')),
                 experienceNotSpecified: @json(__('find-jobs.js.experience_not_specified')),
                 jobDetailsTitle: @json(__('find-jobs.modals.job_details.title')),
@@ -1550,6 +1551,12 @@
                     }
                 }
 
+                const categoryBadge = document.getElementById('modal-category');
+                if (categoryBadge) {
+                    categoryBadge.textContent = (job.category && job.category.name) ? job.category.name :
+                        proposalI18n.general;
+                }
+
                 const postedTime = document.getElementById('modal-posted-time');
                 if (postedTime) {
                     postedTime.textContent = `${proposalI18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
@@ -1586,7 +1593,8 @@
                 }
                 const modalDetailExperience = document.getElementById('modal-detail-experience');
                 if (modalDetailExperience) {
-                    modalDetailExperience.textContent = job.experience_level ? experienceText : proposalI18n.notSpecified;
+                    modalDetailExperience.textContent = job.experience_level ? experienceText : proposalI18n
+                        .notSpecified;
                 }
 
                 const descriptionElement = document.getElementById('modal-description');
@@ -1767,7 +1775,8 @@
                         const result = await toggleSaveJob(job.id);
                         if (result.success) {
                             const isSaved = result.action === 'saved';
-                            saveJobBtn.textContent = isSaved ? proposalI18n.unsaveJob : proposalI18n.saveJob;
+                            saveJobBtn.textContent = isSaved ? proposalI18n.unsaveJob : proposalI18n
+                                .saveJob;
                             const jobData = recommendedJobsById.get(job.id);
                             if (jobData) {
                                 jobData.is_saved = isSaved;
@@ -2120,7 +2129,7 @@
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded select-none">
                                     ${categoryName}
                                 </span>
                                 <span class="text-gray-500 text-xs">&bull; ${formatDate(job.created_at)}</span>

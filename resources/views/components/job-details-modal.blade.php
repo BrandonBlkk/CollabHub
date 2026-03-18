@@ -14,6 +14,8 @@
                         <div class="mt-2">
                             <div class="flex items-center space-x-2">
                                 <span id="modal-status" class="px-2 py-1 rounded-full text-xs font-medium"></span>
+                                <span id="modal-category"
+                                    class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded select-none"></span>
                                 <span class="text-sm text-gray-500" id="modal-posted-time"></span>
                             </div>
                         </div>

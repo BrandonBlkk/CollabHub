@@ -308,10 +308,16 @@
                                 </div>
                             </div>
                             <div class="flex items-center justify-between mb-2">
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
-                                    {{ __('find-jobs.job_card.status.open') }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 select-none status-badge">
+                                        {{ __('find-jobs.job_card.status.open') }}
+                                    </span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded select-none category-badge">
+                                        {{ __('find-jobs.job_card.general') }}
+                                    </span>
+                                </div>
                                 <div class="flex items-center space-x-2">
                                     <span
                                         class="text-xs text-gray-500 posted-time">{{ __('find-jobs.job_card.posted_prefix') }}
@@ -373,8 +379,12 @@
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
                             <div class="flex items-center justify-between mb-2">
-                                <!-- Status Badge Skeleton -->
-                                <div class="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                                <div class="flex items-center gap-2">
+                                    <!-- Status Badge Skeleton -->
+                                    <div class="w-16 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                                    <!-- Category Badge Skeleton -->
+                                    <div class="w-20 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                                </div>
                                 <div class="flex items-center space-x-2">
                                     <!-- Posted Time Skeleton -->
                                     <div class="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
@@ -532,6 +542,7 @@
             untitledJob: @json(__('find-jobs.job_card.untitled_job')),
             noDescription: @json(__('find-jobs.job_card.no_description')),
             noSkillsRequired: @json(__('find-jobs.job_card.no_skills_required')),
+            general: @json(__('find-jobs.job_card.general')),
             budgetNotSpecified: @json(__('find-jobs.job_card.budget_not_specified')),
             durationNotSpecified: @json(__('find-jobs.job_card.duration_not_specified')),
             notSpecified: @json(__('find-jobs.job_card.not_specified')),
@@ -1174,6 +1185,11 @@
                 statusBadge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 select-none';
             }
 
+            const categoryBadge = document.getElementById('modal-category');
+            if (categoryBadge) {
+                categoryBadge.textContent = (job.category && job.category.name) ? job.category.name : i18n.general;
+            }
+
             // Set posted time
             document.getElementById('modal-posted-time').textContent =
                 `${i18n.postedPrefix} ${formatTimeAgo(job.created_at)}`;
@@ -1473,6 +1489,12 @@
                         statusBadge.className =
                             'px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none status-badge';
                     }
+                }
+
+                const categoryBadge = cardElement.querySelector('.category-badge');
+                if (categoryBadge) {
+                    categoryBadge.textContent = (job.category && job.category.name) ? job.category.name : i18n
+                        .general;
                 }
 
                 // Set posted time
