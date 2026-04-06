@@ -442,7 +442,30 @@ class JobController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $client = Auth::user()?->client;
+
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client account not found.'
+            ]);
+        }
+
+        $job = $client->jobs()->find($id);
+
+        if (!$job) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job not found.'
+            ]);
+        }
+
+        $job->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Job deleted successfully.'
+        ]);
     }
 
     private function calculateChangePercent(float|int $current, float|int $previous): float
