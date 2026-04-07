@@ -124,8 +124,7 @@
                             class="w-full px-4 py-3 focus:outline-none resize-none min-h-[200px] whitespace-pre-wrap"
                             data-placeholder="Describe the job in detail. Include responsibilities, expectations, and project goals...">
                         </div>
-                        <textarea id="job_description" name="description" rows="8"
-                            class="hidden">{{ old('description', $job?->description ?? '') }}</textarea>
+                        <textarea id="job_description" name="description" rows="8" class="hidden">{{ old('description', $job?->description ?? '') }}</textarea>
                     </div>
                     @error('description')
                         <p class="absolute -bottom-2 left-4 mt-1 text-xs text-red-600 bg-white">
@@ -147,8 +146,7 @@
                 <div id="typeOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="relative">
                         <input type="radio" name="type" value="fixed"
-                            {{ old('type', $job?->type ?? 'fixed') === 'fixed' ? 'checked' : '' }}
-                            class="peer sr-only">
+                            {{ old('type', $job?->type ?? 'fixed') === 'fixed' ? 'checked' : '' }} class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-200">
                             <div class="flex items-center">
@@ -167,8 +165,7 @@
                     </label>
                     <label class="relative">
                         <input type="radio" name="type" value="hourly"
-                            {{ old('type', $job?->type ?? '') === 'hourly' ? 'checked' : '' }}
-                            class="peer sr-only">
+                            {{ old('type', $job?->type ?? '') === 'hourly' ? 'checked' : '' }} class="peer sr-only">
                         <div
                             class="p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 peer-checked:border-blue-500 peer-checked:bg-blue-50">
                             <div class="flex items-center">
@@ -348,8 +345,7 @@
                 </label>
                 <input type="date" id="expires_at" name="expires_at"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    min="{{ date('Y-m-d') }}"
-                    value="{{ old('expires_at', $job?->expires_at?->format('Y-m-d')) }}">
+                    min="{{ date('Y-m-d') }}" value="{{ old('expires_at', $job?->expires_at?->format('Y-m-d')) }}">
                 <p class="text-gray-500 text-xs mt-2">Set a deadline for freelancer applications</p>
             </div>
 
@@ -397,7 +393,6 @@
             </div>
         </div>
 
-        <!-- Form Actions -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center justify-between select-none">
                 <button id="saveDraftBtn" type="button" onclick="saveAsDraft()"
@@ -409,6 +404,12 @@
                         class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium transition duration-200">
                         Preview
                     </button>
+                    @if ($isEdit)
+                        <button type="button" onclick="deleteJob()"
+                            class="px-6 py-3 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 text-sm font-medium transition duration-200">
+                            Delete
+                        </button>
+                    @endif
                     <button id="publishBtn" type="submit"
                         class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-black text-sm font-medium transition duration-200">
                         {{ $isEdit ? 'Update Job' : 'Publish Job' }}
@@ -461,6 +462,7 @@
 @push('scripts')
     <script>
         const isEditMode = @json($isEdit);
+        const jobId = @json($job?->id);
 
         // Skills Management
         let skills = @json(old('skills_required', $job?->skills_required ?? []));
@@ -527,7 +529,7 @@
                 skillElement.className =
                     'flex items-center bg-blue-50 text-blue-700 text-sm px-3 py-1.5 rounded-lg select-none';
                 skillElement.innerHTML = `
-                    ${skill}
+                    ${escapeHtml(skill)}
                     <button type="button" onclick="removeSkill(${index})" class="ml-2 text-blue-700 hover:text-blue-900">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -951,7 +953,7 @@
                                     </div>
                                     <input type="number" id="budget_min" name="budget_min" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 1000" value="${currentMin}">
+                                        placeholder="e.g., 1000" value="${escapeHtml(currentMin)}">
                                 </div>
                             </div>
                             <div>
@@ -964,7 +966,7 @@
                                     </div>
                                     <input type="number" id="budget_max" name="budget_max" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 5000" value="${currentMax}">
+                                        placeholder="e.g., 5000" value="${escapeHtml(currentMax)}">
                                 </div>
                             </div>
                         </div>
@@ -976,7 +978,7 @@
                     <div class="md:col-span-2">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="hourly_min" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="budget_min" class="block text-sm font-medium text-gray-700 mb-2">
                                     Minimum Hourly Rate ($/hr)
                                 </label>
                                 <div class="relative">
@@ -985,11 +987,11 @@
                                     </div>
                                     <input type="number" id="budget_min" name="budget_min" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 20" value="${currentMin}">
+                                        placeholder="e.g., 20" value="${escapeHtml(currentMin)}">
                                 </div>
                             </div>
                             <div>
-                                <label for="hourly_max" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="budget_max" class="block text-sm font-medium text-gray-700 mb-2">
                                     Maximum Hourly Rate ($/hr)
                                 </label>
                                 <div class="relative">
@@ -998,7 +1000,7 @@
                                     </div>
                                     <input type="number" id="budget_max" name="budget_max" min="0" step="0.01"
                                         class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="e.g., 50" value="${currentMax}">
+                                        placeholder="e.g., 50" value="${escapeHtml(currentMax)}">
                                 </div>
                             </div>
                         </div>
@@ -1034,7 +1036,7 @@
                         <span class="text-sm text-gray-500">Posted just now</span>
                     </div>
 
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">${formData.get('title') || 'Job Title'}</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">${escapeHtml(formData.get('title') || 'Job Title')}</h2>
 
                     <div class="prose max-w-none text-gray-600 mb-4">
                         ${renderFormattedDescription(formData.get('description'))}
@@ -1047,7 +1049,7 @@
             skills.forEach(skill => {
                 previewHTML += `
                     <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded">
-                        ${skill}
+                        ${escapeHtml(skill)}
                     </span>
                 `;
             });
@@ -1070,9 +1072,9 @@
 
             if (budgetMin && budgetMax) {
                 if (jobType === 'fixed') {
-                    previewHTML += `$${budgetMin} - $${budgetMax} (Fixed Price)`;
+                    previewHTML += `$${escapeHtml(budgetMin)} - $${escapeHtml(budgetMax)} (Fixed Price)`;
                 } else {
-                    previewHTML += `$${budgetMin} - $${budgetMax}/hr (Hourly)`;
+                    previewHTML += `$${escapeHtml(budgetMin)} - $${escapeHtml(budgetMax)}/hr (Hourly)`;
                 }
             } else {
                 previewHTML += 'Budget not specified';
@@ -1181,6 +1183,10 @@
         }
 
         function openPreviewModal() {
+            const previewModal = document.getElementById('previewModal');
+            const previewBackdrop = document.getElementById('previewBackdrop');
+            const previewModalContent = document.getElementById('previewModalContent');
+
             if (!previewModal || !previewBackdrop || !previewModalContent) {
                 return;
             }
@@ -1202,6 +1208,10 @@
         }
 
         function closePreview() {
+            const previewModal = document.getElementById('previewModal');
+            const previewBackdrop = document.getElementById('previewBackdrop');
+            const previewModalContent = document.getElementById('previewModalContent');
+
             if (!previewModal || !previewBackdrop || !previewModalContent) {
                 return;
             }
@@ -1441,7 +1451,7 @@
 
         function resetJobPostForm() {
             const form = document.getElementById('jobPostForm');
-            form.reset();
+            if (form) form.reset();
             clearFieldValidationErrors();
 
             skills = [];
@@ -1449,7 +1459,8 @@
             updateSkillsHiddenField();
             hideSkillSuggestions();
 
-            document.getElementById('job_status').value = 'open';
+            const statusInput = document.getElementById('job_status');
+            if (statusInput) statusInput.value = 'open';
             updateBudgetFields();
             setDescriptionEditorContent('');
             syncDescriptionFromEditor();
@@ -1460,6 +1471,64 @@
             submitForm('draft');
         }
 
+        // Delete job
+        async function deleteJob() {
+            if (!isEditMode || !jobId) {
+                showJobPostFeedback('error', 'No job to delete');
+                return;
+            }
+
+            if (isSubmittingJob) {
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+                return;
+            }
+
+            const form = document.getElementById('jobPostForm');
+            const csrfToken = form.querySelector('input[name="_token"]')?.value;
+
+            setJobSubmittingState(true);
+            clearJobPostFeedback();
+
+            try {
+                const response = await fetch(`/my-jobs/${jobId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    if (response.status === 422 && payload?.errors) {
+                        renderFieldValidationErrors(payload.errors);
+                        showJobPostFeedback('error', payload?.message || 'Validation failed. Please check the form.',
+                            false);
+                    } else {
+                        showJobPostFeedback('error', payload?.message || 'Failed to delete job');
+                    }
+                } else {
+                    showJobPostFeedback('success', payload?.message || 'Job deleted successfully');
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = payload?.redirect || '/my-jobs';
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Delete job error:', error);
+                showJobPostFeedback('error', error.message || 'Failed to delete job. Please try again.');
+            } finally {
+                setJobSubmittingState(false);
+            }
+        }
+
         // Submit form
         async function submitForm(status = 'open') {
             if (isSubmittingJob) {
@@ -1468,7 +1537,10 @@
 
             clearJobPostFeedback();
             clearFieldValidationErrors();
-            document.getElementById('job_status').value = status;
+
+            const statusInput = document.getElementById('job_status');
+            if (statusInput) statusInput.value = status;
+
             updateSkillsHiddenField();
             syncDescriptionFromEditor();
 
@@ -1508,8 +1580,12 @@
 
                 showJobPostFeedback('success', payload?.message || 'Job saved successfully.');
                 closePreview();
-                if (!isEditMode) {
-                    resetJobPostForm();
+
+                // If not in edit mode and not saving as draft, reset the form
+                if (!isEditMode && status !== 'draft') {
+                    setTimeout(() => {
+                        window.location.href = '/my-jobs';
+                    }, 1500);
                 }
             } catch (error) {
                 console.error('Job submit failed:', error);
@@ -1522,91 +1598,95 @@
         const jobPostForm = document.getElementById('jobPostForm');
 
         // Handle form submission
-        jobPostForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitForm('open');
-        });
+        if (jobPostForm) {
+            jobPostForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm('open');
+            });
 
-        jobPostForm.addEventListener('input', function(e) {
-            const target = e.target;
+            jobPostForm.addEventListener('input', function(e) {
+                const target = e.target;
 
-            if (target.id === 'job_title') {
-                clearFieldValidationError('title');
-            } else if (target.id === 'job_description' || target.id === 'job_description_editor') {
-                clearFieldValidationError('description');
-            } else if (target.id === 'budget_min') {
-                clearFieldValidationError('budget_min');
-            } else if (target.id === 'budget_max') {
-                clearFieldValidationError('budget_max');
-            }
-        });
+                if (target.id === 'job_title') {
+                    clearFieldValidationError('title');
+                } else if (target.id === 'job_description' || target.id === 'job_description_editor') {
+                    clearFieldValidationError('description');
+                } else if (target.id === 'budget_min') {
+                    clearFieldValidationError('budget_min');
+                } else if (target.id === 'budget_max') {
+                    clearFieldValidationError('budget_max');
+                }
+            });
 
-        jobPostForm.addEventListener('change', function(e) {
-            const target = e.target;
+            jobPostForm.addEventListener('change', function(e) {
+                const target = e.target;
 
-            if (target.name === 'type') {
-                clearFieldValidationError('type');
-            } else if (target.id === 'experience_level') {
-                clearFieldValidationError('experience_level');
-            } else if (target.id === 'duration') {
-                clearFieldValidationError('duration');
-            } else if (target.id === 'expires_at') {
-                clearFieldValidationError('expires_at');
-            } else if (target.id === 'category_id') {
-                clearFieldValidationError('category_id');
-            }
-        });
+                if (target.name === 'type') {
+                    clearFieldValidationError('type');
+                } else if (target.id === 'experience_level') {
+                    clearFieldValidationError('experience_level');
+                } else if (target.id === 'duration') {
+                    clearFieldValidationError('duration');
+                } else if (target.id === 'expires_at') {
+                    clearFieldValidationError('expires_at');
+                } else if (target.id === 'category_id') {
+                    clearFieldValidationError('category_id');
+                }
+            });
+        }
 
         const skillInput = document.getElementById('skillInput');
         const skillsSearchWrapper = document.getElementById('skillsSearchWrapper');
 
-        skillInput.addEventListener('input', function() {
-            clearFieldValidationError('skills_required');
-            debounceSkillSearch(this.value);
-        });
+        if (skillInput) {
+            skillInput.addEventListener('input', function() {
+                clearFieldValidationError('skills_required');
+                debounceSkillSearch(this.value);
+            });
 
-        skillInput.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (skillSearchResults.length === 0) {
+            skillInput.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (skillSearchResults.length === 0) {
+                        return;
+                    }
+
+                    activeSkillSuggestionIndex = Math.min(activeSkillSuggestionIndex + 1, skillSearchResults
+                        .length - 1);
+                    updateActiveSuggestion();
                     return;
                 }
 
-                activeSkillSuggestionIndex = Math.min(activeSkillSuggestionIndex + 1, skillSearchResults.length -
-                    1);
-                updateActiveSuggestion();
-                return;
-            }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (skillSearchResults.length === 0) {
+                        return;
+                    }
 
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (skillSearchResults.length === 0) {
+                    activeSkillSuggestionIndex = Math.max(activeSkillSuggestionIndex - 1, 0);
+                    updateActiveSuggestion();
                     return;
                 }
 
-                activeSkillSuggestionIndex = Math.max(activeSkillSuggestionIndex - 1, 0);
-                updateActiveSuggestion();
-                return;
-            }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
 
-            if (e.key === 'Enter') {
-                e.preventDefault();
+                    if (activeSkillSuggestionIndex >= 0) {
+                        selectSkillSuggestion(activeSkillSuggestionIndex);
+                        return;
+                    }
 
-                if (activeSkillSuggestionIndex >= 0) {
-                    selectSkillSuggestion(activeSkillSuggestionIndex);
+                    if (skillSearchResults.length > 0) {
+                        selectSkillSuggestion(0);
+                    }
                     return;
                 }
 
-                if (skillSearchResults.length > 0) {
-                    selectSkillSuggestion(0);
+                if (e.key === 'Escape') {
+                    hideSkillSuggestions();
                 }
-                return;
-            }
-
-            if (e.key === 'Escape') {
-                hideSkillSuggestions();
-            }
-        });
+            });
+        }
 
         document.addEventListener('click', function(e) {
             if (skillsSearchWrapper && !skillsSearchWrapper.contains(e.target)) {
@@ -1633,14 +1713,19 @@
         // Close preview modal when clicking the dark overlay
         const previewModal = document.getElementById('previewModal');
         const previewBackdrop = document.getElementById('previewBackdrop');
-        const previewModalContent = document.getElementById('previewModalContent');
 
-        previewBackdrop?.addEventListener('click', closePreview);
+        if (previewBackdrop) {
+            previewBackdrop.addEventListener('click', closePreview);
+        }
 
         // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar')?.classList.toggle('active');
-        });
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) sidebar.classList.toggle('active');
+            });
+        }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(event) {
